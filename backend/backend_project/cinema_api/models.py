@@ -18,7 +18,7 @@ class HallTypes(models.Model):
 class CinemaHalls(models.Model):
     hall_number = models.IntegerField()
     cinema = models.ForeignKey(Cinemas, on_delete=models.CASCADE)
-    type = models.ManyToManyField(HallTypes, blank=False)
+    types = models.ManyToManyField(HallTypes, blank=False)
 
     def __str__(self):
         return str(self.cinema) + " " + str(self.hall_number)
@@ -36,19 +36,22 @@ class Movies(models.Model):
     description = models.TextField()
     release_date = models.DateField()
     duration = models.IntegerField()
+    crew = models.ForeignKey('MovieCrews', null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.title
 
 class MovieShowings(models.Model):
-    date = models.DateField()
+    date = models.DateTimeField()
     showing_type = models.ForeignKey(HallTypes, null=True, on_delete=models.SET_NULL)
     movie = models.ForeignKey(Movies, null=True, on_delete=models.SET_NULL)
     hall = models.ForeignKey(CinemaHalls, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return str(self.movie) + " " + str(self.date) + " " + str(self.type) + " " + str(self.hall)
+        return str(self.movie) + " " + str(self.date) + " " + str(self.showing_type) + " " + str(self.hall)
     
+#TODO: Add validation for seat to be in the same hall as showing
+#TODO: Add validation for seat to be available
 class Tickets(models.Model):
     base_price = models.FloatField()
     showing = models.ForeignKey(MovieShowings, on_delete=models.CASCADE)
