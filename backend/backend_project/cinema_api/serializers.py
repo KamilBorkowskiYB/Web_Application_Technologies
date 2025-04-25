@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+from rest_framework.validators import UniqueValidator
 
 class CinemaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,7 +12,6 @@ class HallTypeSerializer(serializers.ModelSerializer):
         model = HallTypes
         fields = '__all__'
 
-#TODO: Add validation for hall_number to be unique for each cinema
 class CinemaHallSerializer(serializers.ModelSerializer):
     cinema = serializers.PrimaryKeyRelatedField(queryset=Cinemas.objects.all())
     types = serializers.PrimaryKeyRelatedField(
@@ -32,14 +32,20 @@ class SeatSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MovieSerializer(serializers.ModelSerializer):
-    crew = serializers.PrimaryKeyRelatedField(queryset=MovieCrews.objects.all())
+    crew = serializers.PrimaryKeyRelatedField(
+        queryset=MovieCrews.objects.all(),
+    )
 
     class Meta:
         model = Movies
         fields = '__all__'
 
-#TODO: Add validation for date to be in the future
-#TODO: Add validation for showing_type to be in corresponding hall
+    def validate(self, data):
+        if MovieCrews.objects.filter(
+            id=data['crew'].id
+        ).exists():
+            raise serializers.ValidationError("This crew is already assigned to movie.")
+
 class MovieShowingSerializer(serializers.ModelSerializer):
     showing_type = serializers.PrimaryKeyRelatedField(queryset=HallTypes.objects.all())
     movie = serializers.PrimaryKeyRelatedField(queryset=Movies.objects.all())
@@ -49,6 +55,17 @@ class MovieShowingSerializer(serializers.ModelSerializer):
         model = MovieShowings
         fields = '__all__'
 
+    def validate(self, data):
+        # Check if the date is in the future
+        if data['date'] < timezone.now():
+            raise serializers.ValidationError("The date must be in the future.")
+        
+        # Check if the showing type is valid for the hall
+        if data['showing_type'] not in data['hall'].types.all():
+            raise serializers.ValidationError("The showing type is not valid for this hall.")
+        
+        return data
+
 class TicketSerializer(serializers.ModelSerializer):
     showing = serializers.PrimaryKeyRelatedField(queryset=MovieShowings.objects.all())
     seat = serializers.PrimaryKeyRelatedField(queryset=Seats.objects.all())
@@ -56,6 +73,15 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tickets
         fields = '__all__'
+
+    def validate(self, attrs):
+        # Check if the seat is already booked for the showing
+        if Tickets.objects.filter(showing=attrs['showing'], seat=attrs['seat']).exists():
+            raise serializers.ValidationError("This seat is already booked for this showing.")
+        if attrs['seat'].hall != attrs['showing'].hall:
+            raise serializers.ValidationError("The seat must be in the same hall as the showing.")
+
+        return attrs
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:

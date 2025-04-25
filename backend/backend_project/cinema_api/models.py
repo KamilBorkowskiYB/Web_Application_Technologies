@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 class Cinemas(models.Model):
     name = models.CharField(max_length=100, blank=True)
@@ -20,6 +22,13 @@ class CinemaHalls(models.Model):
     cinema = models.ForeignKey(Cinemas, on_delete=models.CASCADE)
     types = models.ManyToManyField(HallTypes, blank=False)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['cinema', 'hall_number'], 
+                name='unique_cinema_hall')
+    ]
+
     def __str__(self):
         return str(self.cinema) + " " + str(self.hall_number)
 
@@ -36,7 +45,7 @@ class Movies(models.Model):
     description = models.TextField()
     release_date = models.DateField()
     duration = models.IntegerField()
-    crew = models.ForeignKey('MovieCrews', null=True, on_delete=models.SET_NULL)
+    crew = models.OneToOneField('MovieCrews', on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.title
@@ -47,11 +56,24 @@ class MovieShowings(models.Model):
     movie = models.ForeignKey(Movies, null=True, on_delete=models.SET_NULL)
     hall = models.ForeignKey(CinemaHalls, null=True, on_delete=models.SET_NULL)
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                #TODO: Check movie time for overlapping showings
+                fields=['movie', 'date', 'hall'], 
+                name='unique_showing')
+    ]
+
+    def clean(self):
+        if self.date < timezone.now():
+            raise ValidationError("The date must be in the future.")
+        if self.showing_type not in self.hall.types.all():
+            raise ValidationError("The showing type must be in the corresponding hall.")
+
+
     def __str__(self):
         return str(self.movie) + " " + str(self.date) + " " + str(self.showing_type) + " " + str(self.hall)
     
-#TODO: Add validation for seat to be in the same hall as showing
-#TODO: Add validation for seat to be available
 class Tickets(models.Model):
     base_price = models.FloatField()
     showing = models.ForeignKey(MovieShowings, on_delete=models.CASCADE)
@@ -59,6 +81,19 @@ class Tickets(models.Model):
     purchase_time = models.DateTimeField(auto_now_add=True)
     purchase_price = models.FloatField()
     buyer = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['showing', 'seat'], 
+                name='unique_ticket')
+    ]
+
+    def clean(self):
+        if self.seat.hall != self.showing.hall:
+            raise ValidationError("The seat must be in the same hall as the showing.")
+        if Tickets.objects.filter(showing=self.showing, seat=self.seat).exists():
+            raise ValidationError("The seat is already booked for this showing.")
 
     def __str__(self):
         return f"Ticket {self.id}"
