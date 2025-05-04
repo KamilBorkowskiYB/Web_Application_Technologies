@@ -4,55 +4,63 @@ from rest_framework.validators import UniqueValidator
 
 class CinemaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Cinemas
+        model = Cinema
         fields = '__all__'
 
 class HallTypeSerializer(serializers.ModelSerializer):
     class Meta:
-        model = HallTypes
+        model = HallType
         fields = '__all__'
 
 class CinemaHallSerializer(serializers.ModelSerializer):
-    cinema = serializers.PrimaryKeyRelatedField(queryset=Cinemas.objects.all())
+    cinema = serializers.PrimaryKeyRelatedField(queryset=Cinema.objects.all())
     types = serializers.PrimaryKeyRelatedField(
-        queryset=HallTypes.objects.all(),
+        queryset=HallType.objects.all(),
         many=True
     )
     
     class Meta:
-        model = CinemaHalls
+        model = CinemaHall
         fields = '__all__'
 
     
 class SeatSerializer(serializers.ModelSerializer):
-    hall = serializers.PrimaryKeyRelatedField(queryset=CinemaHalls.objects.all())
+    hall = serializers.PrimaryKeyRelatedField(queryset=CinemaHall.objects.all())
 
     class Meta:
-        model = Seats
+        model = Seat
         fields = '__all__'
 
 class MovieSerializer(serializers.ModelSerializer):
     crew = serializers.PrimaryKeyRelatedField(
-        queryset=MovieCrews.objects.all(),
+        queryset=MovieCrew.objects.all(),
     )
 
     class Meta:
-        model = Movies
+        model = Movie
         fields = '__all__'
 
     def validate(self, data):
-        if MovieCrews.objects.filter(
-            id=data['crew'].id
-        ).exists():
-            raise serializers.ValidationError("This crew is already assigned to movie.")
+        if self.instance:
+            if Movie.objects.filter(
+                id=data['crew'].id
+            ).exclude(id=self.instance.id).exists():
+                raise serializers.ValidationError("This crew is already assigned to another movie.")
+        else:
+            if Movie.objects.filter(
+                id=data['crew'].id
+            ).exists():
+                raise serializers.ValidationError("This crew is already assigned to another movie.")
+        
+        return data
 
 class MovieShowingSerializer(serializers.ModelSerializer):
-    showing_type = serializers.PrimaryKeyRelatedField(queryset=HallTypes.objects.all())
-    movie = serializers.PrimaryKeyRelatedField(queryset=Movies.objects.all())
-    hall = serializers.PrimaryKeyRelatedField(queryset=CinemaHalls.objects.all())
+    showing_type = serializers.PrimaryKeyRelatedField(queryset=HallType.objects.all())
+    movie = serializers.PrimaryKeyRelatedField(queryset=Movie.objects.all())
+    hall = serializers.PrimaryKeyRelatedField(queryset=CinemaHall.objects.all())
 
     class Meta:
-        model = MovieShowings
+        model = MovieShowing
         fields = '__all__'
 
     def validate(self, data):
@@ -67,16 +75,16 @@ class MovieShowingSerializer(serializers.ModelSerializer):
         return data
 
 class TicketSerializer(serializers.ModelSerializer):
-    showing = serializers.PrimaryKeyRelatedField(queryset=MovieShowings.objects.all())
-    seat = serializers.PrimaryKeyRelatedField(queryset=Seats.objects.all())
+    showing = serializers.PrimaryKeyRelatedField(queryset=MovieShowing.objects.all())
+    seat = serializers.PrimaryKeyRelatedField(queryset=Seat.objects.all())
 
     class Meta:
-        model = Tickets
+        model = Ticket
         fields = '__all__'
 
     def validate(self, attrs):
         # Check if the seat is already booked for the showing
-        if Tickets.objects.filter(showing=attrs['showing'], seat=attrs['seat']).exists():
+        if Ticket.objects.filter(showing=attrs['showing'], seat=attrs['seat']).exists():
             raise serializers.ValidationError("This seat is already booked for this showing.")
         if attrs['seat'].hall != attrs['showing'].hall:
             raise serializers.ValidationError("The seat must be in the same hall as the showing.")
@@ -85,13 +93,13 @@ class TicketSerializer(serializers.ModelSerializer):
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Artists
+        model = Artist
         fields = '__all__'
 
 class MovieCrewSerializer(serializers.ModelSerializer):
-    director = serializers.PrimaryKeyRelatedField(queryset=Artists.objects.all())
+    director = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all())
     main_lead = serializers.PrimaryKeyRelatedField(
-        queryset=Artists.objects.all(), 
+        queryset=Artist.objects.all(), 
         many=True
     )
 
@@ -99,5 +107,5 @@ class MovieCrewSerializer(serializers.ModelSerializer):
         return ArtistSerializer(obj.main_lead.all(), many=True).data
     
     class Meta:
-        model = MovieCrews
+        model = MovieCrew
         fields = '__all__'

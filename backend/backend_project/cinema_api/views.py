@@ -8,38 +8,38 @@ from rest_framework.response import Response
 # Create your views here.
 
 class CinemaViewSet(viewsets.ModelViewSet):
-    queryset = Cinemas.objects.all()
+    queryset = Cinema.objects.all()
     serializer_class = CinemaSerializer
  
 
 class HallTypeViewSet(viewsets.ModelViewSet):
-    queryset = HallTypes.objects.all()
+    queryset = HallType.objects.all()
     serializer_class = HallTypeSerializer
 
 class CinemaHallViewSet(viewsets.ModelViewSet):
-    queryset = CinemaHalls.objects.all()
+    queryset = CinemaHall.objects.all()
     serializer_class = CinemaHallSerializer
 
 class SeatViewSet(viewsets.ModelViewSet):
-    queryset = Seats.objects.all()
+    queryset = Seat.objects.all()
     serializer_class = SeatSerializer
 
 class MovieViewSet(viewsets.ModelViewSet):
-    queryset = Movies.objects.all()
+    queryset = Movie.objects.all()
     serializer_class = MovieSerializer
 
 class MovieShowingViewSet(viewsets.ModelViewSet):
-    queryset = MovieShowings.objects.all()
+    queryset = MovieShowing.objects.all()
     serializer_class = MovieShowingSerializer
 
 class TicketViewSet(viewsets.ModelViewSet):
-    queryset = Tickets.objects.all()
+    queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
 
 class ArtistViewSet(viewsets.ModelViewSet):
-    queryset = Artists.objects.all()
+    queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
 
 class MovieCrewViewSet(viewsets.ModelViewSet):
-    queryset = MovieCrews.objects.all()
+    queryset = MovieCrew.objects.all()
     serializer_class = MovieCrewSerializer
