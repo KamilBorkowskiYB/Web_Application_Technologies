@@ -128,3 +128,6 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT =BASE_DIR / 'media'
+
+# API keys
+TMDB_API_KEY = env('TMDB_API_KEY')

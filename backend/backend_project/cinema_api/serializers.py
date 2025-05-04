@@ -97,7 +97,11 @@ class ArtistSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MovieCrewSerializer(serializers.ModelSerializer):
-    director = serializers.PrimaryKeyRelatedField(queryset=Artist.objects.all())
+    #TODO: Divide into two serializers: one for creating and one for reading
+    director = serializers.PrimaryKeyRelatedField(
+        queryset=Artist.objects.all(),
+        many=True
+    )
     main_lead = serializers.PrimaryKeyRelatedField(
         queryset=Artist.objects.all(), 
         many=True
@@ -105,6 +109,9 @@ class MovieCrewSerializer(serializers.ModelSerializer):
 
     def get_main_lead(self, obj):
         return ArtistSerializer(obj.main_lead.all(), many=True).data
+    
+    def get_director(self, obj):
+        return ArtistSerializer(obj.director.all(), many=True).data
     
     class Meta:
         model = MovieCrew

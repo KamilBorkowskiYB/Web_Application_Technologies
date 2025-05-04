@@ -48,11 +48,11 @@ class Artist(models.Model):
         return self.name
     
 class MovieCrew(models.Model):
-    director = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='director')
+    director = models.ManyToManyField(Artist, blank=True, related_name='director')
     main_lead = models.ManyToManyField(Artist, blank=True, related_name='main_lead')
 
     def __str__(self):
-        return f"Crew {self.id} Director {str(self.director)}"
+        return f"Crew: {self.id} - Director: {str(self.director)}"
 
 class Movie(models.Model):
     title = models.CharField(max_length=100)
