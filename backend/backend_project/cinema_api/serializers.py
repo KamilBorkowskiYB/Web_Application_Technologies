@@ -31,9 +31,23 @@ class SeatSerializer(serializers.ModelSerializer):
         model = Seat
         fields = '__all__'
 
+class GenreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Genre
+        fields = '__all__'
+
 class MovieSerializer(serializers.ModelSerializer):
     crew = serializers.PrimaryKeyRelatedField(
         queryset=MovieCrew.objects.all(),
+    )
+    genre = GenreSerializer(
+        many=True,
+        read_only=True)
+    genre_id = serializers.PrimaryKeyRelatedField(
+        queryset=Genre.objects.all(), 
+        many=True,
+        write_only=True,
+        source='genre'
     )
 
     class Meta:
@@ -111,12 +125,6 @@ class MovieCrewSerializer(serializers.ModelSerializer):
         write_only=True,
         source='main_lead'
     )
-
-    # def get_main_lead(self, obj):
-    #     return ArtistSerializer(obj.main_lead.all(), many=True).data
-    
-    # def get_director(self, obj):
-    #     return ArtistSerializer(obj.director.all(), many=True).data
     
     class Meta:
         model = MovieCrew

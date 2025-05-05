@@ -54,11 +54,19 @@ class MovieCrew(models.Model):
     def __str__(self):
         return f"Crew: {self.id} - Director: {str(self.director)}"
 
+class Genre(models.Model):
+    genre = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.genre
+
+
 class Movie(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
     release_date = models.DateField()
     duration = models.IntegerField()
+    genre = models.ManyToManyField(Genre, blank=True)
     crew = models.OneToOneField(MovieCrew, on_delete=models.CASCADE, null=True)
     poster = models.ImageField(upload_to='posters/', null=True, blank=True)
     trailer = models.URLField(null=True, blank=True)

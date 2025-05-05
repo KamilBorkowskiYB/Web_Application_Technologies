@@ -55,12 +55,15 @@ class MovieViewSet(viewsets.ModelViewSet):
         for actor in movie_info_instance.main_cast:
             artist, _ = Artist.objects.get_or_create(name=actor)
             actors.append(artist)
-
         movie_crew = MovieCrew.objects.create()
         movie_crew.director.set(directors)
         movie_crew.main_lead.set(actors)
         movie_crew.save()
 
+        genres = []
+        for genre in movie_info_instance.genres:
+            genre_instance, _ = Genre.objects.get_or_create(genre=genre)
+            genres.append(genre_instance)
 
         movie = Movie.objects.create(
             title=movie_info_instance.title,
@@ -71,6 +74,7 @@ class MovieViewSet(viewsets.ModelViewSet):
             crew=movie_crew,
         )
         movie_info_instance.save_poster(movie)
+        movie.genre.set(genres)
         movie.save()
         serializer = MovieSerializer(movie)
         return Response(serializer.data, status=201)
@@ -90,3 +94,7 @@ class ArtistViewSet(viewsets.ModelViewSet):
 class MovieCrewViewSet(viewsets.ModelViewSet):
     queryset = MovieCrew.objects.all()
     serializer_class = MovieCrewSerializer
+
+class GenreViewSet(viewsets.ModelViewSet):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer

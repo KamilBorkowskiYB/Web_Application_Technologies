@@ -12,6 +12,7 @@ router.register('movie_showings', MovieShowingViewSet, basename='movie_showings'
 router.register('tickets', TicketViewSet, basename='tickets')
 router.register('artists', ArtistViewSet, basename='artists')
 router.register('movie_crews', MovieCrewViewSet, basename='movie_crews')
+router.register('genres', GenreViewSet, basename='genres')
 
 urlpatterns = [
     path('api/', include(router.urls)),

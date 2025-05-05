@@ -15,6 +15,7 @@ class movie_info:
         self.overview = None
         self.runtime = None
         self.poster_url = None
+        self.genres = None
         self.request_info()
         self.main_cast = None
         self.directors = None
@@ -52,8 +53,9 @@ class movie_info:
             data = response.json()
             if data.get('runtime'):
                 self.runtime = data['runtime']
-            else:
-                self.runtime = None
+
+            if data.get('genres'):
+                self.genres = [genre['name'] for genre in data['genres']]
         
     def print_info(self):
         """
