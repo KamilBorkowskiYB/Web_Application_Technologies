@@ -29,7 +29,7 @@
   font-weight: 500;
   white-space: nowrap;
   flex-wrap: wrap;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 .movie-card {
@@ -40,6 +40,27 @@
   aspect-ratio: 2/3;
   width: 184px;
   padding-top: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.movie-card:hover {
+  transform: scale(1.03);
+}
+
+.movie-duration-on-hover {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: none;
+}
+
+.movie-card:hover .movie-duration-on-hover {
+  display: block;
 }
 
 .movie-image {

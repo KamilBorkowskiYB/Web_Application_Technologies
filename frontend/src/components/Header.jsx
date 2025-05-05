@@ -8,10 +8,14 @@ const Header = () => {
   const handleLoginClick = () => {
     navigate('/login'); // Ścieżka do strony logowania
   };
+
+  const handleMainMenuClick = () => {
+    navigate('/'); // Ikonka strony głównej
+  }
   return (
     <div className="header">
         <div className="header-left">
-        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/11bd867774967a99b714cffb176e7a2909ed002c?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809" className="logo" alt="Logo" />
+        <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/11bd867774967a99b714cffb176e7a2909ed002c?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809" className="logo" alt="Logo" onClick={handleMainMenuClick}/>
         {/* <img src="/logo.png" alt="Logo" className="logo" /> */}
         <div className="search-container">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/58f2a5a32b66391a854a61ba8600b347b2fd5917?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809" className="search-icon" alt="Search" />
