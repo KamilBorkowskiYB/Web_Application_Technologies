@@ -1,0 +1,247 @@
+.movie-details {
+  background-color: rgb(255, 255, 255);
+  overflow: hidden;
+}
+
+.movie-content {
+  background-color: rgb(10, 15, 28);
+  display: flex;
+  width: 100%;
+  padding-bottom: 48px;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.content-wrapper {
+  align-self: center;
+  margin-top: 48px;
+  width: 100%;
+  max-width: 1223px;
+}
+
+.movie-layout {
+  gap: 20px;
+  display: flex;
+}
+
+.poster-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 26%;
+  margin-left: 0;
+}
+
+.movie-poster {
+  aspect-ratio: 0.67;
+  object-fit: contain;
+  object-position: center;
+  width: 300px;
+  flex-shrink: 0;
+  max-width: 100%;
+}
+
+.info-column {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 74%;
+  margin-left: 20px;
+}
+
+.movie-info {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: start;
+}
+
+.movie-details-movie-title {
+  color: rgb(255, 255, 255);
+  font-size: 32px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-weight: 500;
+}
+
+.movie-meta {
+  display: flex;
+  margin-top: 16px;
+  align-items: stretch;
+  gap: 15px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  color: rgb(173, 181, 189);
+  font-weight: 400;
+}
+
+.meta-item {
+  flex-grow: 1;
+}
+
+.genre {
+  color: rgb(67, 24, 209);
+}
+
+.movie-description {
+  color: rgb(233, 236, 239);
+  font-size: 16px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-weight: 400;
+  line-height: 26px;
+  margin-top: 25px;
+}
+
+.section-title {
+  color: rgb(255, 255, 255);
+  font-size: 20px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-weight: 400;
+  margin-top: 30px;
+}
+
+.cast-list {
+  display: flex;
+  margin-top: 16px;
+  align-items: stretch;
+  gap: 24px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 14px;
+  color: rgb(233, 236, 239);
+  font-weight: 400;
+  text-align: center;
+  line-height: 21px;
+}
+
+.cast-member {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.cast-image {
+  aspect-ratio: 1;
+  object-fit: contain;
+  object-position: center;
+  width: 80px;
+  border-radius: 33554400px;
+}
+
+.cast-name {
+  margin-top: 10px;
+}
+
+.showtimes-grid {
+  align-self: stretch;
+  margin-top: 16px;
+  width: 100%;
+}
+
+.cinema-row {
+  gap: 20px;
+  display: flex;
+}
+
+.cinema-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  line-height: normal;
+  width: 33%;
+}
+
+.cinema-content {
+  border-radius: 12px;
+  background-color: rgb(21, 26, 40);
+  display: flex;
+  padding: 24px;
+  align-items: stretch;
+  gap: 8px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.cinema-name {
+  color: rgb(255, 255, 255);
+}
+
+.showtime-button {
+  border-radius: 33554400px;
+  border: 1px solid rgb(42, 49, 66);
+  padding: 9px 17px;
+  color: rgb(233, 236, 239);
+  margin-top: 16px;
+  display: inline-block;
+}
+
+.book-button {
+  border-radius: 33554400px;
+  background-color: rgb(67, 24, 209);
+  margin-top: 32px;
+  padding: 12px 32px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 16px;
+  color: rgb(255, 255, 255);
+  font-weight: 400;
+  text-align: center;
+  cursor: pointer;
+}
+
+@media (max-width: 991px) {
+  .content-wrapper {
+    max-width: 100%;
+    margin-top: 40px;
+  }
+
+  .movie-layout {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .poster-column {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .movie-poster {
+    margin-top: 40px;
+  }
+
+  .info-column {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .movie-info {
+    max-width: 100%;
+    margin-top: 40px;
+  }
+
+  .movie-description {
+    max-width: 100%;
+  }
+
+  .cinema-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+
+  .cinema-card {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .cinema-content {
+    margin-top: 16px;
+    padding: 20px;
+  }
+
+  .book-button {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+}
