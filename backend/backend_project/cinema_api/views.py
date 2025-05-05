@@ -61,16 +61,16 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie_crew.main_lead.set(actors)
         movie_crew.save()
 
+
         movie = Movie.objects.create(
             title=movie_info_instance.title,
             description=movie_info_instance.overview,
             release_date=movie_info_instance.release_date,
-            duration=movie_info_instance.runtime,
-            #TODO: Fix poster_url to be a file field
-            poster=movie_info_instance.poster_url,
+            duration=movie_info_instance.runtime or 0,
             trailer=movie_info_instance.trailer,
             crew=movie_crew,
         )
+        movie_info_instance.save_poster(movie)
         movie.save()
         serializer = MovieSerializer(movie)
         return Response(serializer.data, status=201)

@@ -1,5 +1,6 @@
+from django.core.files.base import ContentFile
 from django.conf import settings
-import requests
+import requests, os
 
 class movie_info:
     def __init__(self, api_key: str, title: str, language: str = 'en', year: str = None):
@@ -97,8 +98,16 @@ class movie_info:
         else:
             self.trailer = None
 
-# movie = movie_info("Nosferatu", year=1979)
-# movie.print_info()
-
-# fake_movie = movie_info("fdsfsdgdsfg")
-# fake_movie.print_info()
+    def save_poster(self, movie_instace):
+        """
+        Save movie poster file.
+        """
+        if self.poster_url:
+            response = requests.get(self.poster_url)
+            if response.status_code == 200:
+                filename = os.path.basename(self.poster_url)
+                movie_instace.poster.save(filename, ContentFile(response.content))
+            else:
+                return None
+        else:
+            return None
