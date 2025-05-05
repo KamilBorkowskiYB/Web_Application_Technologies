@@ -2,6 +2,7 @@
 .main-menu {
   background-color: rgb(255, 255, 255);
   overflow: hidden;
+  height: 100%;
   font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
   font-size: 16px;
 }
@@ -10,7 +11,7 @@
   background-color: rgb(10, 15, 28);
   display: flex;
   width: 100%;
-  padding-bottom: 413px;
+  height: 100%;
   flex-direction: column;
   align-items: stretch;
 }
@@ -56,7 +57,7 @@
   align-self: center;
 }
 
-@media (max-width: 991px) {
+/* @media (max-width: 991px) {
   .main-content {
     max-width: 100%;
     padding-bottom: 100px;
@@ -78,4 +79,4 @@
     padding-right: 20px;
     white-space: initial;
   }
-}
+} */
