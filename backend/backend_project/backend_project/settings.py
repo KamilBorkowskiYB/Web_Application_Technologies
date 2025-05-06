@@ -14,6 +14,9 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, '..', '..', '.env'))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
+# API keys
+TMDB_API_KEY = env('TMDB_API_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
@@ -25,6 +28,7 @@ CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,6 +38,7 @@ INSTALLED_APPS = [
 
     'corsheaders',
     'rest_framework',
+    'channels',
     
     'cinema_api',
 ]
@@ -67,8 +72,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'backend_project.wsgi.application'
-
+# WSGI_APPLICATION = 'backend_project.wsgi.application'
+ASGI_APPLICATION = 'backend_project.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -130,5 +135,12 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT =BASE_DIR / 'media'
 
-# API keys
-TMDB_API_KEY = env('TMDB_API_KEY')
+# Django Channels settings
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('redis', 6379)],
+        },
+    },
+}
