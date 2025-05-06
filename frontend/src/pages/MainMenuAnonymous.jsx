@@ -24,7 +24,7 @@ const MainMenuAnonymous = () => {
           {movies.map((movie) => (
             <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
               <img
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/7bbd36b360f8e384db8c6f686f3dd5261acfc64f?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809"
+                src={ movie.poster }
                 className="movie-image"
                 alt={movie.title}
               />

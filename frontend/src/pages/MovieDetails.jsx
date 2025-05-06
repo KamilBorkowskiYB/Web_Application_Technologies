@@ -8,12 +8,22 @@ const MovieDetails = () => {
   const { id } = useParams();
   const [movie, setMovie] = useState(null);
   const [cinemas, setCinemas] = useState([]);
+  const [crew, setCrew] = useState(null);
 
   useEffect(() => {
     // Fetch movie details
     fetch(`http://127.0.0.1:8000/api/movies/${id}`)
       .then((res) => res.json())
       .then(setMovie)
+      .catch(console.error);
+
+    // Fetch crew details
+    fetch('http://127.0.0.1:8000/api/movie_crews/')
+      .then((res) => res.json())
+      .then((data) => {
+        const filtered = data.find((crew) => crew.id === parseInt(id));
+        setCrew(filtered);
+      })
       .catch(console.error);
     
     // Fetch cinema details
@@ -34,7 +44,7 @@ const MovieDetails = () => {
           <div className="movie-layout">
             <div className="poster-column">
               <img
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/148956d725a931089dfd7613fbb0881446b1ed55?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809"
+                src={ movie.poster }
                 className="movie-poster"
                 alt="The Mandalorian Movie Poster"
               />
@@ -45,25 +55,22 @@ const MovieDetails = () => {
                 <div className="movie-meta">
                   <div className="meta-item">{movie.release_year}</div>
                   <div className="meta-item">{movie.duration} min</div>
-                  {/* Dynamic genres — here will need an update to support genres from backend */}
-                  {movie.genres && movie.genres.map((genre, index) => (
-                    <div key={index} className="genre">{genre}</div>
-                  ))}
+                  <ul>
+                    {movie.genre.map(g => (
+                      <li key={g.id}>{g.genre}</li>
+                    ))}
+                  </ul>
                 </div>
                 <p className="movie-description">{movie.description}</p>
-                <h2 className="section-title">Cast</h2>
-                <div className="cast-list">
-                  {movie.cast && movie.cast.map((actor, index) => (
-                    <div key={index} className="cast-member">
-                      <img
-                        src={actor.image_url || 'https://cdn.builder.io/api/v1/image/assets/TEMP/b85e7de446d58ac9d59a389f5461eeeca2864ffe?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809'}
-                        className="cast-image"
-                        alt={actor.name}
-                      />
-                      <div className="cast-name">{actor.name}</div>
+                {crew && (
+                  <>
+                    <h2 className="section-title">Crew</h2>
+                    <div className="crew-info">
+                      <div><strong>Director:</strong> {crew.director.map(d => d.name).join(', ')}</div>
+                      <div><strong>Main lead:</strong> {crew.main_lead.map(l => l.name).join(', ')}</div>
                     </div>
-                  ))}
-                </div>
+                  </>
+                )}
                 <h2 className="section-title">Showtimes</h2>
                 <div className="showtimes-grid">
                   {cinemas.length > 0 ? cinemas.map((cinema) => (
