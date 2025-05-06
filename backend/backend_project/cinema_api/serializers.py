@@ -18,10 +18,20 @@ class CinemaHallSerializer(serializers.ModelSerializer):
         queryset=HallType.objects.all(),
         many=True
     )
+    hall_number = serializers.IntegerField(read_only=True)
     
     class Meta:
         model = CinemaHall
         fields = '__all__'
+
+    def create(self, validated_data):
+        types = validated_data.pop('types')
+        last_number = CinemaHall.objects.filter(
+            cinema=validated_data['cinema']).aggregate(max_number=models.Max('hall_number')).get('max_number') or 0
+        validated_data['hall_number'] = last_number + 1
+        hall = CinemaHall.objects.create(**validated_data)
+        hall.types.set(types)
+        return hall
 
     
 class SeatSerializer(serializers.ModelSerializer):

@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.conf import settings
 
 from .models import *
 from .serializers import *
@@ -7,7 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 
 from .tmdb_requests import movie_info
-from django.conf import settings
+from .utils import seat_generation
+
 
 # Create your views here.
 
@@ -23,6 +25,20 @@ class HallTypeViewSet(viewsets.ModelViewSet):
 class CinemaHallViewSet(viewsets.ModelViewSet):
     queryset = CinemaHall.objects.all()
     serializer_class = CinemaHallSerializer
+    
+    @action(detail=True, methods=['post'])
+    def generate_seats(self, request, pk=None):
+        hall = self.get_object()
+        row_count = request.data.get('row_count')
+        seat_per_row = request.data.get('seat_per_row')
+
+        if not row_count or not seat_per_row:
+            return Response({"error": "Row count and seat per row are required"}, status=400)
+
+        # Call the utility function to generate seats
+        seat_generation(hall, row_count, seat_per_row)
+        
+        return Response(CinemaHallSerializer(hall).data, status=201)
 
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()

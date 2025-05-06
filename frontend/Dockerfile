@@ -1,4 +1,4 @@
-FROM node:18.20.8-slim
+FROM node@sha256:557e52a0fcb928ee113df7e1fb5d4f60c1341dbda53f55e3d815ca10807efdce
  
 WORKDIR /app
  
