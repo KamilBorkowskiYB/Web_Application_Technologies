@@ -1,0 +1,57 @@
+networks:
+  internal:
+    internal: true
+  external:
+    driver: bridge
+  
+
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - internal
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    env_file:
+      - .env
+
+  django-web:
+    build: ./backend/backend_project
+    container_name: cinema_backend
+    ports:
+      - 8000:8000
+    volumes:
+      - ./media:/app/media
+    depends_on:
+      - db
+    environment:
+      SECRET_KEY: ${SECRET_KEY}
+      ALLOWED_HOSTS: ${ALLOWED_HOSTS}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+    env_file:
+      - .env
+    networks:
+      - internal
+      - external
+
+  frontend:
+      build: ./frontend
+      container_name: cinema_frontend
+      ports:
+        - 3000:3000
+      depends_on:
+        - django-web
+      networks:
+        - internal
+        - external
+
+volumes:
+  postgres_data:

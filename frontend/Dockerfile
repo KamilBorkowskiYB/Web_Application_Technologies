@@ -1,0 +1,14 @@
+FROM node@sha256:557e52a0fcb928ee113df7e1fb5d4f60c1341dbda53f55e3d815ca10807efdce
+ 
+WORKDIR /app
+ 
+COPY package*.json ./
+ 
+RUN yarn install
+ 
+COPY . .
+ 
+EXPOSE 3000
+ 
+RUN yarn build
+CMD ["yarn", "start"]
