@@ -1,0 +1,198 @@
+.seat-selection {
+  background-color: #fff;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.seat-selection-content {
+  background-color: #0a0f1c;
+  padding: 24px 80px 65px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.content-wrapper {
+  width: 800px;
+  max-width: 100%;
+}
+
+.screen-container {
+  border-radius: 12px;
+  background-color: #151a28;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screen-bar {
+  border-radius: 4px;
+  background-color: #4318d1;
+  width: 100%;
+  height: 8px;
+  margin-bottom: 56px;
+}
+
+.seat-grid {
+  width: 590px;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.seat-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.seat {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background-color: #1e2433;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.seat.selected {
+  background-color: #4318d1;
+}
+
+.seat.taken {
+  background-color: #2a3142;
+  cursor: not-allowed;
+}
+
+.seat-legend {
+  display: flex;
+  margin-top: 48px;
+  gap: 17px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  font-size: 14px;
+  color: #e9ecef;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+
+.legend-box.available {
+  background-color: #1e2433;
+}
+
+.legend-box.selected {
+  background-color: #4318d1;
+}
+
+.legend-box.taken {
+  background-color: #2a3142;
+}
+
+.booking-panel {
+  border-radius: 12px;
+  background-color: #151a28;
+  margin-top: 32px;
+  padding: 24px;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+  color: #e9ecef;
+}
+
+.ticket-types {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.ticket-options {
+  display: flex;
+  gap: 15px;
+}
+
+.ticket-button {
+  border-radius: 8px;
+  background-color: #1e2433;
+  padding: 8px 17px 14px;
+  font-size: 16px;
+  color: #e9ecef;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.ticket-button.selected {
+  background-color: #4318d1;
+}
+
+.total-section {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+}
+
+.total-label {
+  font-size: 16px;
+}
+
+.total-amount {
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.reserve-button {
+  width: 100%;
+  border-radius: 8px;
+  background-color: #4318d1;
+  padding: 12px;
+  margin-top: 32px;
+  font-size: 16px;
+  font-weight: 500;
+  color: #e9ecef;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.reserve-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 991px) {
+  .seat-selection-content {
+    padding: 24px 20px;
+  }
+
+  .screen-container {
+    padding: 20px;
+  }
+
+  .screen-bar {
+    margin-bottom: 40px;
+  }
+
+  .seat-legend {
+    margin-top: 40px;
+  }
+
+  .booking-panel {
+    padding: 20px;
+  }
+
+  .reserve-button {
+    padding: 12px 20px;
+  }
+}

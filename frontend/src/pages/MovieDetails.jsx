@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
 import '../styles/MovieDetails.css';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 
 const MovieDetails = () => {
   const { id } = useParams();
@@ -13,6 +13,8 @@ const MovieDetails = () => {
   const [hallTypes, setHallTypes] = useState([]);
   const [cinemaHalls, setCinemaHalls] = useState([]);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
+  const [selectedCinema, setSelectedCinema] = useState(null);
+  const [selectedDate, setSelectedDate] = useState(null);
 
 
   useEffect(() => {
@@ -29,7 +31,7 @@ const MovieDetails = () => {
       })
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/cinemas')
+    fetch('http://127.0.0.1:8000/api/cinemas/')
       .then((res) => res.json())
       .then(setCinemas)
       .catch(console.error);
@@ -69,7 +71,7 @@ const MovieDetails = () => {
     if (!cinemaIdToShowtimes[cinemaId]) cinemaIdToShowtimes[cinemaId] = {};
     if (!cinemaIdToShowtimes[cinemaId][date]) cinemaIdToShowtimes[cinemaId][date] = [];
 
-    cinemaIdToShowtimes[cinemaId][date].push({ time, type, showingId: showing.id });
+    cinemaIdToShowtimes[cinemaId][date].push({ time, type, showingId: showing.id, hall_id: showing.hall,});
   }
 
   // Sort showtimes by time
@@ -78,6 +80,23 @@ const MovieDetails = () => {
       cinemaIdToShowtimes[cinemaId][date].sort((a, b) => a.time.localeCompare(b.time));
     }
   }
+
+  const navigate = useNavigate();
+
+  const handleBookSeatsClick = () => {
+    if (selectedShowtime) {
+      navigate("/seat-selection", {
+        state: {
+          cinemaHallId: selectedShowtime.hall_id,
+          showingId: selectedShowtime.showingId,
+          movieTitle: movie.title,
+          cinemaName: selectedCinema,
+          selectedDate,
+          selectedTime: selectedShowtime.time
+        },
+      });
+    }
+  };
 
   if (!movie) return <div>Loading...</div>;
 
@@ -133,7 +152,10 @@ const MovieDetails = () => {
                                 <div
                                   key={idx}
                                   className={`showtime-button ${selectedShowtime === st.showingId ? 'selected' : ''}`}
-                                  onClick={() => setSelectedShowtime(st.showingId)}
+                                  onClick={() => {
+                                    setSelectedShowtime(st);
+                                    setSelectedCinema(cinema.name);
+                                    setSelectedDate(date)}}
                                 >
                                   {st.time} ({st.type})
                                 </div>
@@ -152,6 +174,7 @@ const MovieDetails = () => {
                   className="book-button"
                   disabled={!selectedShowtime}
                   style={{ opacity: selectedShowtime ? 1 : 0.5, cursor: selectedShowtime ? 'pointer' : 'not-allowed' }}
+                  onClick={handleBookSeatsClick} 
                 >
                   Book Seats
                 </button>
