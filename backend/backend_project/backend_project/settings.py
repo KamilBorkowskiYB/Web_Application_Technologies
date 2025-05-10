@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'channels',
+    'django_filters',
     
     'cinema_api',
 ]
@@ -143,4 +144,9 @@ CHANNEL_LAYERS = {
             'hosts': [('redis', 6379)],
         },
     },
+}
+
+# REST_FRAMEWORK settings
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }

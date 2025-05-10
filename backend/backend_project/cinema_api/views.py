@@ -3,9 +3,12 @@ from django.conf import settings
 
 from .models import *
 from .serializers import *
+from .filters import *
+
 from rest_framework import viewsets
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 
 from .tmdb_requests import movie_info
 from .utils import seat_generation
@@ -47,6 +50,8 @@ class SeatViewSet(viewsets.ModelViewSet):
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MovieFilter
 
     @action(detail=False, methods=['post'])
     def auto_complete(self, request):
@@ -98,6 +103,8 @@ class MovieViewSet(viewsets.ModelViewSet):
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
     serializer_class = MovieShowingSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = MovieShowingFilter
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
