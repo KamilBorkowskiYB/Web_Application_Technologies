@@ -6,10 +6,13 @@ class MovieFilter(filters.FilterSet):
     release_date = filters.DateFromToRangeFilter(field_name='release_date')
     showing_date = filters.DateFromToRangeFilter(field_name='movieshowing__date')
     cinema = filters.ModelChoiceFilter(queryset=Cinema.objects.all(), method='cinema_filter')
+    title = filters.CharFilter(field_name='title', lookup_expr='icontains')
 
     class Meta:
         model = Movie
         fields = ['genre', 'release_date', 'showing_date', 'cinema']
+        search_fields = ['title']
+        ordering_fields = ['title', 'release_date']
 
     def cinema_filter(self, queryset, name, value):
         if value:
@@ -24,6 +27,7 @@ class MovieShowingFilter(filters.FilterSet):
     class Meta:
         model = MovieShowing
         fields = ['movie', 'cinema', 'showing_date']
+        ordering_fields = ['date']
 
     def cinema_filter(self, queryset, name, value):
         if value:
