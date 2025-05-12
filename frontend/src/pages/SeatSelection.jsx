@@ -25,7 +25,7 @@ const SeatSelection = () => {
       .catch((err) => {
         console.error("Failed to fetch seats:", err);
       });
-  },);
+  }, [cinemaHallId]);
   
 
   const handleSeatClick = (seatId) => {
