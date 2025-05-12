@@ -1,18 +1,67 @@
-import React from "react";
-import { useLocation } from "react-router-dom";
+import React, { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/BookingSummary.css";
 
 const BookingSummary = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const {
+    showingId,
     movieTitle,
     cinemaName,
     date,
     time,
     selectedSeats,
+    seatTypes, 
     totalPrice
   } = location.state || {};
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleConfirmBooking = async () => {
+    setIsLoading(true);
+    setError("");
+
+    const currentTime = new Date().toISOString();
+
+    const ticketsData = selectedSeats.map((seatId) => {
+      const type = seatTypes[seatId];
+      const price = type === "student" ? 12 : 15;
+
+      return {
+        showing: showingId,
+        seat: seatId,
+        base_price: price,
+        purchase_time: currentTime,
+        purchase_price: price,
+        buyer: 1 // ← na razie zakładamy sztywno
+      };
+    });
+
+    try {
+      const responses = await Promise.all(
+        ticketsData.map((ticket) =>
+          fetch("http://localhost:8000/api/tickets/", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(ticket),
+          }).then((res) => {
+            if (!res.ok) throw new Error("Błąd przy rezerwacji biletu");
+            return res.json();
+          })
+        )
+      );
+
+      navigate("/", { state: { booking: responses } });
+    } catch (err) {
+      setError(err.message || "Wystąpił błąd przy rezerwacji.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
 
   return (
@@ -55,9 +104,15 @@ const BookingSummary = () => {
           </div>
 
           <div className="booking-label">Seats</div>
-
           <div className="booking-value">
-            {selectedSeats?.join(", ") || "None selected"}
+            {selectedSeats?.length > 0
+              ? selectedSeats
+                  .map(
+                    (seatId) =>
+                      `${seatId} (${seatTypes[seatId] === "student" ? "S" : "N"})`
+                  )
+                  .join(", ")
+              : "None selected"}
           </div>
 
           <div className="booking-divider" />
@@ -77,7 +132,9 @@ const BookingSummary = () => {
           <div className="booking-total">Total: ${totalPrice}</div>
 
           <div className="booking-button-container">
-            <button className="booking-confirm-button">Confirm Booking</button>
+            <button onClick={handleConfirmBooking} disabled={isLoading} className="booking-confirm-button">
+              {isLoading ? "Loading..." : "Confirm Booking"}
+            </button>
           </div>
         </div>
       </div>

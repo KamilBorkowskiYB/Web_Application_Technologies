@@ -67,6 +67,31 @@
   cursor: not-allowed;
 }
 
+@keyframes blink {
+  0% { background-color: #4318d1; }
+  50% { background-color: #ff5555; }
+  100% { background-color: #2a3142; }
+}
+
+.seat.just-taken {
+  animation: blink 0.8s ease-in-out;
+}
+
+.seat-label {
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+.seat.selected.normal {
+  background-color: #1976d2; /* niebieski dla normalnych */
+}
+
+.seat.selected.student {
+  background-color: #43a047; /* zielony dla studentów */
+}
+
 .seat-legend {
   display: flex;
   margin-top: 48px;

@@ -11,11 +11,14 @@ const SeatSelection = () => {
 
   const [seats, setSeats] = useState([]);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [takenSeats, setTakenSeats] = useState([]);
+  const [justTakenSeats, setJustTakenSeats] = useState([]);
+  const [seatTypes, setSeatTypes] = useState({}); // { seatId: "normal" | "student" }
+  const [activeType, setActiveType] = useState("normal"); // przycisk aktualnego typu
   const [ticketType, setTicketType] = useState("normal");
 
   useEffect(() => {
-    console.log("cinemaHallId:", cinemaHallId);
-    console.log("showingId:", showingId);
+    // Pobranie wszystkich miejsc dla danego seansu
     fetch("http://127.0.0.1:8000/api/seats/")
       .then((res) => res.json())
       .then((data) => {
@@ -25,30 +28,88 @@ const SeatSelection = () => {
       .catch((err) => {
         console.error("Failed to fetch seats:", err);
       });
-  }, [cinemaHallId]);
+      
+      // Pobranie zajętych miejsc dla danego seansu
+    fetch(`http://127.0.0.1:8000/api/tickets/?showing=${showingId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        const taken = data.map(ticket => ticket.seat);
+        setTakenSeats(taken);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch taken seats:", err);
+      });
+  }, [cinemaHallId, showingId]);
+
   
+  
+  // Aktualizacja zajętych miejsc w czasie rzeczywistym
+  useEffect(() => {
+    const socket = new WebSocket(`ws://localhost:8000/ws/movie_showings/${showingId}/`);
+
+    socket.onmessage = (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === "ticket_booked") {
+        const bookedSeatId = message.data.seat_id;
+        setTakenSeats((prev) => [...new Set([...prev, bookedSeatId])]);
+
+        // Jeśli ktoś w tym czasie kliknął i próbował zająć to samo miejsce — odznacz
+        setSelectedSeats((prevSelected) =>
+          prevSelected.filter((seatId) => seatId !== bookedSeatId)
+        );
+
+        // Dodaj do migających miejsc
+      setJustTakenSeats((prev) => [...prev, bookedSeatId]);
+
+      // Usuń po chwili
+      setTimeout(() => {
+        setJustTakenSeats((prev) => prev.filter((id) => id !== bookedSeatId));
+      }, 1000);
+      }
+    };
+
+    socket.onerror = (err) => {
+      console.error("WebSocket error:", err);
+    };
+
+    return () => {
+      socket.close();
+    };
+  }, [showingId]);
 
   const handleSeatClick = (seatId) => {
-    if (selectedSeats.includes(seatId)) {
-      setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
-    } else {
-      setSelectedSeats([...selectedSeats, seatId]);
-    }
-  };
+  if (selectedSeats.includes(seatId)) {
+    setSelectedSeats(selectedSeats.filter((id) => id !== seatId));
+    const newSeatTypes = { ...seatTypes };
+    delete newSeatTypes[seatId];
+    setSeatTypes(newSeatTypes);
+  } else {
+    setSelectedSeats([...selectedSeats, seatId]);
+    setSeatTypes({
+      ...seatTypes,
+      [seatId]: activeType,
+    });
+  }
+};
 
   const calculateTotal = () => {
-    const price = ticketType === "normal" ? 15 : 12;
-    return selectedSeats.length * price;
+    return selectedSeats.reduce((sum, seatId) => {
+      const type = seatTypes[seatId] || "normal";
+      const price = type === "student" ? 12 : 15;
+      return sum + price;
+    }, 0);
   };
 
   const handleReserveClick = () => {
     navigate("/summary", {
       state: {
+        showingId,
         movieTitle,
         cinemaName,
         date: selectedDate,
         time: selectedTime,
         selectedSeats,
+        seatTypes,
         totalPrice: calculateTotal()
       }
     });
@@ -75,13 +136,26 @@ const SeatSelection = () => {
                     .sort((a, b) => a.number - b.number)
                     .map((seat) => {
                       const isSelected = selectedSeats.includes(seat.id);
+                      const isTaken = takenSeats.includes(seat.id);
+                      const isJustTaken = justTakenSeats.includes(seat.id);
                       return (
                         <div
                           key={seat.id}
-                          className={`seat ${isSelected ? "selected" : ""}`}
-                          onClick={() => handleSeatClick(seat.id)}
-                          title={`Row ${seat.row}, No. ${seat.number}`}
-                        />
+                          className={`seat 
+                                      ${isSelected ? "selected" : ""} 
+                                      ${isTaken ? "taken" : ""} 
+                                      ${isJustTaken ? "just-taken" : ""} 
+                                      ${isSelected && seatTypes[seat.id] === "student" ? "student" : ""}
+                                      ${isSelected && seatTypes[seat.id] === "normal" ? "normal" : ""}`}
+                          onClick={() => !isTaken && handleSeatClick(seat.id)}
+                          title={`Row ${seat.row}, No. ${seat.number} — ${seatTypes[seat.id] || ""}`}
+                        >
+                          {isSelected && (
+                            <span className="seat-label">
+                              {seatTypes[seat.id] === "student" ? "S" : "N"}
+                            </span>
+                          )}
+                        </div>
                       );
                     })}
                 </div>
@@ -108,17 +182,20 @@ const SeatSelection = () => {
             <div className="ticket-types">
               <div className="ticket-options">
                 <button
-                  className={`ticket-button ${ticketType === "normal" ? "selected" : ""}`}
-                  onClick={() => setTicketType("normal")}
+                  className={`ticket-button ${activeType === "normal" ? "selected" : ""}`}
+                  onClick={() => setActiveType("normal")}
                 >
                   Normal ($15)
                 </button>
                 <button
-                  className={`ticket-button ${ticketType === "student" ? "selected" : ""}`}
-                  onClick={() => setTicketType("student")}
+                  className={`ticket-button ${activeType === "student" ? "selected" : ""}`}
+                  onClick={() => setActiveType("student")}
                 >
                   Student ($12)
                 </button>
+              </div>
+              <div className="info-hint">
+                Click seats to assign selected type
               </div>
               <div className="total-section">
                 <span className="total-label">Total:</span>
