@@ -31,4 +31,6 @@ USER appuser
 
 EXPOSE 8000
 
-CMD ["gunicorn", "backend_project.wsgi", "--bind=0.0.0.0:8000"]
+# CMD ["gunicorn", "backend_project.wsgi", "--bind=0.0.0.0:8000"]
+# TODO: Use asynchronous server for production
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
