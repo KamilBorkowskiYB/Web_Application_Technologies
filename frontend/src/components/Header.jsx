@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, onSearch } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Header.css'; // jeśli potrzebne globalne style
 
-const Header = () => {
+const Header = ({ onSearch }) => {
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
@@ -12,6 +13,13 @@ const Header = () => {
   const handleMainMenuClick = () => {
     navigate('/'); // Ikonka strony głównej
   }
+
+  const handleSearch = (e) => {
+    if (e.key === 'Enter') {
+      onSearch(searchTerm); // <-- Przekazanie do rodzica
+    }
+  };
+
   return (
     <div className="header">
         <div className="header-left">
@@ -20,7 +28,13 @@ const Header = () => {
         <div className="search-container">
             <img src="https://cdn.builder.io/api/v1/image/assets/TEMP/58f2a5a32b66391a854a61ba8600b347b2fd5917?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809" className="search-icon" alt="Search" />
             {/* <img src="/icons/search.svg" alt="Search" className="search-icon" /> */}
-            <input className="search-placeholder" placeholder="Search movies..." />
+            <input
+              className="search-placeholder"
+              placeholder="Search movies..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearch}
+            />
         </div>
         </div>
         <div className="header-right">

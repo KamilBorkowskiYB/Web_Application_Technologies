@@ -6,19 +6,25 @@ import { useNavigate } from 'react-router-dom';
 
 const MainMenuAnonymous = () => {
   const [movies, setMovies] = useState([]);
+  const [filterParams, setFilterParams] = useState({});
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/movies/')
+    const queryParams = new URLSearchParams(filterParams).toString();
+    fetch(`http://127.0.0.1:8000/api/movies/?${queryParams}`)
       .then(response => response.json())
       .then(data => setMovies(data))
       .catch(error => console.error('Error fetching movies:', error));
-  }, []);
+  }, [filterParams]); // <-- Odświeżanie przy zmianie filtra
+
+  const handleFilterChange = (params) => {
+    setFilterParams(params);
+  };
 
   return (
     <div className="main-menu">
-      <Header />
-      <Navigation />
+      <Header onSearch={(title) => handleFilterChange({ title })} />
+      <Navigation onFilterSelect={handleFilterChange} />
       <div className="main-content">
         <div className="movie-grid">
           {movies.map((movie) => (
