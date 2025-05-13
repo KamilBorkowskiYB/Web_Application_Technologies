@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
+from django.db.models import Q
 
 from .models import *
 from .serializers import *
@@ -105,6 +106,22 @@ class MovieShowingViewSet(viewsets.ModelViewSet):
     serializer_class = MovieShowingSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = MovieShowingFilter
+
+class TicketDiscountViewSet(viewsets.ModelViewSet):
+    queryset = TicketDiscount.objects.all()
+    serializer_class = TicketDiscountSerializer
+
+    @action(detail=False, methods=['get'])
+    def active_discounts(self, request):
+        """
+        Get all active discounts.
+        """
+        today = timezone.now().date()
+        discounts = self.queryset.filter(
+            Q(start_date__lte=today, end_date__gte=today) |
+            Q(start_date__isnull=True, end_date__isnull=True))
+        serializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data)
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
