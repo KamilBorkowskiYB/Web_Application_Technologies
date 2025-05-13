@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 import '../styles/Navigation.css';
 
 const Navigation = ({ onFilterSelect }) => {
@@ -28,6 +29,11 @@ const Navigation = ({ onFilterSelect }) => {
           {item}
         </div>
       ))}
+      <li>
+        <NavLink to="/explore" className="nav-link">
+          Explore By Genre
+        </NavLink>
+      </li>
     </div>
   );
 };

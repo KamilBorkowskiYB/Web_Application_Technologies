@@ -38,7 +38,6 @@ const BookingSummary = () => {
         buyer: 1 // ← na razie zakładamy sztywno
       };
     });
-
     try {
       const responses = await Promise.all(
         ticketsData.map((ticket) =>
@@ -65,6 +64,7 @@ const BookingSummary = () => {
 
 
   return (
+    
     <div className="booking-summary-container">
       <div className="booking-summary-card">
         <div className="booking-header">
@@ -107,10 +107,21 @@ const BookingSummary = () => {
           <div className="booking-value">
             {selectedSeats?.length > 0
               ? selectedSeats
-                  .map(
-                    (seatId) =>
-                      `${seatId} (${seatTypes[seatId] === "student" ? "S" : "N"})`
-                  )
+                  .map((seatId) => {
+                    const getRowForSeat = (seatId) => {
+                      return Math.floor(seatId / 10) + 1;
+                    };
+
+                    const getLetterForSeat = (seatId) => {
+                      return String.fromCharCode(65 + (seatId % 10)); // A, B, C, D, ...
+                    };
+                    // Zakładając, że masz dostęp do odpowiednich danych o miejscach
+                    const row = getRowForSeat(seatId-1); // Funkcja, która zwróci numer rzędu dla danego seatId
+                    const letter = getLetterForSeat(seatId-1); // Funkcja, która zwróci literkę dla danego seatId
+                    const seatType = seatTypes[seatId] === "student" ? "S" : "N"; // Typ miejsca: S (student) lub N (normalny)
+                    
+                    return `${row}${letter} (${seatType})`; // Wyświetlenie rzędów, literki i typu miejsca
+                  })
                   .join(", ")
               : "None selected"}
           </div>

@@ -121,6 +121,12 @@ const SeatSelection = () => {
     return acc;
   }, {});
 
+  // Załóżmy, że wiemy ile maksymalnie siedzeń jest w rzędzie (lub oblicz to dynamicznie):
+  const maxSeatsInRow = Math.max(...Object.values(groupedByRow).map(row => row.length));
+
+  // Funkcja do przekształcania numeru siedzenia na literę
+  const getSeatLetter = (number) => String.fromCharCode(64 + number); // np. 1 => A, 2 => B
+
   return (
     <div className="seat-selection">
       <Header />
@@ -129,37 +135,53 @@ const SeatSelection = () => {
         <div className="content-wrapper">
           <div className="screen-container">
             <div className="screen-bar" />
-            <div className="seat-grid">
-              {Object.entries(groupedByRow).map(([row, rowSeats]) => (
-                <div key={row} className="seat-row">
-                  {rowSeats
-                    .sort((a, b) => a.number - b.number)
-                    .map((seat) => {
-                      const isSelected = selectedSeats.includes(seat.id);
-                      const isTaken = takenSeats.includes(seat.id);
-                      const isJustTaken = justTakenSeats.includes(seat.id);
-                      return (
-                        <div
-                          key={seat.id}
-                          className={`seat 
-                                      ${isSelected ? "selected" : ""} 
-                                      ${isTaken ? "taken" : ""} 
-                                      ${isJustTaken ? "just-taken" : ""} 
-                                      ${isSelected && seatTypes[seat.id] === "student" ? "student" : ""}
-                                      ${isSelected && seatTypes[seat.id] === "normal" ? "normal" : ""}`}
-                          onClick={() => !isTaken && handleSeatClick(seat.id)}
-                          title={`Row ${seat.row}, No. ${seat.number} — ${seatTypes[seat.id] || ""}`}
-                        >
-                          {isSelected && (
-                            <span className="seat-label">
-                              {seatTypes[seat.id] === "student" ? "S" : "N"}
-                            </span>
-                          )}
-                        </div>
-                      );
-                    })}
+            <div className="seat-container">
+              {seats && seats.length > 0 ? (
+                <div className="seat-header">
+                  <div className="seat-corner" /> {/* pusty narożnik */}
+                  {[...Array(maxSeatsInRow)].map((_, index) => (
+                    <div key={index} className="seat-label seat-letter">
+                      {getSeatLetter(index + 1)}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              ) : (
+                <div>Loading seats...</div> // Informacja, że dane są w trakcie ładowania
+              )}
+              <div className="seat-grid">
+                {Object.entries(groupedByRow).map(([row, rowSeats]) => (
+                  <div key={row} className="seat-row">
+                    {/* Numer rzędu z lewej */}
+                    <div className="seat-label seat-row-number">{row}</div>
+                    {rowSeats
+                      .sort((a, b) => a.number - b.number)
+                      .map((seat) => {
+                        const isSelected = selectedSeats.includes(seat.id);
+                        const isTaken = takenSeats.includes(seat.id);
+                        const isJustTaken = justTakenSeats.includes(seat.id);
+                        return (
+                          <div
+                            key={seat.id}
+                            className={`seat 
+                                        ${isSelected ? "selected" : ""} 
+                                        ${isTaken ? "taken" : ""} 
+                                        ${isJustTaken ? "just-taken" : ""} 
+                                        ${isSelected && seatTypes[seat.id] === "student" ? "student" : ""}
+                                        ${isSelected && seatTypes[seat.id] === "normal" ? "normal" : ""}`}
+                            onClick={() => !isTaken && handleSeatClick(seat.id)}
+                            title={`Row ${seat.row}, No. ${seat.number} — ${seatTypes[seat.id] || ""}`}
+                          >
+                            {isSelected && (
+                              <span className="seat-label">
+                                {seatTypes[seat.id] === "student" ? "S" : "N"}
+                              </span>
+                            )}
+                          </div>
+                        );
+                      })}
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div className="seat-legend">
