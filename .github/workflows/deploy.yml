@@ -45,4 +45,4 @@ jobs:
             docker-compose up --build -d
 
             sleep 20
-            docker-compose exec backend python manage.py migrate
+            docker-compose exec cinema_backend python manage.py migrate
