@@ -1,0 +1,33 @@
+.navigation {
+    background-color: rgb(21, 26, 40);
+    display: flex;
+    padding: 17px 24px;
+    max-width: 100vw;
+    box-sizing: border-box;
+    align-items: stretch;
+    gap: 30px;
+    color: rgb(173, 181, 189);
+    font-weight: 500;
+    flex-wrap: wrap;
+    border-top: 2px solid rgb(32, 41, 61);
+  }
+  
+  .nav-item {
+    cursor: pointer;
+    transition: color 0.1s ease; /* Animacja zmiany koloru */
+  }
+  
+  .nav-item-active {
+    color: rgb(67, 24, 209);
+  }
+  
+  .nav-item:hover {
+    color: rgb(67, 24, 209); /* Zmiana koloru przy najechaniu */
+  }
+
+  @media (max-width: 991px) {
+    .navigation {
+      padding-left: 20px;
+      padding-right: 20px;
+    }
+}
