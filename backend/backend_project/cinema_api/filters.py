@@ -1,5 +1,5 @@
 from django_filters import rest_framework as filters
-from .models import Movie, Genre, MovieShowing, Cinema
+from .models import Movie, Genre, MovieShowing, Cinema, Seat, CinemaHall
 
 class MovieFilter(filters.FilterSet):
     genre = filters.ModelChoiceFilter(queryset=Genre.objects.all())
@@ -33,3 +33,11 @@ class MovieShowingFilter(filters.FilterSet):
         if value:
             return queryset.filter(hall__cinema=value)
         return queryset
+    
+class SeatsFilter(filters.FilterSet):
+    hall = filters.ModelChoiceFilter(queryset=CinemaHall.objects.all())
+
+    class Meta:
+        model = Seat
+        fields = ['hall']
+        ordering_fields = ['row', 'number']

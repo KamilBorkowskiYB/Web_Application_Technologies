@@ -47,6 +47,8 @@ class CinemaHallViewSet(viewsets.ModelViewSet):
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SeatsFilter
 
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
