@@ -41,8 +41,8 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/CinemaLand
-            docker-compose down
-            docker-compose up --build -d
+            docker compose down
+            docker compose up --build -d
 
             sleep 20
-            docker-compose exec cinema_backend python manage.py migrate
+            docker compose exec cinema_backend python manage.py migrate
