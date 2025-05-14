@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -20,9 +21,17 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           source: "."
-          target: "/home/${{ secrets.SSH_USER }}/your-project"
+          target: "/home/${{ secrets.SSH_USER }}/CinemaLand"
+
+      - name: Upload .env to server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SSH_USER }}/CinemaLand/.env
 
       - name: Run deployment commands on server
         uses: appleboy/ssh-action@v1.0.3
@@ -30,8 +39,10 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SSH_PORT }}
           script: |
-            cd /home/${{ secrets.SSH_USER }}/your-project
+            cd /home/${{ secrets.SSH_USER }}/CinemaLand
             docker-compose down
             docker-compose up --build -d
+
+            sleep 20
+            docker-compose exec backend python manage.py migrate
