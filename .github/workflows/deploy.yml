@@ -21,6 +21,7 @@ jobs:
       - name: Build Docker images
         run: |
           docker compose build
+          docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend postgres:17
 
       - name: Copy Docker images to server
@@ -72,4 +73,4 @@ jobs:
             docker compose -f compose.yaml up -d
 
             echo "Running Django migrations..."
-            docker exec -it cinema_backend python manage.py migrate
+            docker exec cinema_backend python manage.py migrate
