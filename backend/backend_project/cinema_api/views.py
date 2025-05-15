@@ -136,8 +136,11 @@ class TicketDiscountViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
-    filter_backends = [filters.OrderingFilter]
-    ordering_fields = ['showing__date']
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
+    filterset_class = TicketFilter
+    ordering_fields = ['showing__date', 'purchase_time']
     ordering = ['-showing__date']
 
 class ArtistViewSet(viewsets.ModelViewSet):
