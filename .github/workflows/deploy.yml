@@ -20,6 +20,7 @@ jobs:
 
       - name: Build Docker images
         run: |
+          export DOCKER_BUILDKIT=0
           docker compose build
           docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend
