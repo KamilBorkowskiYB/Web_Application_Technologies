@@ -38,7 +38,8 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "cinema_images.tar"
-          target: "/home/${{ secrets.SSH_USER }}/cinema_images.tar"
+          target: "/home/${{ secrets.SSH_USER }}/"
+          tar: false
 
       - name: Copy project files
         uses: appleboy/scp-action@v0.1.7
