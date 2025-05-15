@@ -24,7 +24,7 @@ services:
     networks:
       - internal
       
-  django-web:
+  backend:
     build: ./backend/backend_project
     container_name: cinema_backend
     ports:
@@ -54,7 +54,7 @@ services:
       ports:
         - 3000:3000
       depends_on:
-        - django-web
+        - backend
       networks:
         - internal
         - external

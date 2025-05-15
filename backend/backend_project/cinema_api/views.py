@@ -6,7 +6,7 @@ from .models import *
 from .serializers import *
 from .filters import *
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -53,8 +53,12 @@ class SeatViewSet(viewsets.ModelViewSet):
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
     filterset_class = MovieFilter
+    ordering_fields = ['title', 'release_date', 'duration']
+    ordering = ['-release_date']
 
     @action(detail=False, methods=['post'])
     def auto_complete(self, request):
@@ -106,8 +110,12 @@ class MovieViewSet(viewsets.ModelViewSet):
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
     serializer_class = MovieShowingSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
     filterset_class = MovieShowingFilter
+    ordering_fields = ['date']
+    ordering = ['-date']
 
 class TicketDiscountViewSet(viewsets.ModelViewSet):
     queryset = TicketDiscount.objects.all()
@@ -128,6 +136,9 @@ class TicketDiscountViewSet(viewsets.ModelViewSet):
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = ['showing__date']
+    ordering = ['-showing__date']
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
