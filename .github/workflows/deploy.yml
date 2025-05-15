@@ -32,7 +32,7 @@ jobs:
           source: "cinema_images.tar"
           target: "/home/${{ secrets.SSH_USER }}/cinema_images.tar"
 
-      - name: Copy project files (compose.yaml, etc.)
+      - name: Copy project files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
