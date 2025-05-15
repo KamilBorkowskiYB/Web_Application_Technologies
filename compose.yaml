@@ -48,15 +48,15 @@ services:
         retries: 15
 
   frontend:
-      build: ./frontend
-      container_name: cinema_frontend
-      ports:
-        - 3000:3000
-      depends_on:
-        - django-web
-      networks:
-        - internal
-        - external
+    build: ./frontend
+    container_name: cinema_frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - django-web
+    networks:
+      - internal
+      - external
 
 volumes:
   postgres_data:
