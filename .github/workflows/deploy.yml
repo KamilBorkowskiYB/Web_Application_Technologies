@@ -24,6 +24,9 @@ jobs:
           docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend
 
+      - name: Fix permissions for Docker image archive
+        run: chmod 644 cinema_images.tar
+
       - name: List files and permissions
         run: ls -l
 
