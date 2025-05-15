@@ -67,6 +67,7 @@ jobs:
           timeout: 9000s
           script: |
             set -ex
+            rm -rf /home/${{ secrets.SSH_USER }}/cinema_images.tar
             cd /home/${{ secrets.SSH_USER }}
 
             echo "Loading Docker images..."
