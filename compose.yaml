@@ -41,6 +41,11 @@ services:
     networks:
       - internal
       - external
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8000/api/"]
+        interval: 10s
+        timeout: 5s
+        retries: 15
 
   frontend:
       build: ./frontend

@@ -41,8 +41,29 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
             cd /home/${{ secrets.SSH_USER }}/CinemaLand
+
+            echo "Stopping existing containers..."
             docker compose down
+
+            echo "Building and starting containers..."
             docker compose up --build -d
 
-            sleep 20
+            echo "Waiting for Django container to become healthy..."
+            for i in {1..36}; do
+              status=$(docker inspect --format='{{.State.Health.Status}}' cinema_backend 2>/dev/null || echo "not found")
+              echo "Status: $status"
+              if [ "$status" = "healthy" ]; then
+                echo "cinema_backend is healthy!"
+                break
+              fi
+              sleep 5
+            done
+
+            if [ "$status" != "healthy" ]; then
+              echo "cinema_backend did not become healthy in time."
+              docker compose logs cinema_backend
+              exit 1
+            fi
+
+            echo "Running Django migrations..."
             docker compose exec cinema_backend python manage.py migrate
