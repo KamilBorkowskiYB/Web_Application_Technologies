@@ -64,8 +64,9 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          timeout: 900s
+          timeout: 9000s
           script: |
+            set -ex
             cd /home/${{ secrets.SSH_USER }}
 
             echo "Loading Docker images..."
