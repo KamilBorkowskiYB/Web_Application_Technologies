@@ -42,17 +42,23 @@ jobs:
           script: |
             cd /home/${{ secrets.SSH_USER }}/CinemaLand
 
-            echo "Stopping and removing all containers..."
+            echo "Stopping and removing containers..."
             docker compose down --volumes --remove-orphans
 
             echo "Pruning Docker system..."
             docker system prune -af --volumes
 
-            echo "Removing dangling images..."
-            docker image prune -af
+            echo "Building containers..."
+            docker compose build || { echo "Build failed"; exit 1; }
 
-            echo "Building and starting containers..."
-            docker compose up --build -d
+            echo "Starting containers..."
+            docker compose up -d
+
+            echo "Listing containers..."
+            docker compose ps
+
+            echo "Showing container logs..."
+            docker compose logs --tail=50
 
             echo "Waiting for Django container to become healthy..."
             for i in {1..36}; do
