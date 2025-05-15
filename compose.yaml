@@ -21,7 +21,7 @@ services:
 
   django-web:
     build: ./backend/backend_project
-    image: tj-django-web
+    image: tai-django-web
     container_name: cinema_backend
     ports:
       - 8000:8000
