@@ -24,6 +24,9 @@ jobs:
           docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend
 
+      - name: List files and permissions
+        run: ls -l
+
       - name: Copy Docker images to server
         uses: appleboy/scp-action@v0.1.7
         with:
