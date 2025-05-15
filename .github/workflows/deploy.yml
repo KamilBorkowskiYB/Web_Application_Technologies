@@ -52,7 +52,7 @@ jobs:
             docker image prune -af
 
             echo "Building and starting containers..."
-            docker-compose up --build -d
+            docker compose up --build -d
 
             echo "Waiting for Django container to become healthy..."
             for i in {1..36}; do
