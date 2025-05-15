@@ -22,7 +22,7 @@ jobs:
         run: |
           docker compose build
           docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend postgres:17
+          docker save -o cinema_images.tar tai-django-web tai-frontend
 
       - name: Copy Docker images to server
         uses: appleboy/scp-action@v0.1.7
