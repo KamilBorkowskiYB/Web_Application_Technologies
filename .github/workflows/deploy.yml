@@ -38,7 +38,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "cinema_images.tar"
-          target: "/home/${{ secrets.SSH_USER }}/"
+          target: "/home/${{ secrets.SSH_USER }}/cinema_images.tar"
           tar: false
 
       - name: Copy project files
