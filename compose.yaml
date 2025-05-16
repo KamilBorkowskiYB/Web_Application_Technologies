@@ -19,7 +19,12 @@ services:
     env_file:
       - .env
 
-  django-web:
+  redis:
+    image: redis:latest
+    networks:
+      - internal
+      
+  backend:
     build: ./backend/backend_project
     image: tai-django-web
     container_name: cinema_backend
@@ -29,6 +34,7 @@ services:
       - ./media:/app/media
     depends_on:
       - db
+      - redis
     environment:
       SECRET_KEY: ${SECRET_KEY}
       ALLOWED_HOSTS: ${ALLOWED_HOSTS}
@@ -50,7 +56,7 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - django-web
+      - backend
     networks:
       - internal
       - external

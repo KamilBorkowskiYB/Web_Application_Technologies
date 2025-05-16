@@ -98,6 +98,23 @@ class MovieShowingSerializer(serializers.ModelSerializer):
         
         return data
 
+class TicketDiscountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TicketDiscount
+        fields = '__all__'
+
+    def validate(self, data):
+        if data.get('start_date') and data.get('end_date'):
+            # Check if the start date is before the end date
+            if data.get('start_date') >= data.get('end_date'):
+                raise serializers.ValidationError("The start date must be before the end date.")
+            
+            # Check if the start date is in the future
+            if data.get('start_date') <= timezone.datetime.now():
+                raise serializers.ValidationError("The start date must be in the future.")
+        
+        return data
+
 class TicketSerializer(serializers.ModelSerializer):
     showing = serializers.PrimaryKeyRelatedField(queryset=MovieShowing.objects.all())
     seat = serializers.PrimaryKeyRelatedField(queryset=Seat.objects.all())
@@ -105,6 +122,7 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = '__all__'
+        read_only_fields = ['purchase_time', 'purchase_price']
 
     def validate(self, attrs):
         # Check if the seat is already booked for the showing
@@ -114,6 +132,20 @@ class TicketSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("The seat must be in the same hall as the showing.")
 
         return attrs
+
+    def create(self, validated_data):
+        # Calculate the purchase price based on the base price and discount
+        showing = validated_data['showing']
+        base_price = showing.movie.base_price
+        discount = validated_data.get('discount')
+
+        if discount:
+            purchase_price = base_price * (1 - discount.percentage / 100)
+        else:
+            purchase_price = base_price
+
+        validated_data['purchase_price'] = purchase_price
+        return super().create(validated_data)
 
 class ArtistSerializer(serializers.ModelSerializer):
     class Meta:
