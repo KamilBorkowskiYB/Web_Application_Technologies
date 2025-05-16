@@ -1,6 +1,7 @@
 services:
   cinema_nginx:
     build: ./nginx
+    image: tai-nginx
     depends_on:
       - backend
       - frontend
