@@ -58,9 +58,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: |
-            compose.yaml
-            compose.prod.yaml
+          source: "compose.yaml compose.prod.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
       - name: Upload .env to server
