@@ -41,6 +41,16 @@ jobs:
           target: "/home/${{ secrets.SSH_USER }}/cinema_images.tar"
           tar: false
 
+      - name: cinema_images.tar saved on server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            echo "cinema_images.tar saved on server"
+            ls -lh /home/${{ secrets.SSH_USER }}
+
       - name: Copy project files
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -68,7 +78,6 @@ jobs:
           timeout: 9000s
           script: |
             set -ex
-            rm -rf /home/${{ secrets.SSH_USER }}/cinema_images.tar
             cd /home/${{ secrets.SSH_USER }}
 
             echo "Loading Docker images..."
@@ -82,5 +91,18 @@ jobs:
             echo "Starting containers..."
             docker compose -f compose.yaml up -d
 
+
+  migrate:
+    runs-on: ubuntu-latest
+    needs: deploy
+    steps:
+      - name: Usuń cinema_images.tar i wykonaj migracje
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            rm -rf /home/${{ secrets.SSH_USER }}/cinema_images.tar
             echo "Running Django migrations..."
             docker exec cinema_backend python manage.py migrate
