@@ -23,7 +23,7 @@ jobs:
           export DOCKER_BUILDKIT=0
           docker compose build
           docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend
+          docker save -o cinema_images.tar tai-django-web tai-frontend tai-nginx
           file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
