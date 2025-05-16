@@ -24,6 +24,7 @@ jobs:
           docker compose build
           docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend
+          file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
         run: chmod 644 cinema_images.tar
@@ -39,7 +40,6 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "cinema_images.tar"
           target: "/home/${{ secrets.SSH_USER }}/cinema_images.tar"
-          tar: false
 
       - name: cinema_images.tar saved on server
         uses: appleboy/ssh-action@v1.0.3
@@ -50,6 +50,7 @@ jobs:
           script: |
             echo "cinema_images.tar saved on server"
             ls -lh /home/${{ secrets.SSH_USER }}
+            file /home/${{ secrets.SSH_USER }}/cinema_images.tar
 
       - name: Copy project files
         uses: appleboy/scp-action@v0.1.7
