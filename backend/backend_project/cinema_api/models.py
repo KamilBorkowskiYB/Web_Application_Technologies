@@ -98,6 +98,21 @@ class MovieShowing(models.Model):
     def __str__(self):
         return str(self.movie) + " " + str(self.date) + " " + str(self.showing_type) + " " + str(self.hall)
     
+class TicketDiscount(models.Model):
+    name = models.CharField(max_length=100)
+    percentage = models.FloatField()
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    def clean(self):
+        if self.start_date >= self.end_date:
+            raise ValidationError("The start date must be before the end date.")
+        if self.start_date <= timezone.datetime.now():
+            raise ValidationError("The start date must be in the future.")
+
+    def __str__(self):
+        return self.name
+
 class Ticket(models.Model):
     base_price = models.FloatField()
     showing = models.ForeignKey(MovieShowing, on_delete=models.CASCADE)
@@ -105,6 +120,7 @@ class Ticket(models.Model):
     purchase_time = models.DateTimeField(auto_now_add=True)
     purchase_price = models.FloatField()
     buyer = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
+    discount = models.ForeignKey(TicketDiscount, null=True, blank=True, on_delete=models.SET_NULL)
 
     class Meta:
         constraints = [

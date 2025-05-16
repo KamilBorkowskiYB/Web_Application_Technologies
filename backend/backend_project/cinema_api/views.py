@@ -1,11 +1,12 @@
 from django.shortcuts import render
 from django.conf import settings
+from django.db.models import Q
 
 from .models import *
 from .serializers import *
 from .filters import *
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -46,12 +47,18 @@ class CinemaHallViewSet(viewsets.ModelViewSet):
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SeatsFilter
 
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
     filterset_class = MovieFilter
+    ordering_fields = ['title', 'release_date', 'duration']
+    ordering = ['-release_date']
 
     @action(detail=False, methods=['post'])
     def auto_complete(self, request):
@@ -103,12 +110,38 @@ class MovieViewSet(viewsets.ModelViewSet):
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
     serializer_class = MovieShowingSerializer
-    filter_backends = [DjangoFilterBackend]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
     filterset_class = MovieShowingFilter
+    ordering_fields = ['date']
+    ordering = ['-date']
+
+class TicketDiscountViewSet(viewsets.ModelViewSet):
+    queryset = TicketDiscount.objects.all()
+    serializer_class = TicketDiscountSerializer
+
+    @action(detail=False, methods=['get'])
+    def active_discounts(self, request):
+        """
+        Get all active discounts.
+        """
+        today = timezone.now().date()
+        discounts = self.queryset.filter(
+            Q(start_date__lte=today, end_date__gte=today) |
+            Q(start_date__isnull=True, end_date__isnull=True))
+        serializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data)
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
+    filterset_class = TicketFilter
+    ordering_fields = ['showing__date', 'purchase_time']
+    ordering = ['-showing__date']
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
