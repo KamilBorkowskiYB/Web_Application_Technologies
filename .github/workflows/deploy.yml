@@ -97,6 +97,9 @@ jobs:
             echo "Stopping containers..."
             docker compose down -v
 
+            echo "Force removing all containers..."
+            docker rm -f $(docker ps -aq) || true
+
             echo "Starting containers..."
             docker compose -f compose.yaml -f compose.prod.yaml up -d
 
