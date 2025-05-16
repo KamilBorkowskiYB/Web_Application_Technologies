@@ -52,13 +52,22 @@ jobs:
             ls -lh /home/${{ secrets.SSH_USER }}
             file /home/${{ secrets.SSH_USER }}/cinema_images.tar
 
-      - name: Copy project files
+      - name: Copy compose.yaml files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "compose.yaml compose.prod.yaml"
+          source: "compose.yaml"
+          target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
+
+      - name: Copy compose.prod.yaml files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "compose.prod.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
       - name: Upload .env to server
