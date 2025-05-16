@@ -97,6 +97,9 @@ jobs:
             echo "Stopping containers..."
             docker compose down -v
 
+            echo "Force removing all containers..."
+            docker rm -f $(docker ps -aq) || true
+
             echo "Starting containers..."
             docker compose -f compose.yaml -f compose.prod.yaml up -d
 
@@ -112,6 +115,17 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Waiting for container..."
+            for i in {1..30}; do
+              if docker ps --filter "name=cinema_backend" --filter "status=running" | grep -q cinema_backend; then
+                echo "cinema_backend is on!"
+                break
+              fi
+              echo "Waiting for cinema_backend... ($i)"
+              sleep 3
+            done
+
+
             rm -rf /home/${{ secrets.SSH_USER }}/cinema_images.tar
             echo "Running Django migrations..."
             docker exec cinema_backend python manage.py migrate
