@@ -18,6 +18,15 @@ const BookingSummary = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const apiKey = process.env.REACT_APP_API_KEY;
+
+  const apiFetch = (url, options = {}) => {
+  const headers = {
+    "Authorization": `Api-Key ${apiKey}`,
+    ...options.headers,
+  };
+  return fetch(url, { ...options, headers });
+  };
 
   const handleConfirmBooking = async () => {
     setIsLoading(true);
@@ -28,6 +37,7 @@ const BookingSummary = () => {
     const ticketsData = selectedSeats.map((seatId) => {
       const type = seatTypes[seatId];
       const price = type === "student" ? 12 : 15;
+      const discount = null;
 
       return {
         showing: showingId,
@@ -35,13 +45,14 @@ const BookingSummary = () => {
         base_price: price,
         purchase_time: currentTime,
         purchase_price: price,
-        buyer: 1 // ← na razie zakładamy sztywno
+        buyer: 1, // ← na razie zakładamy sztywno
+        discount
       };
     });
     try {
       const responses = await Promise.all(
         ticketsData.map((ticket) =>
-          fetch("http://localhost:8000/api/tickets/", {
+          apiFetch("http://localhost:8000/api/tickets/", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

@@ -16,36 +16,60 @@ const SeatSelection = () => {
   const [seatTypes, setSeatTypes] = useState({}); // { seatId: "normal" | "student" }
   const [activeType, setActiveType] = useState("normal"); // przycisk aktualnego typu
   const [ticketType, setTicketType] = useState("normal");
+  const apiKey = process.env.REACT_APP_API_KEY;
+
+  const apiFetch = (url, options = {}) => {
+  const headers = {
+    "Authorization": `Api-Key ${apiKey}`,
+    ...options.headers,
+  };
+  return fetch(url, { ...options, headers });
+  };
+
+  // Tymczasowe rozwiązanie z paginacja na frontendzie (Ładowanie parę stron naraz)
+  const fetchAllPages = async (url) => {
+    let results = [];
+    let nextUrl = url;
+
+    while (nextUrl) {
+      const res = await apiFetch(nextUrl);
+      if (!res.ok) throw new Error("Failed to fetch data");
+      const data = await res.json();
+
+      results = [...results, ...data.results];
+      nextUrl = data.next;  // zakładam, że backend zwraca 'next' jako URL lub null
+    }
+
+    return results;
+  };
+
 
   useEffect(() => {
-    // Pobranie wszystkich miejsc dla danego seansu
-    fetch("http://127.0.0.1:8000/api/seats/")
-      .then((res) => res.json())
-      .then((data) => {
-        const filteredSeats = data.filter((seat) => seat.hall === cinemaHallId);
+    if (!cinemaHallId || !showingId) return;
+
+    // Pobierz wszystkie miejsca (wszystkie strony)
+    fetchAllPages("http://127.0.0.1:8000/api/seats/")
+      .then((allSeats) => {
+        const filteredSeats = allSeats.filter(seat => seat.hall === cinemaHallId);
         setSeats(filteredSeats);
       })
-      .catch((err) => {
-        console.error("Failed to fetch seats:", err);
-      });
-      
-      // Pobranie zajętych miejsc dla danego seansu
-    fetch(`http://127.0.0.1:8000/api/tickets/?showing=${showingId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        const taken = data.map(ticket => ticket.seat);
+      .catch((err) => console.error("Failed to fetch seats:", err));
+
+    // Pobierz wszystkie bilety (wszystkie strony)
+    fetchAllPages(`http://127.0.0.1:8000/api/tickets/?showing=${showingId}`)
+      .then((allTickets) => {
+        const taken = allTickets.map(ticket => ticket.seat);
         setTakenSeats(taken);
       })
-      .catch((err) => {
-        console.error("Failed to fetch taken seats:", err);
-      });
+      .catch((err) => console.error("Failed to fetch taken seats:", err));
+
   }, [cinemaHallId, showingId]);
 
-  
+
   
   // Aktualizacja zajętych miejsc w czasie rzeczywistym
   useEffect(() => {
-    const socket = new WebSocket(`ws://localhost:8000/ws/movie_showings/${showingId}/`);
+    const socket = new WebSocket(`ws://127.0.0.1:8000/ws/movie_showings/${showingId}/`);
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);

@@ -57,7 +57,9 @@ services:
     ports:
       - 3000:3000
     depends_on:
-      - django-web
+      - backend
+    env_file:
+      - .env
     networks:
       - internal
       - external

@@ -7,19 +7,28 @@ const ExploreByGenre = () => {
   const [genres, setGenres] = useState([]);
   const [moviesByGenre, setMoviesByGenre] = useState({});
   const navigate = useNavigate();
+  const apiKey = process.env.REACT_APP_API_KEY;
+
+  const apiFetch = (url, options = {}) => {
+  const headers = {
+    "Authorization": `Api-Key ${apiKey}`,
+    ...options.headers,
+  };
+  return fetch(url, { ...options, headers });
+  };
 
   useEffect(() => {
     // Pobieramy wszystkie gatunki
-    fetch('http://127.0.0.1:8000/api/genres/')
+    apiFetch('http://127.0.0.1:8000/api/genres/')
       .then(res => res.json())
       .then(data => {
-        setGenres(data);
+        setGenres(data.results);
         // Dla każdego gatunku pobieramy filmy
-        data.forEach((genre) => {
-          fetch(`http://127.0.0.1:8000/api/movies/?genre=${genre.id}`)
+        data.results.forEach((genre) => {
+          apiFetch(`http://127.0.0.1:8000/api/movies/?genre=${genre.id}`)
             .then(res => res.json())
             .then(movies => {
-              setMoviesByGenre(prev => ({ ...prev, [genre.genre]: movies }));
+              setMoviesByGenre(prev => ({ ...prev, [genre.genre]: movies.results }));
             });
         });
       });

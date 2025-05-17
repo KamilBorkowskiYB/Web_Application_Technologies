@@ -15,40 +15,48 @@ const MovieDetails = () => {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
-
+  const apiKey = process.env.REACT_APP_API_KEY;
+  
+  const apiFetch = (url, options = {}) => {
+  const headers = {
+    "Authorization": `Api-Key ${apiKey}`,
+    ...options.headers,
+  };
+  return fetch(url, { ...options, headers });
+  };
 
   useEffect(() => {
-    fetch(`http://127.0.0.1:8000/api/movies/${id}`)
+    apiFetch(`http://127.0.0.1:8000/api/movies/${id}`)
       .then((res) => res.json())
       .then(setMovie)
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/movie_crews/')
+    apiFetch('http://127.0.0.1:8000/api/movie_crews/')
       .then((res) => res.json())
       .then((data) => {
-        const filtered = data.find((crew) => crew.id === parseInt(id));
+        const filtered = data.results.find((crew) => crew.id === parseInt(id));
         setCrew(filtered);
       })
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/cinemas/')
+    apiFetch('http://127.0.0.1:8000/api/cinemas/')
       .then((res) => res.json())
-      .then(setCinemas)
+        .then(data => {setCinemas(data.results)})
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/movie_showings/')
+    apiFetch('http://127.0.0.1:8000/api/movie_showings/')
       .then(res => res.json())
-      .then(setShowings)
+      .then(data => {setShowings(data.results)})
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/hall_types/')
+    apiFetch('http://127.0.0.1:8000/api/hall_types/')
       .then(res => res.json())
-      .then(setHallTypes)
+      .then(data => {setHallTypes(data.results)})
       .catch(console.error);
 
-    fetch('http://127.0.0.1:8000/api/cinema_halls/')
+    apiFetch('http://127.0.0.1:8000/api/cinema_halls/')
       .then(res => res.json())
-      .then(setCinemaHalls)
+      .then(data => {setCinemaHalls(data.results)})
       .catch(console.error);
 
   }, [id]);
