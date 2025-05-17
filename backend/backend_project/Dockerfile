@@ -13,7 +13,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 FROM python:3.12.10-slim
 
-RUN useradd -m -r appuser
+RUN useradd -m -u 1000 appuser
 RUN mkdir /app
 RUN chown -R appuser /app
 
