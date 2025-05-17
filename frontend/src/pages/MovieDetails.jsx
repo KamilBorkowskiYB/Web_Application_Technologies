@@ -79,7 +79,7 @@ const MovieDetails = () => {
     if (!cinemaIdToShowtimes[cinemaId]) cinemaIdToShowtimes[cinemaId] = {};
     if (!cinemaIdToShowtimes[cinemaId][date]) cinemaIdToShowtimes[cinemaId][date] = [];
 
-    cinemaIdToShowtimes[cinemaId][date].push({ time, type, showingId: showing.id, hall_id: showing.hall,});
+    cinemaIdToShowtimes[cinemaId][date].push({ time, type, showingId: showing.id, hall_id: showing.hall, showingPrice: showing.ticket_price});
   }
 
   // Sort showtimes by time
@@ -100,7 +100,8 @@ const MovieDetails = () => {
           movieTitle: movie.title,
           cinemaName: selectedCinema,
           selectedDate,
-          selectedTime: selectedShowtime.time
+          selectedTime: selectedShowtime.time,
+          showingPrice: selectedShowtime.showingPrice,
         },
       });
     }

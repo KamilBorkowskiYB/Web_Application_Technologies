@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/BookingSummary.css";
 
@@ -12,12 +12,20 @@ const BookingSummary = () => {
     date,
     time,
     selectedSeats,
-    seatTypes, 
-    totalPrice
+    showingPrice,
   } = location.state || {};
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [discountTypes, setDiscountTypes] = useState([]);
+  const [tickets, setTickets] = useState(
+    selectedSeats?.map(seat => ({
+      seat,
+      discount: null,
+      price: showingPrice, // np. domyślna cena
+    })) || []
+  );
+  const totalPrice = tickets.reduce((sum, ticket) => sum + ticket.price, 0);
   const apiKey = process.env.REACT_APP_API_KEY;
 
   const apiFetch = (url, options = {}) => {
@@ -28,27 +36,31 @@ const BookingSummary = () => {
   return fetch(url, { ...options, headers });
   };
 
+  useEffect(() => {
+    apiFetch("http://localhost:8000/api/ticket_discounts/")
+      .then(res => res.json())
+      .then(data => {setDiscountTypes(data.results)})
+      .catch(err => console.error(err));
+  }, []);
+
+
   const handleConfirmBooking = async () => {
     setIsLoading(true);
     setError("");
 
     const currentTime = new Date().toISOString();
 
-    const ticketsData = selectedSeats.map((seatId) => {
-      const type = seatTypes[seatId];
-      const price = type === "student" ? 12 : 15;
-      const discount = null;
-
-      return {
-        showing: showingId,
-        seat: seatId,
-        base_price: price,
-        purchase_time: currentTime,
-        purchase_price: price,
-        buyer: 1, // ← na razie zakładamy sztywno
-        discount
-      };
-    });
+    const ticketsData = tickets.map(ticket => ({
+      showing: showingId,
+      seat: ticket.seat.id,
+      base_price: showingPrice, // lub `ticket.base_price` jeśli masz takie pole
+      purchase_price: ticket.price,
+      purchase_time: currentTime,
+      discount: ticket.discount?.id || null,
+      buyer: 1
+    }));
+    
+    console.log(ticketsData[0].purchase_price)
     try {
       const responses = await Promise.all(
         ticketsData.map((ticket) =>
@@ -114,45 +126,56 @@ const BookingSummary = () => {
             <div className="booking-value">{cinemaName}</div>
           </div>
 
-          <div className="booking-label">Seats</div>
-          <div className="booking-value">
-            {selectedSeats?.length > 0
-              ? selectedSeats
-                  .map((seatId) => {
-                    const getRowForSeat = (seatId) => {
-                      return Math.floor(seatId / 10) + 1;
-                    };
-
-                    const getLetterForSeat = (seatId) => {
-                      return String.fromCharCode(65 + (seatId % 10)); // A, B, C, D, ...
-                    };
-                    // Zakładając, że masz dostęp do odpowiednich danych o miejscach
-                    const row = getRowForSeat(seatId-1); // Funkcja, która zwróci numer rzędu dla danego seatId
-                    const letter = getLetterForSeat(seatId-1); // Funkcja, która zwróci literkę dla danego seatId
-                    const seatType = seatTypes[seatId] === "student" ? "S" : "N"; // Typ miejsca: S (student) lub N (normalny)
-                    
-                    return `${row}${letter} (${seatType})`; // Wyświetlenie rzędów, literki i typu miejsca
-                  })
-                  .join(", ")
-              : "None selected"}
-          </div>
-
+          <div className="booking-label">Tickets</div>
           <div className="booking-divider" />
+            {tickets.map((ticket, index) => (
+              <div key={ticket.seat.id} className="booking-ticket">
+                <div className="booking-row">
+                  <div className="booking-label">Row</div>
+                  <div className="booking-value">{ticket.seat.row}</div>
+                </div>
 
-          <div className="booking-row">
-            <div className="booking-label">Name</div>
-            <div className="booking-value">Alex Smith</div>
-          </div>
+                <div className="booking-row">
+                  <div className="booking-label">Seat</div>
+                  <div className="booking-value">{ticket.seat.number}</div>
+                </div>
 
-          <div className="booking-row">
-            <div className="booking-label">Email</div>
-            <div className="booking-value">alex@example.com</div>
-          </div>
+                <div className="booking-row">
+                  <div className="booking-label">Ticket Type</div>
+                  <select
+                    className="booking-select"
+                    value={ticket.discount?.id || ""}
+                    onChange={(e) => {
+                      const selectedId = parseInt(e.target.value);
+                      const discount = discountTypes.find(d => d.id === selectedId) || null;
+                      const updatedTickets = [...tickets];
+                      updatedTickets[index].discount = discount;
+                      updatedTickets[index].price = discount
+                        ? Math.round((showingPrice * (100 - discount.percentage))) / 100
+                        : showingPrice;
+                      setTickets(updatedTickets);
+                      console.log(ticket.price);
+                    }}
+                  >
+                    <option value="">Regular</option>
+                    {discountTypes.map(discount => (
+                      <option key={discount.id} value={discount.id}>
+                        {discount.name} (-{discount.percentage}%)
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-          <div className="booking-divider" />
+                <div className="booking-row">
+                  <div className="booking-label">Price</div>
+                  <div className="booking-value">${ticket.price}</div>
+                </div>
+
+                <div className="booking-divider" />
+              </div>
+            ))}
 
           <div className="booking-total">Total: ${totalPrice}</div>
-
           <div className="booking-button-container">
             <button onClick={handleConfirmBooking} disabled={isLoading} className="booking-confirm-button">
               {isLoading ? "Loading..." : "Confirm Booking"}

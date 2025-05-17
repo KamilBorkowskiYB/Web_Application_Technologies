@@ -13,18 +13,36 @@
 }
 
 .content-wrapper {
+  margin-top: auto;
   width: 800px;
   max-width: 100%;
+  align-items: center;
 }
 
-.screen-container {
-  border-radius: 12px;
-  background-color: #151a28;
-  padding: 24px;
+.seat-selection-title {
+  color: #e9ecef;
+  font-family: Poppins, sans-serif;
+  font-size: 24px;
+  font-weight: 500;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 10px;
 }
+
+.screen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #151a28;
+  border-radius: 12px;
+  padding: 24px;
+  
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
 
 .screen-bar {
   border-radius: 4px;
@@ -38,7 +56,10 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  
+  width: fit-content;
 }
+
 
 .seat-header {
   display: flex;
@@ -105,15 +126,6 @@
 .seat.just-taken {
   animation: blink 0.8s ease-in-out;
 }
-
-.seat.selected.normal {
-  background-color: #1976d2; /* niebieski dla normalnych */
-}
-
-.seat.selected.student {
-  background-color: #43a047; /* zielony dla studentów */
-}
-
 .seat-legend {
   display: flex;
   margin-top: 48px;
