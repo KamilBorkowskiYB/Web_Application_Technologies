@@ -33,7 +33,12 @@ const Login = () => {
             <div className="divider-line"></div>
           </div>
 
-          <button className="social-button google-button">
+          <button className="social-button google-button"
+            onClick={() => {
+              window.location.href =
+                "http://127.0.0.1:8000/accounts/google/login/?next=http://localhost:3000/after-login";
+            }}
+          >
             <img
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/ad71c24f47a2ca74c589e9308e862bf7221fdcc4?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809"
               className="social-icon"
