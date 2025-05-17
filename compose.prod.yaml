@@ -1,0 +1,12 @@
+services:
+  cinema_nginx:
+    build: ./nginx
+    image: tai-nginx
+    depends_on:
+      - backend
+      - frontend
+    ports:
+      - 80:80
+    networks:
+      - internal
+      - external

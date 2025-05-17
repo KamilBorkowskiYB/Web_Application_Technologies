@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from rest_framework.validators import UniqueValidator
+from decimal import Decimal, ROUND_HALF_UP
 
 class CinemaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -105,12 +106,17 @@ class TicketDiscountSerializer(serializers.ModelSerializer):
 
     def validate(self, data):
         if data.get('start_date') and data.get('end_date'):
+            start_date = data['start_date']
+            end_date = data['end_date']
             # Check if the start date is before the end date
-            if data.get('start_date') >= data.get('end_date'):
+            if start_date >= end_date:
                 raise serializers.ValidationError("The start date must be before the end date.")
             
+            # if start_date and timezone.is_naive(start_date):
+            #     start_date = timezone.make_aware(start_date)
+
             # Check if the start date is in the future
-            if data.get('start_date') <= timezone.datetime.now():
+            if start_date <= timezone.now():
                 raise serializers.ValidationError("The start date must be in the future.")
         
         return data
@@ -122,7 +128,7 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = '__all__'
-        read_only_fields = ['purchase_time', 'purchase_price']
+        read_only_fields = ['purchase_time', 'purchase_price', 'base_price']
 
     def validate(self, attrs):
         # Check if the seat is already booked for the showing
@@ -136,14 +142,17 @@ class TicketSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         # Calculate the purchase price based on the base price and discount
         showing = validated_data['showing']
-        base_price = showing.movie.base_price
+        base_price = showing.ticket_price
         discount = validated_data.get('discount')
 
         if discount:
-            purchase_price = base_price * (1 - discount.percentage / 100)
+            purchase_price = Decimal(base_price) * (1 - Decimal(discount.percentage) / 100)
+            purchase_price = purchase_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
         else:
             purchase_price = base_price
 
+        validated_data['base_price'] = base_price
         validated_data['purchase_price'] = purchase_price
         return super().create(validated_data)
 

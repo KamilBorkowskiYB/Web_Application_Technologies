@@ -79,6 +79,7 @@ class MovieShowing(models.Model):
     showing_type = models.ForeignKey(HallType, null=True, on_delete=models.SET_NULL)
     movie = models.ForeignKey(Movie, null=True, on_delete=models.SET_NULL)
     hall = models.ForeignKey(CinemaHall, null=True, on_delete=models.SET_NULL)
+    ticket_price = models.FloatField()
 
     class Meta:
         constraints = [

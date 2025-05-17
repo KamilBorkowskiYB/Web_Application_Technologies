@@ -20,10 +20,9 @@ jobs:
 
       - name: Build Docker images
         run: |
-          export DOCKER_BUILDKIT=0
-          docker compose build
+          docker compose -f compose.yaml -f compose.prod.yaml build
           docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend
+          docker save -o cinema_images.tar tai-django-web tai-frontend tai-nginx
           file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
@@ -52,13 +51,22 @@ jobs:
             ls -lh /home/${{ secrets.SSH_USER }}
             file /home/${{ secrets.SSH_USER }}/cinema_images.tar
 
-      - name: Copy project files
+      - name: Copy compose.yaml files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "compose.yaml"
+          target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
+
+      - name: Copy compose.prod.yaml files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "compose.prod.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
       - name: Upload .env to server
@@ -89,8 +97,11 @@ jobs:
             echo "Stopping containers..."
             docker compose down -v
 
+            echo "Force removing all containers..."
+            docker rm -f $(docker ps -aq) || true
+
             echo "Starting containers..."
-            docker compose -f compose.yaml up -d
+            docker compose -f compose.yaml -f compose.prod.yaml up -d
 
 
   migrate:
@@ -104,6 +115,17 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
+            echo "Waiting for container..."
+            for i in {1..30}; do
+              if docker ps --filter "name=cinema_backend" --filter "status=running" | grep -q cinema_backend; then
+                echo "cinema_backend is on!"
+                break
+              fi
+              echo "Waiting for cinema_backend... ($i)"
+              sleep 3
+            done
+
+
             rm -rf /home/${{ secrets.SSH_USER }}/cinema_images.tar
             echo "Running Django migrations..."
             docker exec cinema_backend python manage.py migrate
