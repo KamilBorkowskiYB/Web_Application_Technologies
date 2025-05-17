@@ -25,6 +25,18 @@
     color: rgb(67, 24, 209); /* Zmiana koloru przy najechaniu */
   }
 
+  .nav-link {
+    margin: 0 12px;
+    color: rgb(173, 181, 189);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  .nav-link:hover {
+    text-decoration: underline;
+  }
+
+
   @media (max-width: 991px) {
     .navigation {
       padding-left: 20px;

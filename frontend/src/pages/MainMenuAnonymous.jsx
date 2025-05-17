@@ -6,22 +6,37 @@ import { useNavigate } from 'react-router-dom';
 
 const MainMenuAnonymous = () => {
   const [movies, setMovies] = useState([]);
+  const [filterParams, setFilterParams] = useState({});
   const navigate = useNavigate();
+  const apiKey = process.env.REACT_APP_API_KEY;
+
+  const apiFetch = (url, options = {}) => {
+  const headers = {
+    "Authorization": `Api-Key ${apiKey}`,
+    ...options.headers,
+  };
+  return fetch(url, { ...options, headers });
+  };
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/movies/')
+    const queryParams = new URLSearchParams(filterParams).toString();
+    apiFetch(`http://127.0.0.1:8000/api/movies/?${queryParams}`)
       .then(response => response.json())
-      .then(data => setMovies(data))
+      .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching movies:', error));
-  }, []);
+  }, [filterParams]); // <-- Odświeżanie przy zmianie filtra
+
+  const handleFilterChange = (params) => {
+    setFilterParams(params);
+  };
 
   return (
     <div className="main-menu">
-      <Header />
-      <Navigation />
+      <Header onSearch={(title) => handleFilterChange({ title })} />
+      <Navigation onFilterSelect={handleFilterChange} />
       <div className="main-content">
         <div className="movie-grid">
-          {movies.map((movie) => (
+          {Array.isArray(movies) && movies.map((movie) => (
             <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
               <img
                 src={ movie.poster }
