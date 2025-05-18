@@ -69,6 +69,15 @@ jobs:
           source: "compose.prod.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
+      - name: Copy compose.prod.up.yaml files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "compose.prod.up.yaml"
+          target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
+
       - name: Upload .env to server
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -101,7 +110,7 @@ jobs:
             docker rm -f $(docker ps -aq) || true
 
             echo "Starting containers..."
-            docker compose -f compose.yaml -f compose.prod.yaml up -d
+            docker compose -f compose.prod.up.yaml up -d
 
 
   migrate:
