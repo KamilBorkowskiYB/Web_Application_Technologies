@@ -11,20 +11,21 @@ const MainMenuAnonymous = () => {
   const apiKey = process.env.REACT_APP_API_KEY;
 
   const apiFetch = (url, options = {}) => {
-  const headers = {
-    "Authorization": `Api-Key ${apiKey}`,
-    ...options.headers,
-  };
-  return fetch(url, { ...options, headers });
+    const headers = {
+      "Authorization": `Api-Key ${apiKey}`,
+      ...options.headers,
+    };
+    return fetch(url, { ...options, headers });
   };
 
+  // 2. Gdy filtr się zmieni (albo z URL-a, albo z ręcznego wyszukiwania) → pobierz filmy
   useEffect(() => {
     const queryParams = new URLSearchParams(filterParams).toString();
     apiFetch(`http://127.0.0.1:8000/api/movies/?${queryParams}`)
       .then(response => response.json())
       .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching movies:', error));
-  }, [filterParams]); // <-- Odświeżanie przy zmianie filtra
+  }, [filterParams]);
 
   const handleFilterChange = (params) => {
     setFilterParams(params);

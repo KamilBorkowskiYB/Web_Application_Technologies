@@ -37,19 +37,27 @@ const ExploreByGenre = () => {
   return (
     <div className="explore-by-genre">
       <Header />
-      <div className="main-content">
+      <div className="explore-main-content">
         <h2 className="explore-title">Explore by Genre</h2>
-        {genres.map((genre) => (
+        {genres.map((genre, index) => (
           <div key={genre.id} className="genre-section">
             <h3 className="genre-title">{genre.genre}</h3>
-            <div className="movie-row">
-              {(moviesByGenre[genre.genre] || []).map((movie) => (
-                <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
-                  <img src={movie.poster} alt={movie.title} className="movie-image" />
-                  <div className="movie-title">{movie.title}</div>
-                </div>
-              ))}
-            </div>
+
+            {moviesByGenre[genre.genre] && moviesByGenre[genre.genre].length > 0 ? (
+              <div className="movie-row">
+                {moviesByGenre[genre.genre].map((movie) => (
+                  <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+                    <img src={movie.poster} alt={movie.title} className="movie-image" />
+                    <div className="movie-title">{movie.title}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="no-movies">Brak filmów w tym gatunku.</div>
+            )}
+
+            {/* Divider except after last genre */}
+            {index < genres.length - 1 && <div className="genre-divider" />}
           </div>
         ))}
       </div>

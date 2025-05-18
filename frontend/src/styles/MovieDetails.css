@@ -7,10 +7,34 @@
 .movie-content {
   background-color: rgb(10, 15, 28);
   display: flex;
-  height: 100%;
-  padding-bottom: 48px;
   flex-direction: column;
+  min-height: 100vh;
   align-items: stretch;
+}
+
+.movie-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #ccc;
+  margin-top: 80px;
+  font-size: 1.2rem;
+}
+
+.reel-loader {
+  width: 48px;
+  height: 48px;
+  border: 6px solid #e50914;
+  border-top: 6px solid #151a28;
+  border-radius: 50%;
+  animation: spinReel 1.2s linear infinite;
+  margin-bottom: 16px;
+}
+
+@keyframes spinReel {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .content-wrapper {

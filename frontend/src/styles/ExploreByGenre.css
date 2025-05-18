@@ -1,4 +1,6 @@
 .explore-by-genre {
+  display: flex;
+  flex-direction: column;
   background-color: rgb(10, 15, 28);
   overflow-x: hidden;
   height: 100vh;
@@ -14,8 +16,12 @@
   text-align: center;
 }
 
-.genre-section {
-  margin-bottom: 60px;
+.explore-main-content{
+  margin: 0 auto;
+}
+
+.genre-section{
+  align-items: center;
 }
 
 .genre-title {
@@ -31,6 +37,7 @@
   gap: 20px;
   overflow-x: auto;
   padding-bottom: 10px;
+  padding-left: 10px;
   scroll-snap-type: x mandatory;
 }
 
@@ -58,9 +65,29 @@
 }
 
 .movie-title {
-  margin-top: 8px;
-  text-align: center;
-  font-size: 14px;
+  position: relative;
+  padding: 16px;
+  align-self: center;
+  font-size: 20px;
   font-weight: 500;
-  color: white;
+  color: #e0e0e0;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
+
+
+.no-movies {
+  color: #ccc;
+  font-style: italic;
+  margin-left: 12px;
+  margin-bottom: 16px;
+}
+
+.genre-divider {
+  height: 2px;
+  width: 100vw;
+  background: linear-gradient(to right, #333, #666, #333);
+  margin: 20px 0;
+  border-radius: 2px;
+  opacity: 0.4;
+}
+

@@ -135,14 +135,13 @@ const SeatSelection = () => {
   return (
     <div className="seat-selection">
       <Header />
-      <Navigation />
       <div className="seat-selection-content">
-        <div className="content-wrapper">
+        {seats && seats.length > 0 ? (
+        <div className="seat-selection-content-wrapper">
         <div className="seat-selection-title">Select Seats</div>
           <div className="screen-container">
             <div className="screen-bar" />
             <div className="seat-container">
-              {seats && seats.length > 0 ? (
                 <div className="seat-header">
                   <div className="seat-corner" /> {/* pusty narożnik */}
                   {[...Array(maxSeatsInRow)].map((_, index) => (
@@ -151,9 +150,6 @@ const SeatSelection = () => {
                     </div>
                   ))}
                 </div>
-              ) : (
-                <div>Loading seats...</div>
-              )}
               <div className="seat-grid">
                 {Object.entries(groupedByRow).map(([row, rowSeats]) => (
                   <div key={row} className="seat-row">
@@ -198,7 +194,6 @@ const SeatSelection = () => {
               </div>
             </div>
           </div>
-
           <div className="booking-panel">
             <button
               className="reserve-button"
@@ -209,6 +204,12 @@ const SeatSelection = () => {
             </button>
           </div>
         </div>
+        ) : (
+          <div className="loading-seats">
+            <div className="popcorn-loader" />
+            <p>Loading seats... grab your popcorn! 🍿</p>
+          </div>
+        )}
       </div>
     </div>
   );

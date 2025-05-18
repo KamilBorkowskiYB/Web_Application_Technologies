@@ -1,10 +1,12 @@
-import React, { useState, onSearch } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import '../styles/Header.css'; // jeśli potrzebne globalne style
 
 const Header = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLoginClick = () => {
     navigate('/login'); // Ścieżka do strony logowania
@@ -14,9 +16,15 @@ const Header = ({ onSearch }) => {
     navigate('/'); // Ikonka strony głównej
   }
 
+  useEffect(() => {
+    const title = searchParams.get('title') || '';
+    setSearchTerm(title);
+  }, [searchParams]);
+
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
-      onSearch(searchTerm); // <-- Przekazanie do rodzica
+      const encodedTitle = encodeURIComponent(searchTerm.trim());
+      navigate(`/search?title=${encodedTitle}`);
     }
   };
 
