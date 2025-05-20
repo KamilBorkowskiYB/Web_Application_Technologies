@@ -27,7 +27,7 @@ CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
 # Application definition
 
-SITE_ID = 2
+SITE_ID = int(env('SITE_ID'))
 
 INSTALLED_APPS = [
     'daphne',
