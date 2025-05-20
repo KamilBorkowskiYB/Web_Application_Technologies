@@ -27,9 +27,11 @@ CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
 # Application definition
 
+
 SITE_ID = env.int('SITE_ID')
 FRONTEND_URL = env('FRONTEND_URL')
 BACKEND_URL = env('REACT_APP_BACKEND_URL')
+
 
 INSTALLED_APPS = [
     'daphne',
@@ -150,6 +152,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
