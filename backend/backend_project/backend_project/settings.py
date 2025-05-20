@@ -27,7 +27,9 @@ CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
 # Application definition
 
-SITE_ID = 2
+SITE_ID = env.int('SITE_ID')
+FRONTEND_URL = env('FRONTEND_URL')
+BACKEND_URL = env('REACT_APP_BACKEND_URL')
 
 INSTALLED_APPS = [
     'daphne',
@@ -184,5 +186,6 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
-LOGIN_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = "http://localhost:8000/api/google-redirect/"
+LOGIN_REDIRECT_URL = f"{BACKEND_URL}/api/google-redirect"
 LOGOUT_REDIRECT_URL = '/'
