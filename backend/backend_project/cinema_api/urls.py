@@ -17,4 +17,5 @@ router.register('ticket_discounts', TicketDiscountViewSet, basename='ticket_disc
 
 urlpatterns = [
     path('api/', include(router.urls)),
+    path('api/google-redirect/', google_login_redirect, name='google_login_redirect'),
 ]
