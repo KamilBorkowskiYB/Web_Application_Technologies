@@ -16,6 +16,10 @@ const Header = ({ onSearch }) => {
     navigate('/'); // Ikonka strony głównej
   }
 
+  const handleTicketsClick = () => {
+    navigate('/my-tickets'); // Ikonka strony głównej
+  }
+
   useEffect(() => {
     const title = searchParams.get('title') || '';
     setSearchTerm(title);
@@ -51,6 +55,7 @@ const Header = ({ onSearch }) => {
             {/* <img src="/icons/location.svg" alt="Location" className="location-icon" /> */}
             <span>Downtown, Warsaw</span>
         </div>
+        <div className="my-tickets-button" onClick={handleTicketsClick}>My Tickets</div>
         <div className="sign-in-button" onClick={handleLoginClick}>Sign In</div>
         </div>
     </div>

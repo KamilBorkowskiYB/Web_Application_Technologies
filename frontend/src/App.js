@@ -1,13 +1,14 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import './App.css';
-import MainMenuAnonymous from './pages/MainMenuAnonymous.jsx';
-import ExploreByGenre from './pages/ExploreByGenre';
-import MovieDetails from './pages/MovieDetails.jsx';
-import Login from './pages/Login.jsx';
-import SeatSelection from './pages/SeatSelection.jsx';
-import BookingSummary from './pages/BookingSummary.jsx';
-import SearchPage from './pages/SearchPage.jsx';
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import "./App.css";
+import MainMenuAnonymous from "./pages/MainMenuAnonymous.jsx";
+import ExploreByGenre from "./pages/ExploreByGenre";
+import MovieDetails from "./pages/MovieDetails.jsx";
+import Login from "./pages/Login.jsx";
+import SeatSelection from "./pages/SeatSelection.jsx";
+import BookingSummary from "./pages/BookingSummary.jsx";
+import SearchPage from "./pages/SearchPage.jsx";
+import MyTickets from "./pages/MyTickets.jsx";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/seat-selection" element={<SeatSelection />} />
         <Route path="/summary" element={<BookingSummary />} />
+        <Route path="/my-tickets" element={<MyTickets />} />
       </Routes>
     </Router>
   );

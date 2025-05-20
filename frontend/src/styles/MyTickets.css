@@ -1,0 +1,86 @@
+.my-tickets {
+  background-color: rgb(255, 255, 255);
+  min-height: 100vh;
+  overflow-y: auto;
+}
+
+.my-tickets-content {
+  background-color: rgb(10, 15, 28);
+  padding: 48px 80px;
+  min-height: calc(100vh - 80px);
+}
+
+.my-tickets-title {
+  color: #e9ecef;
+  font-size: 32px;
+  font-family:
+    Poppins,
+    -apple-system,
+    Roboto,
+    Helvetica,
+    sans-serif;
+  font-weight: 500;
+  margin-bottom: 32px;
+}
+
+.tickets-list {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.tickets-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #e9ecef;
+  height: 200px;
+}
+
+.tickets-loader {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #4318d1;
+  border-top: 4px solid transparent;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 16px;
+}
+
+.no-tickets {
+  text-align: center;
+  color: #adb5bd;
+  font-size: 18px;
+  margin-top: 48px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 991px) {
+  .my-tickets-content {
+    padding: 32px 20px;
+  }
+
+  .my-tickets-title {
+    font-size: 28px;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .my-tickets-content {
+    padding: 24px 16px;
+  }
+
+  .my-tickets-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+}
