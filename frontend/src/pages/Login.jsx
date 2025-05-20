@@ -53,8 +53,7 @@ const Login = () => {
           <button
             className="social-button google-button"
             onClick={() => {
-              const googleLoginUrl =
-                `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`;
+              const googleLoginUrl = "/accounts/google/login"; // Powinien być  `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; ale na serwerze wychodzi cinemaland.pl/cinemaland.pl/accounts/google/login
 
               window.open(
                 googleLoginUrl,

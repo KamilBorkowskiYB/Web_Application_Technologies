@@ -95,10 +95,7 @@ jobs:
             cd CinemaLand
 
             echo "Stopping containers..."
-            docker compose down -v
-
-            echo "Force removing all containers..."
-            docker rm -f $(docker ps -aq) || true
+            docker compose down 
 
             echo "Starting containers..."
             docker compose -f compose.prod.up.yaml up -d
