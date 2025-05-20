@@ -34,13 +34,7 @@ BACKEND_URL = env('REACT_APP_BACKEND_URL')
 
 
 INSTALLED_APPS = [
-    'daphne',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'cinema_api',
 
     'corsheaders',
     'rest_framework',
@@ -48,13 +42,19 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_api_key',
     
-    'cinema_api',
-
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    'daphne',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -192,3 +192,5 @@ SOCIALACCOUNT_LOGIN_ON_GET=True
 #LOGIN_REDIRECT_URL = "http://localhost:8000/api/google-redirect/"
 LOGIN_REDIRECT_URL = f"{BACKEND_URL}/api/google-redirect"
 LOGOUT_REDIRECT_URL = '/'
+
+CSRF_TRUSTED_ORIGINS = ['https://cinemaland.pl']
