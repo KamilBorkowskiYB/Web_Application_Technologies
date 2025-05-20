@@ -20,9 +20,9 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker compose -f compose.yaml -f compose.prod.yaml build
+          docker compose -f compose.yaml build
           docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend tai-nginx
+          docker save -o cinema_images.tar tai-django-web tai-frontend
           file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
@@ -58,15 +58,6 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "compose.yaml"
-          target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
-
-      - name: Copy compose.prod.yaml files
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "compose.prod.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
       - name: Copy compose.prod.up.yaml files

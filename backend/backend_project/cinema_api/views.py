@@ -12,6 +12,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import redirect
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .tmdb_requests import movie_info
 from .utils import seat_generation
@@ -178,3 +180,10 @@ class UserProfileView(APIView):
             'email': user.email,
             'tickets': TicketSerializer(ticket, many=True).data,
         })
+
+def google_login_redirect(request):
+    user = request.user
+    token = RefreshToken.for_user(user).access_token
+    
+    frontend_url = request.GET.get("next", f"{settings.FRONTEND_URL}/after-google-login")
+    return redirect(f"{frontend_url}?token={token}")
