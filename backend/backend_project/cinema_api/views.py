@@ -6,7 +6,9 @@ from .models import *
 from .serializers import *
 from .filters import *
 
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, generics, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
@@ -16,8 +18,6 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from .tmdb_requests import movie_info
 from .utils import seat_generation
 
-
-# Create your views here.
 
 class CinemaViewSet(viewsets.ModelViewSet):
     queryset = Cinema.objects.all()
@@ -156,6 +156,30 @@ class MovieCrewViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        return Response({
+            'username': user.username,
+            'email': user.email,
+        }, status=status.HTTP_201_CREATED)
+
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        ticket = Ticket.objects.filter(user=user)
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'tickets': TicketSerializer(ticket, many=True).data,
+        })
 
 def google_login_redirect(request):
     user = request.user
