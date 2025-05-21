@@ -1,7 +1,10 @@
 FROM node@sha256:557e52a0fcb928ee113df7e1fb5d4f60c1341dbda53f55e3d815ca10807efdce
  
 WORKDIR /app
- 
+
+ARG REACT_APP_API_KEY
+ENV REACT_APP_API_KEY=$REACT_APP_API_KEY
+
 COPY package*.json ./
  
 RUN yarn install
@@ -10,6 +13,6 @@ COPY . .
  
 EXPOSE 3000
  
-RUN yarn build
+RUN REACT_APP_API_KEY=$REACT_APP_API_KEY yarn build
 RUN yarn global add serve
 CMD ["serve", "-s", "build", "-l", "3000"]
