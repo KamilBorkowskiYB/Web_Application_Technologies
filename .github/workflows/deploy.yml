@@ -96,6 +96,7 @@ jobs:
 
             echo "Stopping containers..."
             docker compose down 
+            docker image prune -f
 
             echo "Starting containers..."
             docker compose -f compose.prod.up.yaml up -d
