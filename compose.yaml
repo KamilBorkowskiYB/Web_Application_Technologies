@@ -51,7 +51,10 @@ services:
       - external
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        REACT_APP_API_KEY: ${REACT_APP_API_KEY}
     image: tai-frontend
     container_name: cinema_frontend
     command: yarn start
