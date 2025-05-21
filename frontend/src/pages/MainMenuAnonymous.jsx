@@ -21,6 +21,7 @@ const MainMenuAnonymous = () => {
 
   useEffect(() => {
     const queryParams = new URLSearchParams(filterParams).toString();
+    console.log(`API_KEY: ${apiKey}`);
     console.log(`${API_URL}/api/movies/?${queryParams}`);
     apiFetch(`${API_URL}/api/movies/?${queryParams}`)
       .then(response => response.json())
