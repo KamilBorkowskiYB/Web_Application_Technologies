@@ -138,7 +138,7 @@
 }
 
 .seat.taken {
-  background-color: #2a3142;
+  background-color: #73138b;
   cursor: not-allowed;
 }
 
@@ -181,7 +181,7 @@
 }
 
 .legend-box.taken {
-  background-color: #2a3142;
+  background-color: #73138b;
 }
 
 .booking-panel {
