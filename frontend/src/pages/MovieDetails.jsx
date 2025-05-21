@@ -27,7 +27,7 @@ const MovieDetails = () => {
   };
 
   useEffect(() => {
-    apiFetch(`${API_URL}/apiapi/movies/${id}`)
+    apiFetch(`${API_URL}/api/movies/${id}`)
       .then((res) => res.json())
       .then(setMovie)
       .catch(console.error);
