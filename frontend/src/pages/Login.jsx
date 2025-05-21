@@ -53,10 +53,7 @@ const Login = () => {
           <button
             className="social-button google-button"
             onClick={() => {
-              const backendUrl = process.env.REACT_APP_BACKEND_URL || window.location.origin;
-              const googleLoginUrl = `${backendUrl}/accounts/google/login`;
-              //const googleLoginUrl = `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; // Powinien być  `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; ale na serwerze wychodzi cinemaland.pl/cinemaland.pl/accounts/google/login
-              //DEBBUG "/accounts/google/login";
+              const googleLoginUrl = `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; 
 
               window.open(
                 googleLoginUrl,
