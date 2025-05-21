@@ -1,3 +1,3 @@
-const API_URL = ProcessingInstruction.env.REACT_APP_BACKEND_URL
+const API_URL = process.env.REACT_APP_API_URL
 
 export {API_URL};
