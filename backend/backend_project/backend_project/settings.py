@@ -22,7 +22,7 @@ DEBUG = env('DEBUG', default=False)
 
 ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
 
-CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',') + ['https://cinemaland.pl']
+CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
 
 # Application definition
