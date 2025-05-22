@@ -20,9 +20,9 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker compose -f compose.yaml -f compose.prod.yaml build
+          docker compose -f compose.yaml build --build-arg REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} --build-arg REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}
           docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend tai-nginx
+          docker save -o cinema_images.tar tai-django-web tai-frontend
           file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
@@ -60,13 +60,13 @@ jobs:
           source: "compose.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
-      - name: Copy compose.prod.yaml files
+      - name: Copy compose.prod.up.yaml files
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "compose.prod.yaml"
+          source: "compose.prod.up.yaml"
           target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
 
       - name: Upload .env to server
@@ -95,13 +95,11 @@ jobs:
             cd CinemaLand
 
             echo "Stopping containers..."
-            docker compose down -v
-
-            echo "Force removing all containers..."
-            docker rm -f $(docker ps -aq) || true
+            docker compose down 
+            docker image prune -f
 
             echo "Starting containers..."
-            docker compose -f compose.yaml -f compose.prod.yaml up -d
+            docker compose -f compose.prod.up.yaml up -d
 
 
   migrate:

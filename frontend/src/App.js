@@ -7,6 +7,7 @@ import MovieDetails from './pages/MovieDetails.jsx';
 import Login from './pages/Login.jsx';
 import SeatSelection from './pages/SeatSelection.jsx';
 import BookingSummary from './pages/BookingSummary.jsx';
+import AfterGoogleLogin from './pages/AfterGoogleLogin.jsx';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/seat-selection" element={<SeatSelection />} />
         <Route path="/summary" element={<BookingSummary />} />
+        <Route path="/after-google-login" element={<AfterGoogleLogin />} />
       </Routes>
     </Router>
   );

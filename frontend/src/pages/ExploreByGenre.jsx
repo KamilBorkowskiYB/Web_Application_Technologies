@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import '../styles/ExploreByGenre.css'; // Styl dodasz osobno
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 const ExploreByGenre = () => {
   const [genres, setGenres] = useState([]);
@@ -19,13 +20,13 @@ const ExploreByGenre = () => {
 
   useEffect(() => {
     // Pobieramy wszystkie gatunki
-    apiFetch('http://127.0.0.1:8000/api/genres/')
+    apiFetch(`${API_URL}/api/genres/`)
       .then(res => res.json())
       .then(data => {
         setGenres(data.results);
         // Dla każdego gatunku pobieramy filmy
         data.results.forEach((genre) => {
-          apiFetch(`http://127.0.0.1:8000/api/movies/?genre=${genre.id}`)
+          apiFetch(`${API_URL}/api/movies/?genre=${genre.id}`)
             .then(res => res.json())
             .then(movies => {
               setMoviesByGenre(prev => ({ ...prev, [genre.genre]: movies.results }));
