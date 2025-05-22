@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
+from .filters import OrderFilter
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -45,6 +46,8 @@ def change_status(request):
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
+    filterset_class = OrderFilter
+    filterset_fields = ['user', 'status']
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
