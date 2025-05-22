@@ -20,7 +20,7 @@ TMDB_API_KEY = env('TMDB_API_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG', default=False)
 
-ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',')
+ALLOWED_HOSTS = env('ALLOWED_HOSTS').split(',') + ["d490-185-152-123-92.ngrok-free.app"]
 
 CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
@@ -35,7 +35,8 @@ BACKEND_URL = env('REACT_APP_BACKEND_URL')
 
 INSTALLED_APPS = [
     'cinema_api',
-
+    'payment',
+    
     'corsheaders',
     'rest_framework',
     'channels',
