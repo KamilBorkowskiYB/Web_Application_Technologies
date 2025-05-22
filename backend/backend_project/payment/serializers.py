@@ -22,12 +22,15 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
-        read_only_fields = ['id', 'status', 'amount']
+        read_only_fields = ['id', 'status', 'amount', 'user']
 
     def create(self, validated_data):
         tickets = validated_data.pop('tickets')
         validated_data['amount'] = sum(ticket.purchase_price for ticket in tickets)
         validated_data['status'] = PaymentStatus.objects.get(label='Pending')
+        user = self.context['request'].user
+        validated_data['user'] = user if user.is_authenticated else None
+
         order = Order.objects.create(**validated_data)
         order.tickets.set(tickets)
         return order

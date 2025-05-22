@@ -12,12 +12,6 @@ environ.Env.read_env(env_file=os.path.join(BASE_DIR, '..', '..', '.env'))
 
 shop_id = "490967"
 
-
-ticket_id = "17"
-price = 2499 # cena w groszach
-
-
-
 def get_url(order):
     token = None
     print("Getting URL for order:", order.id)
@@ -43,26 +37,20 @@ def get_url(order):
     payload = {
         "continueUrl": "https://cinemaland.pl/",
         "notifyUrl": f"https://d490-185-152-123-92.ngrok-free.app/api/orders/change_order_status/",
+        # "notifyUrl": "https://cinemaland.pl/api/orders/change_order_status/",
         "customerIp": "127.0.0.1",
         "merchantPosId": shop_id,
         "description": f"Order: {order.id}",
         "currencyCode": "PLN",
         "extOrderId": f"Ticket Order: {order.id}",
-        "totalAmount": price,
-        "buyer": {
-            "extCustomerId": "cust_12345",
-            "email": "client@cinemaland.com",
-            "phone": "654111654",
-            "firstName": "John",
-            "lastName": "Doe",
-            "language": "pl",
-        },
+        "totalAmount": int(order.amount * 100),
         "products": [
             {
-                "name": f"Ticket: {order.tickets.first()}",
-                "unitPrice": int(order.tickets.first().purchase_price),
-                "quantity": 1,
+                "name": f"Ticket: {ticket}",
+                "unitPrice": int(ticket.purchase_price * 100),
+                "quantity": 1
             }
+            for ticket in order.tickets.all()
         ]
     }
     response = requests.post(url, headers=headers, json=payload, allow_redirects=False)
