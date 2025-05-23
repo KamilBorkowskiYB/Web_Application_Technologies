@@ -27,16 +27,14 @@ CORS_ALLOWED_ORIGINS = env('CORS_ALLOWED_ORIGINS').split(',')
 
 # Application definition
 
-SITE_ID = 2
+
+SITE_ID = env.int('SITE_ID')
+FRONTEND_URL = env('FRONTEND_URL')
+BACKEND_URL = env('REACT_APP_BACKEND_URL')
+
 
 INSTALLED_APPS = [
-    'daphne',
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    'cinema_api',
 
     'corsheaders',
     'rest_framework',
@@ -44,13 +42,19 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework_api_key',
     
-    'cinema_api',
-
     'django.contrib.sites',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+
+    'daphne',
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
 ]
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -147,7 +151,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = 'static_django/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -184,5 +189,10 @@ AUTHENTICATION_BACKENDS = (
 )
 
 SOCIALACCOUNT_LOGIN_ON_GET=True
-LOGIN_REDIRECT_URL = '/'
+#LOGIN_REDIRECT_URL = "http://localhost:8000/api/google-redirect/"
+LOGIN_REDIRECT_URL = f"{BACKEND_URL}/api/google-redirect"
 LOGOUT_REDIRECT_URL = '/'
+
+CSRF_TRUSTED_ORIGINS = ['https://cinemaland.pl']
+# SECURE_SSL_REDIRECT = True
+# SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

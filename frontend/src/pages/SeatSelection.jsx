@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Navigation from "../components/Navigation";
 import "../styles/SeatSelection.css";
+import { API_URL } from "../config";
 
 const SeatSelection = () => {
   const location = useLocation();
@@ -46,7 +47,7 @@ const SeatSelection = () => {
     if (!cinemaHallId || !showingId) return;
 
     // Pobierz wszystkie miejsca (wszystkie strony)
-    fetchAllPages("http://127.0.0.1:8000/api/seats/")
+    fetchAllPages(`${API_URL}/api/seats/`)
       .then((allSeats) => {
         const filteredSeats = allSeats.filter(seat => seat.hall === cinemaHallId);
         setSeats(filteredSeats);
@@ -54,7 +55,7 @@ const SeatSelection = () => {
       .catch((err) => console.error("Failed to fetch seats:", err));
 
     // Pobierz wszystkie bilety (wszystkie strony)
-    fetchAllPages(`http://127.0.0.1:8000/api/tickets/?showing=${showingId}`)
+    fetchAllPages(`${API_URL}/api/tickets/?showing=${showingId}`)
       .then((allTickets) => {
         const taken = allTickets.map(ticket => ticket.seat);
         setTakenSeats(taken);

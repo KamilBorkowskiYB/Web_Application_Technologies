@@ -1,7 +1,24 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/Login.css';
 
 const Login = () => {
+  const [token, setToken] = useState(null);
+
+  useEffect(() => {
+    const channel = new BroadcastChannel("auth_channel");
+
+    channel.onmessage = (event) => {
+      const token = event.data.token;
+      console.log("TOKEN z popupu:", token);
+
+      setToken(token);
+      localStorage.setItem("auth_token", token);
+    };
+
+    return () => {
+      channel.close();
+    };
+  }, []);
   return (
     <div className="login-page">
       <div className="login-container">
@@ -33,10 +50,16 @@ const Login = () => {
             <div className="divider-line"></div>
           </div>
 
-          <button className="social-button google-button"
+          <button
+            className="social-button google-button"
             onClick={() => {
-              window.location.href =
-                "http://127.0.0.1:8000/accounts/google/login/?next=http://localhost:3000/after-login";
+              const googleLoginUrl = `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; 
+
+              window.open(
+                googleLoginUrl,
+                "_blank",
+                "width=500,height=600"
+              );
             }}
           >
             <img

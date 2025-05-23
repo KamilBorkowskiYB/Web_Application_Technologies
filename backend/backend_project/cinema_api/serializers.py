@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import *
 from rest_framework.validators import UniqueValidator
+from django.contrib.auth.models import User
 from decimal import Decimal, ROUND_HALF_UP
 
 class CinemaSerializer(serializers.ModelSerializer):
@@ -180,3 +181,28 @@ class MovieCrewSerializer(serializers.ModelSerializer):
     class Meta:
         model = MovieCrew
         fields = '__all__'
+
+class UserSerializer(serializers.ModelSerializer):
+    files = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    password1 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'files', 'password1', 'password2']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def validate(self, attrs):
+        if attrs['password1'] != attrs['password2']:
+            raise serializers.ValidationError("Passwords does not match.")
+        if User.objects.filter(email=attrs['email']).exists():
+            raise serializers.ValidationError("User with this mail exist.")
+        return attrs
+    
+    def create(self, validated_data):
+        password = validated_data.pop('password1')
+        validated_data.pop('password2')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
+        return user

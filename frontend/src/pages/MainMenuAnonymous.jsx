@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import Navigation from '../components/Navigation';
 import '../styles/MainMenuAnonymous.css';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 
 const MainMenuAnonymous = () => {
   const [movies, setMovies] = useState([]);
@@ -21,7 +22,8 @@ const MainMenuAnonymous = () => {
   // 2. Gdy filtr się zmieni (albo z URL-a, albo z ręcznego wyszukiwania) → pobierz filmy
   useEffect(() => {
     const queryParams = new URLSearchParams(filterParams).toString();
-    apiFetch(`http://127.0.0.1:8000/api/movies/?${queryParams}`)
+    console.log(`${API_URL}/api/movies/?${queryParams}`);
+    apiFetch(`${API_URL}/api/movies/?${queryParams}`)
       .then(response => response.json())
       .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching movies:', error));
