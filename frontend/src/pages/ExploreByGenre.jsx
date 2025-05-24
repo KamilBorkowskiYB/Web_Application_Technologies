@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import '../styles/ExploreByGenre.css'; // Styl dodasz osobno
 import { useNavigate } from 'react-router-dom';
@@ -10,13 +10,13 @@ const ExploreByGenre = () => {
   const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
 
-  const apiFetch = (url, options = {}) => {
+  const apiFetch = useCallback(async (url, options = {}) => {
   const headers = {
     "Authorization": `Api-Key ${apiKey}`,
     ...options.headers,
   };
   return fetch(url, { ...options, headers });
-  };
+  }, [apiKey]);
 
   useEffect(() => {
     // Pobieramy wszystkie gatunki
@@ -33,7 +33,7 @@ const ExploreByGenre = () => {
             });
         });
       });
-  }, []);
+  }, [apiFetch]);
 
   return (
     <div className="explore-by-genre">

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/BookingSummary.css";
 import Header from "../components/Header";
@@ -17,7 +17,7 @@ const BookingSummary = () => {
   } = location.state || {};
 
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [discountTypes, setDiscountTypes] = useState([]);
   const [tickets, setTickets] = useState(
     selectedSeats?.map(seat => ({
@@ -29,20 +29,20 @@ const BookingSummary = () => {
   const totalPrice = tickets.reduce((sum, ticket) => sum + ticket.price, 0);
   const apiKey = process.env.REACT_APP_API_KEY;
 
-  const apiFetch = (url, options = {}) => {
-  const headers = {
-    "Authorization": `Api-Key ${apiKey}`,
-    ...options.headers,
-  };
-  return fetch(url, { ...options, headers });
-  };
+  const apiFetch = useCallback(async (url, options = {}) => {
+    const headers = {
+      "Authorization": `Api-Key ${apiKey}`,
+      ...options.headers,
+    };
+    return fetch(url, { ...options, headers });
+  }, [apiKey]);
 
   useEffect(() => {
     apiFetch("http://localhost:8000/api/ticket_discounts/")
       .then(res => res.json())
       .then(data => {setDiscountTypes(data.results)})
       .catch(err => console.error(err));
-  }, []);
+  }, [apiFetch]);
 
 
   const handleConfirmBooking = async () => {
@@ -61,7 +61,6 @@ const BookingSummary = () => {
       buyer: 1
     }));
     
-    console.log(ticketsData[0].purchase_price)
     try {
       const responses = await Promise.all(
         ticketsData.map((ticket) =>
@@ -77,7 +76,7 @@ const BookingSummary = () => {
           })
         )
       );
-      alert("Rezerwacja zakończona sukcesem!");
+      // alert("Rezerwacja zakończona sukcesem!");
       navigate("/", { state: { booking: responses } });
     } catch (err) {
       setError(err.message || "Wystąpił błąd przy rezerwacji.");

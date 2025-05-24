@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
-import Navigation from '../components/Navigation';
 import '../styles/MovieDetails.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
@@ -18,13 +17,13 @@ const MovieDetails = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const apiKey = process.env.REACT_APP_API_KEY;
   
-  const apiFetch = (url, options = {}) => {
+  const apiFetch = useCallback(async (url, options = {}) => {
   const headers = {
     "Authorization": `Api-Key ${apiKey}`,
     ...options.headers,
   };
   return fetch(url, { ...options, headers });
-  };
+  }, [apiKey]);
 
   useEffect(() => {
     apiFetch(`${API_URL}/api/movies/${id}`)
@@ -60,7 +59,7 @@ const MovieDetails = () => {
       .then(data => {setCinemaHalls(data.results)})
       .catch(console.error);
 
-  }, [id]);
+  }, [id, apiFetch]);
 
   const filteredShowings = showings.filter(s => s.movie === parseInt(id));
   const hallTypeMap = Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type]));

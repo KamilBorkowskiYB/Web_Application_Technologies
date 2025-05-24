@@ -1,7 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
-import Navigation from "../components/Navigation";
 import "../styles/SeatSelection.css";
 import { API_URL } from "../config";
 
@@ -14,19 +13,18 @@ const SeatSelection = () => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [takenSeats, setTakenSeats] = useState([]);
   const [justTakenSeats, setJustTakenSeats] = useState([]);
-  const [seatTypes, setSeatTypes] = useState({}); // { seatId: "normal" | "student" }
   const apiKey = process.env.REACT_APP_API_KEY;
 
-  const apiFetch = (url, options = {}) => {
-  const headers = {
-    "Authorization": `Api-Key ${apiKey}`,
-    ...options.headers,
-  };
-  return fetch(url, { ...options, headers });
-  };
+  const apiFetch = useCallback(async (url, options = {}) => {
+    const headers = {
+      "Authorization": `Api-Key ${apiKey}`,
+      ...options.headers,
+    };
+    return fetch(url, { ...options, headers });
+  }, [apiKey]);
 
   // Tymczasowe rozwiązanie z paginacja na frontendzie (Ładowanie parę stron naraz)
-  const fetchAllPages = async (url) => {
+  const fetchAllPages = useCallback(async (url) => {
     let results = [];
     let nextUrl = url;
 
@@ -40,8 +38,7 @@ const SeatSelection = () => {
     }
 
     return results;
-  };
-
+  }, [apiFetch]);
 
   useEffect(() => {
     if (!cinemaHallId || !showingId) return;
@@ -61,13 +58,17 @@ const SeatSelection = () => {
         setTakenSeats(taken);
       })
       .catch((err) => console.error("Failed to fetch taken seats:", err));
-  }, [cinemaHallId, showingId]);
+  }, [cinemaHallId, showingId, fetchAllPages]);
 
 
   
   // Aktualizacja zajętych miejsc w czasie rzeczywistym
   useEffect(() => {
     const socket = new WebSocket(`ws://127.0.0.1:8000/ws/movie_showings/${showingId}/`);
+
+    socket.onopen = () => {
+      console.log("WebSocket connection established!");
+    };
 
     socket.onmessage = (event) => {
       const message = JSON.parse(event.data);
@@ -95,7 +96,7 @@ const SeatSelection = () => {
     };
 
     return () => {
-      socket.close();
+        socket.addEventListener("open", () => socket.close());
     };
   }, [showingId]);
 

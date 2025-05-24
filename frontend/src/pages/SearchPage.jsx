@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import '../styles/SearchPage.css';
@@ -11,13 +11,13 @@ const SearchPage = () => {
 
   const title = searchParams.get('title');
 
-  const apiFetch = (url, options = {}) => {
+  const apiFetch = useCallback(async (url, options = {}) => {
     const headers = {
       "Authorization": `Api-Key ${apiKey}`,
       ...options.headers,
     };
     return fetch(url, { ...options, headers });
-  };
+  }, [apiKey]);
 
   useEffect(() => {
     if (!title) return;
@@ -26,7 +26,7 @@ const SearchPage = () => {
       .then(response => response.json())
       .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching search results:', error));
-  }, [title]);
+  }, [title, apiFetch]);
 
   return (
     <div className="search-page">

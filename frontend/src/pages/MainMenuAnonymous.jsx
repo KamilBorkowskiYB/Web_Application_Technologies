@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
 import '../styles/MainMenuAnonymous.css';
@@ -11,23 +11,23 @@ const MainMenuAnonymous = () => {
   const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
 
-  const apiFetch = (url, options = {}) => {
+  const apiFetch = useCallback(async (url, options = {}) => {
     const headers = {
       "Authorization": `Api-Key ${apiKey}`,
       ...options.headers,
     };
     return fetch(url, { ...options, headers });
-  };
+  }, [apiKey]);
 
   // 2. Gdy filtr się zmieni (albo z URL-a, albo z ręcznego wyszukiwania) → pobierz filmy
   useEffect(() => {
     const queryParams = new URLSearchParams(filterParams).toString();
-    console.log(`${API_URL}/api/movies/?${queryParams}`);
+    // console.log(`${API_URL}/api/movies/?${queryParams}`);
     apiFetch(`${API_URL}/api/movies/?${queryParams}`)
       .then(response => response.json())
       .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching movies:', error));
-  }, [filterParams]);
+  }, [filterParams, apiFetch]);
 
   const handleFilterChange = (params) => {
     setFilterParams(params);
