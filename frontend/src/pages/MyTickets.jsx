@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import TicketCard from "../components/TicketCard";
 import "../styles/MyTickets.css";
+import { API_URL } from '../config';
 
 const MyTickets = () => {
   const [tickets, setTickets] = useState([]);
@@ -17,7 +18,7 @@ const MyTickets = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:8000/api/tickets/", {
+        const response = await fetch(`${API_URL}/api/tickets/`, {
           headers: {
             Authorization: `Api-Key ${apiKey}`,
           },
@@ -36,7 +37,7 @@ const MyTickets = () => {
   const fetchShowingDetails = async (showingId) => {
     if (showingCache[showingId]) return showingCache[showingId];
 
-    const response = await fetch(`http://127.0.0.1:8000/api/movie_showings/${showingId}`, {
+    const response = await fetch(`${API_URL}/api/movie_showings/${showingId}`, {
       headers: { Authorization: `Api-Key ${apiKey}` }
     });
     const data = await response.json();
@@ -46,7 +47,7 @@ const MyTickets = () => {
 
   const fetchMovieDetails = async (movieId) => {
     if (movieCache[movieId]) return movieCache[movieId];
-    const response = await fetch(`http://127.0.0.1:8000/api/movies/${movieId}/`, {
+    const response = await fetch(`${API_URL}/api/movies/${movieId}/`, {
       headers: { Authorization: `Api-Key ${apiKey}` },
     });
     const data = await response.json();
@@ -56,7 +57,7 @@ const MyTickets = () => {
 
   const fetchSeatDetails = async (seatId) => {
     if (seatCache[seatId]) return seatCache[seatId];
-    const response = await fetch(`http://127.0.0.1:8000/api/seats/${seatId}/`, {
+    const response = await fetch(`${API_URL}/api/seats/${seatId}/`, {
       headers: { Authorization: `Api-Key ${apiKey}` },
     });
     const data = await response.json();
@@ -66,7 +67,7 @@ const MyTickets = () => {
 
   const fetchTicketType = async (ticketTypeId) => {
     if (ticketTypeCache[ticketTypeId]) return ticketTypeCache[ticketTypeId];
-    const response = await fetch(`http://127.0.0.1:8000/api/ticket_discounts/${ticketTypeId}/`, {
+    const response = await fetch(`${API_URL}/api/ticket_discounts/${ticketTypeId}/`, {
       headers: { Authorization: `Api-Key ${apiKey}` },
     });
     const data = await response.json();

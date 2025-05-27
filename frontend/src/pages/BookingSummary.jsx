@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../styles/BookingSummary.css";
 import Header from "../components/Header";
+import { API_URL } from '../config';
 
 const BookingSummary = () => {
   const location = useLocation();
@@ -38,7 +39,7 @@ const BookingSummary = () => {
   }, [apiKey]);
 
   useEffect(() => {
-    apiFetch("http://localhost:8000/api/ticket_discounts/")
+    apiFetch(`${API_URL}/api/ticket_discounts/`)
       .then(res => res.json())
       .then(data => {setDiscountTypes(data.results)})
       .catch(err => console.error(err));
@@ -64,7 +65,7 @@ const BookingSummary = () => {
     try {
       const responses = await Promise.all(
         ticketsData.map((ticket) =>
-          apiFetch("http://localhost:8000/api/tickets/", {
+          apiFetch(`${API_URL}/api/tickets/`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

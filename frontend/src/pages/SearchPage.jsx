@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
 import '../styles/SearchPage.css';
+import { API_URL } from '../config';
 
 const SearchPage = () => {
   const [searchParams] = useSearchParams();
@@ -22,7 +23,7 @@ const SearchPage = () => {
   useEffect(() => {
     if (!title) return;
 
-    apiFetch(`http://127.0.0.1:8000/api/movies/?title=${encodeURIComponent(title)}`)
+    apiFetch(`${API_URL}/api/movies/?title=${encodeURIComponent(title)}`)
       .then(response => response.json())
       .then(data => setMovies(data.results))
       .catch(error => console.error('Error fetching search results:', error));
