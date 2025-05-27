@@ -1,12 +1,11 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "../styles/BookingSummary.css";
 import Header from "../components/Header";
 import { API_URL } from '../config';
 
 const BookingSummary = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const {
     showingId,
     movieTitle,
@@ -77,15 +76,62 @@ const BookingSummary = () => {
           })
         )
       );
-      // alert("Rezerwacja zakończona sukcesem!");
-      navigate("/", { state: { booking: responses } });
-    } catch (err) {
-      setError(err.message || "Wystąpił błąd przy rezerwacji.");
-    } finally {
-      setIsLoading(false);
-    }
+    
+      const ticketIds = responses.map(ticket => ticket.id);
+
+      const body = {
+        tickets_ids: ticketIds
+        // tickets_ids: [74]
+      };
+      const res = await apiFetch(`${API_URL}/api/orders/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) throw new Error("Nie udało się utworzyć zamówienia PayU");
+
+      const data = await res.json();
+
+      const redirectUrl = data.payment_url;
+      window.location.href = redirectUrl;
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setIsLoading(false);
+  }
+
   };
 
+//   const handleConfirmBooking = async () => {
+//   setIsLoading(true);
+//   setError("");
+
+//   try {
+//     const body = {
+//       showingId,
+//       tickets: tickets.map(t => ({
+//         seat: t.seat.id,
+//         price: t.price,
+//         ticketType: t.type
+//       }))
+//     };
+
+//     const res = await apiFetch(`${API_URL}/api/orders/`, {
+//       method: "POST",
+//       headers: { "Content-Type": "application/json" },
+//       body: JSON.stringify(body),
+//     });
+
+//     if (!res.ok) throw new Error("Nie udało się utworzyć zamówienia PayU");
+//     const { redirectUri } = await res.json();
+
+//     window.location.href = redirectUri;   // 🚀 do PayU
+//   } catch (err) {
+//     setError(err.message);
+//   } finally {
+//     setIsLoading(false);
+//   }
+// };
 
   return (
     <div className="booking-summary">

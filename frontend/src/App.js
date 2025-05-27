@@ -10,6 +10,7 @@ import BookingSummary from "./pages/BookingSummary.jsx";
 import SearchPage from "./pages/SearchPage.jsx";
 import MyTickets from "./pages/MyTickets.jsx";
 import AfterGoogleLogin from './pages/AfterGoogleLogin.jsx';
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/summary" element={<BookingSummary />} />
         <Route path="/my-tickets" element={<MyTickets />} />
         <Route path="/after-google-login" element={<AfterGoogleLogin />} />
+        <Route path="/payment-success" element={<PaymentSuccess />} />
       </Routes>
     </Router>
   );
