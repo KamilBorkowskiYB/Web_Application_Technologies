@@ -1,9 +1,10 @@
-import React, { useState, onSearch } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import '../styles/Header.css'; // jeśli potrzebne globalne style
 
 const Header = ({ onSearch }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   const handleLoginClick = () => {
@@ -14,9 +15,19 @@ const Header = ({ onSearch }) => {
     navigate('/'); // Ikonka strony głównej
   }
 
+  const handleTicketsClick = () => {
+    navigate('/my-tickets'); // Ikonka strony głównej
+  }
+
+  useEffect(() => {
+    const title = searchParams.get('title') || '';
+    setSearchTerm(title);
+  }, [searchParams]);
+
   const handleSearch = (e) => {
     if (e.key === 'Enter') {
-      onSearch(searchTerm); // <-- Przekazanie do rodzica
+      const encodedTitle = encodeURIComponent(searchTerm.trim());
+      navigate(`/search?title=${encodedTitle}`);
     }
   };
 
@@ -43,6 +54,7 @@ const Header = ({ onSearch }) => {
             {/* <img src="/icons/location.svg" alt="Location" className="location-icon" /> */}
             <span>Downtown, Warsaw</span>
         </div>
+        <div className="my-tickets-button" onClick={handleTicketsClick}>My Tickets</div>
         <div className="sign-in-button" onClick={handleLoginClick}>Sign In</div>
         </div>
     </div>

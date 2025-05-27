@@ -1,4 +1,4 @@
-.main-menu {
+.search-page {
   background-color: rgb(255, 255, 255);
   overflow-y: auto;
   height: 100vh;
@@ -10,14 +10,6 @@
   flex-direction: column;
   min-height: 100vh;
   align-items: stretch;
-}
-
-.main-content-title{
-  color: rgb(255, 255, 255);
-  font-size: 32px;
-  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
-  font-weight: 500;
-  padding-left: 20px;
 }
 
 .movie-grid {
@@ -86,7 +78,8 @@
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
 }
 
-/* @media (max-width: 991px) {
+/* Responsive fallback */
+@media (max-width: 991px) {
   .main-content {
     max-width: 100%;
     padding-bottom: 100px;
@@ -108,4 +101,4 @@
     padding-right: 20px;
     white-space: initial;
   }
-} */
+}

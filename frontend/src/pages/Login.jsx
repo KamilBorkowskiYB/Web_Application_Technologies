@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import '../styles/Login.css';
 
 const Login = () => {
-  const [token, setToken] = useState(null);
+  const [, setToken] = useState(null);
 
   useEffect(() => {
     const channel = new BroadcastChannel("auth_channel");

@@ -1,3 +1,3 @@
-const API_URL = "https://cinemaland.pl";
+const API_URL = "http://localhost:8000";
 
 export {API_URL};

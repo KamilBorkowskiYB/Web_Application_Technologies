@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
-import Navigation from '../components/Navigation';
 import '../styles/MovieDetails.css';
 import { useParams, useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
@@ -18,13 +17,13 @@ const MovieDetails = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const apiKey = process.env.REACT_APP_API_KEY;
   
-  const apiFetch = (url, options = {}) => {
+  const apiFetch = useCallback(async (url, options = {}) => {
   const headers = {
     "Authorization": `Api-Key ${apiKey}`,
     ...options.headers,
   };
   return fetch(url, { ...options, headers });
-  };
+  }, [apiKey]);
 
   useEffect(() => {
     apiFetch(`${API_URL}/api/movies/${id}`)
@@ -60,7 +59,7 @@ const MovieDetails = () => {
       .then(data => {setCinemaHalls(data.results)})
       .catch(console.error);
 
-  }, [id]);
+  }, [id, apiFetch]);
 
   const filteredShowings = showings.filter(s => s.movie === parseInt(id));
   const hallTypeMap = Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type]));
@@ -108,91 +107,95 @@ const MovieDetails = () => {
     }
   };
 
-  if (!movie) return <div>Loading...</div>;
-
   return (
     <div className="movie-details">
       <Header />
-      <Navigation />
       <div className="movie-content">
-        <div className="content-wrapper">
-          <div className="movie-layout">
-            <div className="poster-column">
-              <img
-                src={movie.poster}
-                className="movie-poster"
-                alt="Movie Poster"
-              />
-            </div>
-            <div className="info-column">
-              <div className="movie-info">
-                <h1 className="movie-details-movie-title">{movie.title}</h1>
-                <div className="movie-meta">
-                  <div className="meta-item">{movie.release_year}</div>
-                  <div className="meta-item">{movie.duration} min</div>
-                  <ul>
-                    {movie.genre.map(g => (
-                      <li key={g.id}>{g.genre}</li>
-                    ))}
-                  </ul>
-                </div>
-                <p className="movie-description">{movie.description}</p>
+        {(!movie || !crew) ? (
+          <div className="movie-loading">
+            <div className="reel-loader" />
+            <p>Loading movie magic... 🎞️</p>
+          </div>
+        ) : (
+          <div className="content-wrapper">
+            <div className="movie-layout">
+              <div className="poster-column">
+                <img
+                  src={movie.poster}
+                  className="movie-poster"
+                  alt="Movie Poster"
+                />
+              </div>
+              <div className="info-column">
+                <div className="movie-info">
+                  <h1 className="movie-details-movie-title">{movie.title}</h1>
+                  <div className="movie-meta">
+                    <div className="meta-item">{movie.release_year}</div>
+                    <div className="meta-item">{movie.duration} min</div>
+                    <ul>
+                      {movie.genre.map(g => (
+                        <li key={g.id}>{g.genre}</li>
+                      ))}
+                    </ul>
+                  </div>
+                  <p className="movie-description">{movie.description}</p>
 
-                {crew && (
-                  <>
-                    <h2 className="section-title">Crew</h2>
-                    <div className="crew-info">
-                      <div><strong>Director:</strong> {crew.director.map(d => d.name).join(', ')}</div>
-                      <div><strong>Main lead:</strong> {crew.main_lead.map(l => l.name).join(', ')}</div>
-                    </div>
-                  </>
-                )}
+                  {crew && (
+                    <>
+                      <h2 className="section-title">Crew</h2>
+                      <div className="crew-info">
+                        <div><strong>Director:</strong> {crew.director.map(d => d.name).join(', ')}</div>
+                        <div><strong>Main lead:</strong> {crew.main_lead.map(l => l.name).join(', ')}</div>
+                      </div>
+                    </>
+                  )}
 
-                <h2 className="section-title">Showtimes</h2>
-                <div className="showtimes-grid">
-                  {cinemas.map((cinema) => (
-                    <div key={cinema.id} className="cinema-card">
-                      <div className="cinema-name">{cinema.name}</div>
-                      {cinemaIdToShowtimes[cinema.id] ? (
-                        Object.entries(cinemaIdToShowtimes[cinema.id]).map(([date, times]) => (
-                          <div key={date} className="showtime-date-block">
-                            <div className="showtime-date">{date}</div>
-                            <div className="showtime-times">
-                              {times.map((st, idx) => (
-                                <div
-                                  key={idx}
-                                  className={`showtime-button ${selectedShowtime === st.showingId ? 'selected' : ''}`}
-                                  onClick={() => {
-                                    setSelectedShowtime(st);
-                                    setSelectedCinema(cinema.name);
-                                    setSelectedDate(date)}}
-                                >
-                                  {st.time} ({st.type})
-                                </div>
-                              ))}
+                  <h2 className="section-title">Showtimes</h2>
+                  <div className="showtimes-grid">
+                    {cinemas.map((cinema) => (
+                      <div key={cinema.id} className="cinema-card">
+                        <div className="cinema-name">{cinema.name}</div>
+                        {cinemaIdToShowtimes[cinema.id] ? (
+                          Object.entries(cinemaIdToShowtimes[cinema.id]).map(([date, times]) => (
+                            <div key={date} className="showtime-date-block">
+                              <div className="showtime-date">{date}</div>
+                              <div className="showtime-times">
+                                {times.map((st, idx) => (
+                                  <div
+                                    key={idx}
+                                    className={`showtime-button ${selectedShowtime?.showingId === st.showingId ? 'selected' : ''}`}
+                                    onClick={() => {
+                                      setSelectedShowtime(st);
+                                      setSelectedCinema(cinema.name);
+                                      setSelectedDate(date)}}
+                                  >
+                                    {st.time} ({st.type})
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="no-showtimes">No showtimes</div>
-                      )}
-                    </div>
-                  ))}
+                          ))
+                        ) : (
+                          <div className="no-showtimes">No showtimes</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  <button
+                    className="book-button"
+                    disabled={!selectedShowtime}
+                    style={{ opacity: selectedShowtime ? 1 : 0.5, cursor: selectedShowtime ? 'pointer' : 'not-allowed' }}
+                    onClick={handleBookSeatsClick} 
+                  >
+                    Book Seats
+                  </button>
+
                 </div>
-
-                <button
-                  className="book-button"
-                  disabled={!selectedShowtime}
-                  style={{ opacity: selectedShowtime ? 1 : 0.5, cursor: selectedShowtime ? 'pointer' : 'not-allowed' }}
-                  onClick={handleBookSeatsClick} 
-                >
-                  Book Seats
-                </button>
-
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
