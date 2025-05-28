@@ -9,6 +9,7 @@ logger = logging.getLogger(__name__)
 
 @receiver(post_save, sender=Ticket)
 def ticket_booked(sender, instance, created, **kwargs):
+    print(f"In signal: {instance} {created}")
     logger.info(f"In signal: {instance} {created}")
     """
     Signal to handle ticket booking.
@@ -28,5 +29,21 @@ def ticket_booked(sender, instance, created, **kwargs):
             {
                 'type': 'ticket_booked',
                 'data': data,
+            }
+        )
+    elif instance.cancelled: #and not Ticket.objects.get(id=instance.id).cancelled:
+        print("Ticket cancelled")
+        logger.info(f"Ticket cancelled: seat {instance.seat.id} for showing {instance.showing.id}")
+        # Notify the group about the cancelled ticket
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            f'show_{instance.showing.id}',
+            {
+                'type': 'ticket_cancelled',
+                'data': {
+                    'ticket_id': instance.id,
+                    'showing_id': instance.showing.id,
+                    'seat_id': instance.seat.id,
+                },
             }
         )

@@ -36,8 +36,8 @@ def get_url(order):
 
     payload = {
         "continueUrl": "https://cinemaland.pl/",
-        "notifyUrl": f"https://d490-185-152-123-92.ngrok-free.app/api/orders/change_order_status/",
-        # "notifyUrl": "https://cinemaland.pl/api/orders/change_order_status/",
+        #"notifyUrl": f"https://54ff-185-152-123-92.ngrok-free.app/api/orders/change_order_status/",
+        "notifyUrl": "https://cinemaland.pl/api/orders/change_order_status/",
         "customerIp": "127.0.0.1",
         "merchantPosId": shop_id,
         "description": f"Order: {order.id}",

@@ -48,8 +48,12 @@ class TicketFilter(filters.FilterSet):
         queryset=User.objects.all(),
         field_name='buyer_id',
         label='User')
+    showing = filters.ModelChoiceFilter(
+        queryset=MovieShowing.objects.all(),
+        field_name='showing',
+        label='Showing')
 
     class Meta:
         model = Ticket
-        fields = ['user']
+        fields = ['user', 'showing']
         ordering_fields = ['showing__date']

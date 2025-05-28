@@ -15,3 +15,9 @@ class Order(models.Model):
 
     def __str__(self):
         return f"Order {self.id} - Status: {self.status}"
+    
+    def cancel(self):
+        for ticket in self.tickets.all():
+            ticket.cancelled = True
+            ticket.save()
+        self.save()

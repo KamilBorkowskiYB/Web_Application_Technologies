@@ -119,6 +119,51 @@ class MovieShowingViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date']
     ordering = ['-date']
 
+    @action(detail=False, methods=['post'])
+    def add_showing_in_period(self, request):
+        """Add multiple showings for a movie in a specified period."""
+        # date = request.data.get('date')
+        movie = request.data.get('movie')
+        hall = request.data.get('hall')
+        showing_type = request.data.get('showing_type')
+        ticket_price = request.data.get('ticket_price')
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        hours = request.data.get('hours')
+        if not movie or not hall or not showing_type or not ticket_price or not start_date or not end_date or not hours:
+            return Response({"error": "All fields are required"}, status=400)
+
+        start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d')
+        hours = [timezone.datetime.strptime(hour, '%H:%M').time() for hour in hours]
+        if start_date >= end_date:
+            return Response({"error": "Start date must be before end date"}, status=400)
+        if start_date.date() <= timezone.localdate():
+            return Response({"error": "Start date must be in the future"}, status=400)
+        
+        days = (end_date - start_date).days + 1
+
+        for day in range(days):
+            current_date = start_date + timezone.timedelta(days=day)
+            for hour in hours:
+                date_time = timezone.datetime.combine(current_date, hour)
+                if timezone.is_naive(date_time):
+                    date_time = timezone.make_aware(date_time)
+                if date_time < timezone.now():
+                    continue
+                try:
+                    MovieShowing.objects.create(
+                        date=date_time,
+                        movie_id=movie,
+                        hall_id=hall,
+                        showing_type_id=showing_type,
+                        ticket_price=ticket_price
+                    )
+                except Exception as e:
+                    return Response({"error": str(e)}, status=400)
+        return Response({"message": "Showings added successfully"}, status=201)
+
+
 class TicketDiscountViewSet(viewsets.ModelViewSet):
     queryset = TicketDiscount.objects.all()
     serializer_class = TicketDiscountSerializer

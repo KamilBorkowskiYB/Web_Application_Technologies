@@ -129,7 +129,7 @@ class TicketSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ticket
         fields = '__all__'
-        read_only_fields = ['purchase_time', 'purchase_price', 'base_price']
+        read_only_fields = ['purchase_time', 'purchase_price', 'base_price', 'cancelled']
 
     def validate(self, attrs):
         # Check if the seat is already booked for the showing
