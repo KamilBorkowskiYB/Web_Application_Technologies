@@ -40,6 +40,10 @@ def change_status(request):
         print("Payment status not found")
         return Response({'error': 'Payment status not found'}, status=404)
     
+    if order.status.label == 'Canceled' or order.status.label == 'Failed':
+        print("Order cancelled")
+        order.cancel()
+        
     print("Order status updated:", order.status)
     return Response({'message': 'Payment status updated successfully'}, status=200)
 

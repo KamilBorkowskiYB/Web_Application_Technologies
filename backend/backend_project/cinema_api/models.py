@@ -122,6 +122,7 @@ class Ticket(models.Model):
     purchase_price = models.FloatField()
     buyer = models.ForeignKey('auth.User', on_delete=models.SET_NULL, null=True)
     discount = models.ForeignKey(TicketDiscount, null=True, blank=True, on_delete=models.SET_NULL)
+    cancelled = models.BooleanField(default=False)
 
     class Meta:
         constraints = [

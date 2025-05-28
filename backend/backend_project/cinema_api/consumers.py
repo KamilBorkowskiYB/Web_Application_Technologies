@@ -30,3 +30,10 @@ class ShowConsumer(AsyncWebsocketConsumer):
             'type': 'ticket_booked',
             'data': event['data']
         }))
+
+    async def ticket_cancelled(self, event):
+        print(f"Ticket cancellation received in consumer: {event}")
+        await self.send(text_data=json.dumps({
+            'type': 'ticket_cancelled',
+            'data': event['data']
+        }))
