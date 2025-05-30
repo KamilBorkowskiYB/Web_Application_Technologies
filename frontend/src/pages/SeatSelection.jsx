@@ -64,7 +64,7 @@ const SeatSelection = () => {
   
   // Aktualizacja zajętych miejsc w czasie rzeczywistym
   useEffect(() => {
-    const socket = new WebSocket(`ws://127.0.0.1:8000/ws/movie_showings/${showingId}/`);
+    const socket = new WebSocket(`ws://cinemaland.pl/ws/movie_showings/${showingId}/`);
 
     socket.onopen = () => {
       console.log("WebSocket connection established!");
