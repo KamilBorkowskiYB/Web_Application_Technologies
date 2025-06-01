@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "../styles/SeatSelection.css";
-import { API_URL } from "../config";
+import { API_URL, WEB_SOCKET_URL } from "../config";
 
 const SeatSelection = () => {
   const location = useLocation();
@@ -71,7 +71,7 @@ const SeatSelection = () => {
   // Aktualizacja zajętych miejsc w czasie rzeczywistym
   useEffect(() => {
     const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const socket = new WebSocket(`${wsProtocol}//127.0.0.1:8000/ws/movie_showings/${showingId}/`);
+    const socket = new WebSocket(`${wsProtocol}//${WEB_SOCKET_URL}/ws/movie_showings/${showingId}/`);
 
     socket.onopen = () => {
       console.log("WebSocket connection established!");
