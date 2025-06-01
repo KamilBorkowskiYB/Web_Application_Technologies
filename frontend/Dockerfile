@@ -17,6 +17,9 @@ COPY . .
  
 EXPOSE 3000
  
-RUN REACT_APP_API_KEY=$REACT_APP_API_KEY yarn build
+RUN REACT_APP_API_KEY=$REACT_APP_API_KEY \
+    REACT_APP_BACKEND_URL=$REACT_APP_BACKEND_URL \
+    REACT_APP_WEBSOCKET_URL=$REACT_APP_WEBSOCKET_URL \
+    yarn build
 RUN yarn global add serve
 CMD ["serve", "-s", "build", "-l", "3000"]
