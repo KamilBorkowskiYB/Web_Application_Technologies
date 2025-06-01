@@ -21,12 +21,12 @@ jobs:
       - name: Build Docker images
         run: |
           docker compose -f compose.yaml build \
-          --build-arg REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} \
-          --build-arg REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }} \
-          --build-arg REACT_APP_WEBSOCKET_URL=${{ secrets.REACT_APP_WEBSOCKET_URL }}
-          docker images
-          docker save -o cinema_images.tar tai-django-web tai-frontend
-          file cinema_images.tar
+            --build-arg REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} \
+            --build-arg REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }} \
+            --build-arg REACT_APP_WEBSOCKET_URL=${{ secrets.REACT_APP_WEBSOCKET_URL }} \
+          && docker images \
+          && docker save -o cinema_images.tar tai-django-web tai-frontend \
+          && file cinema_images.tar
 
       - name: Fix permissions for Docker image archive
         run: chmod 644 cinema_images.tar
