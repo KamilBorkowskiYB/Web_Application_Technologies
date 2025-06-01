@@ -92,7 +92,10 @@ const BookingSummary = () => {
       };
       const res = await apiFetch(`${API_URL}/api/orders/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              "Content-Type": "application/json",
+            },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Nie udało się utworzyć zamówienia PayU");
