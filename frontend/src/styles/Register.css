@@ -1,4 +1,4 @@
-.login-page {
+.register-page {
   background-color: #fff;
   overflow: hidden;
   height: 100%;
@@ -7,7 +7,7 @@
   font-weight: 400;
 }
 
-.login-container {
+.register-container {
   background-color: #0a0f1c;
   display: flex;
   width: 100%;
@@ -17,13 +17,12 @@
   justify-content: center;
 }
 
-.login-card {
+.register-card {
   border-radius: 12px;
   background-color: #151a28;
   box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid #2a3142;
   display: flex;
-  margin-bottom: -25px;
   width: 420px;
   max-width: 100%;
   padding: 33px;
@@ -32,9 +31,8 @@
 }
 
 .welcome-header {
-  align-self: flex-start;
   display: flex;
-  align-items: stretch;
+  align-items: center;
   gap: 12px;
   font-size: 24px;
   color: #e9ecef;
@@ -52,14 +50,10 @@
 
 .welcome-text {
   margin: auto 0;
-  flex-basis: auto;
 }
 
 .form-group {
-  display: flex;
-  flex-direction: column;
   margin-top: 24px;
-  width: 100%;
 }
 
 .form-group:first-of-type {
@@ -76,11 +70,10 @@
   border-radius: 8px;
   background-color: #1e2433;
   border: 1px solid #2a3142;
-  width: 100%;
-  margin: 8px auto 0 auto;
+  margin-top: 8px;
   padding: 12px 14px;
-  color: #999;
-  box-sizing: border-box;
+  color: #e9ecef;
+  width: 100%;
 }
 
 .signin-button {
@@ -95,74 +88,15 @@
   cursor: pointer;
 }
 
-.divider {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 24px;
-  gap: 12px;
-  color: #adb5bd;
-  text-align: center;
-  width: 100%;
-}
-
-.divider-line {
-  background-color: #2a3142;
-  align-self: stretch;
-  display: flex;
-  margin: auto 0;
-  width: 153px;
-  flex-shrink: 0;
-  height: 1px;
-}
-
-.divider-text {
-  align-self: stretch;
-}
-
-.social-button {
-  border-radius: 8px;
-  background-color: #1e2433;
-  border: 1px solid #2a3142;
-  display: flex;
-  margin-top: 16px;
-  padding: 12px 42px;
-  align-items: center;
-  gap: 12px;
-  color: #e9ecef;
-  font-weight: 500;
-  text-align: center;
-  cursor: pointer;
-}
-
-.social-button:first-of-type {
-  margin-top: 24px;
-}
-
-.social-icon {
-  aspect-ratio: 1;
-  object-fit: contain;
-  object-position: center;
-  width: 20px;
-  margin: auto 0;
-  flex-shrink: 0;
-}
-
-.social-text {
-  flex-grow: 1;
-  flex-shrink: 1;
-}
-
 .signup-prompt {
   align-self: center;
   display: flex;
   margin-top: 24px;
-  width: auto;
-  align-items: center;
-  gap: 6px; /* mniejszy odstęp */
-  font-size: 14px;
+  width: 100%;
+  justify-content: center;
+  gap: 5px;
+  text-align: center;
 }
-
 
 .signup-text {
   color: #adb5bd;
@@ -173,23 +107,21 @@
   cursor: pointer;
 }
 
+.error-message {
+  color: #ff6b6b;
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
 @media (max-width: 991px) {
-  .login-container {
+  .register-container {
     max-width: 100%;
     padding: 100px 20px;
   }
 
-  .login-card {
+  .register-card {
     margin-bottom: 10px;
     padding: 20px;
-  }
-
-  .divider {
-    white-space: initial;
-  }
-
-  .social-button {
-    padding-left: 20px;
-    padding-right: 20px;
   }
 }
