@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "../styles/SeatSelection.css";
-import { API_URL } from "../config";
+import { API_URL, WEB_SOCKET_URL } from "../config";
 
 const SeatSelection = () => {
   const location = useLocation();
@@ -34,7 +34,13 @@ const SeatSelection = () => {
       const data = await res.json();
 
       results = [...results, ...data.results];
-      nextUrl = data.next;  // zakładam, że backend zwraca 'next' jako URL lub null
+      
+      if (data.next) {
+        const protocol = window.location.protocol === 'https:' ? 'https:' : 'http:';
+        nextUrl = data.next.replace(/^http:/, protocol);
+      } else {
+        nextUrl = null;
+      }
     }
 
     return results;
@@ -64,7 +70,8 @@ const SeatSelection = () => {
   
   // Aktualizacja zajętych miejsc w czasie rzeczywistym
   useEffect(() => {
-    const socket = new WebSocket(`ws://cinemaland.pl/ws/movie_showings/${showingId}/`);
+    const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
+    const socket = new WebSocket(`${wsProtocol}//${WEB_SOCKET_URL}/ws/movie_showings/${showingId}/`);
 
     socket.onopen = () => {
       console.log("WebSocket connection established!");

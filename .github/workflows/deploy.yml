@@ -20,7 +20,10 @@ jobs:
 
       - name: Build Docker images
         run: |
-          docker compose -f compose.yaml build --build-arg REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }} --build-arg REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}
+          export REACT_APP_API_KEY=${{ secrets.REACT_APP_API_KEY }}
+          export REACT_APP_BACKEND_URL=${{ secrets.REACT_APP_BACKEND_URL }}
+          export REACT_APP_WEBSOCKET_URL=${{ secrets.REACT_APP_WEBSOCKET_URL }}
+          docker compose -f compose.yaml build
           docker images
           docker save -o cinema_images.tar tai-django-web tai-frontend
           file cinema_images.tar

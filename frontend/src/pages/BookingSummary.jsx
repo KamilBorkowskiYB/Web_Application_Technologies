@@ -44,6 +44,12 @@ const BookingSummary = () => {
       .catch(err => console.error(err));
   }, [apiFetch]);
 
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
 
   const handleConfirmBooking = async () => {
     setIsLoading(true);
@@ -67,6 +73,7 @@ const BookingSummary = () => {
           apiFetch(`${API_URL}/api/tickets/`, {
             method: "POST",
             headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
               "Content-Type": "application/json",
             },
             body: JSON.stringify(ticket),
@@ -85,7 +92,10 @@ const BookingSummary = () => {
       };
       const res = await apiFetch(`${API_URL}/api/orders/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+              'X-CSRFToken': getCookie('csrftoken'),
+              "Content-Type": "application/json",
+            },
         body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Nie udało się utworzyć zamówienia PayU");

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../styles/Login.css';
+import { API_URL} from "../config";
 
 const Login = () => {
   const [, setToken] = useState(null);
@@ -53,7 +54,7 @@ const Login = () => {
           <button
             className="social-button google-button"
             onClick={() => {
-              const googleLoginUrl = `${process.env.REACT_APP_BACKEND_URL}/accounts/google/login`; 
+              const googleLoginUrl = `${API_URL}/accounts/google/login`; 
 
               window.open(
                 googleLoginUrl,
