@@ -2,6 +2,7 @@ import requests
 import environ
 import os
 from pathlib import Path
+from backend_project.settings import FRONTEND_URL
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +34,7 @@ def get_url(order):
     }
 
     payload = {
-        "continueUrl": "https://cinemaland.pl/",
+        "continueUrl": FRONTEND_URL + "/payment-success",
         #"notifyUrl": f"https://54ff-185-152-123-92.ngrok-free.app/api/orders/change_order_status/",
         "notifyUrl": "https://cinemaland.pl/api/orders/change_order_status/",
         "customerIp": "127.0.0.1",
