@@ -7,13 +7,14 @@ from .serializers import *
 from .filters import *
 
 from rest_framework import viewsets, filters, generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import redirect
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .tmdb_requests import movie_info
 from .utils import seat_generation
@@ -188,7 +189,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter]
     filterset_class = TicketFilter
     ordering_fields = ['showing__date', 'purchase_time']
-    ordering = ['-showing__date']
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        print("User:", user)
+        if user.is_authenticated:
+            print("Authenticated user:", user)
+            serializer.save(buyer=user)
+        else:
+            print("Anonymous user, saving without user")
+            serializer.save()
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
@@ -213,12 +225,14 @@ class RegisterView(generics.CreateAPIView):
             'email': user.email,
         }, status=status.HTTP_201_CREATED)
 
-class UserProfileView(APIView):
+class UserProfileView(APIView):    
+    authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
+
 
     def get(self, request):
         user = request.user
-        ticket = Ticket.objects.filter(user=user)
+        ticket = Ticket.objects.filter(buyer=user)
         return Response({
             'id': user.id,
             'username': user.username,

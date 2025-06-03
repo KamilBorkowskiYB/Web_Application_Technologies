@@ -149,7 +149,6 @@ class TicketSerializer(serializers.ModelSerializer):
         if discount:
             purchase_price = Decimal(base_price) * (1 - Decimal(discount.percentage) / 100)
             purchase_price = purchase_price.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-
         else:
             purchase_price = base_price
 

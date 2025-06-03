@@ -10,8 +10,6 @@ env = environ.Env()
 environ.Env.read_env(env_file=os.path.join(BASE_DIR, '..', '..', '.env'))
 
 
-shop_id = "490967"
-
 def get_url(order):
     token = None
     print("Getting URL for order:", order.id)
@@ -39,7 +37,7 @@ def get_url(order):
         #"notifyUrl": f"https://54ff-185-152-123-92.ngrok-free.app/api/orders/change_order_status/",
         "notifyUrl": "https://cinemaland.pl/api/orders/change_order_status/",
         "customerIp": "127.0.0.1",
-        "merchantPosId": shop_id,
+        "merchantPosId": env("PAYU_CLIENT_ID"),
         "description": f"Order: {order.id}",
         "currencyCode": "PLN",
         "extOrderId": f"Ticket Order: {order.id}",

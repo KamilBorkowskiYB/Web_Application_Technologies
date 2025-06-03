@@ -178,7 +178,7 @@ const SeatSelection = () => {
                                         ${isTaken ? "taken" : ""} 
                                         ${isJustTaken ? "just-taken" : ""}`}
                             onClick={() => !isTaken && handleSeatClick(seat.id)}
-                            title={`Row ${seat.row}, No. ${seat.number}}`}
+                            title={`Row ${seat.row}, No. ${seat.number}`}
                           >
                           </div>
                         );
