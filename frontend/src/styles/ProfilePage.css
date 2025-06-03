@@ -1,0 +1,317 @@
+
+/* GŁÓWNY KONTENER */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #0a0f1c;
+}
+
+/* GŁÓWNA TREŚĆ */
+.main-content {
+  padding: 24px 60px;
+  flex: 1;
+  width: 100%;
+}
+
+/* HEADER */
+.profile-header {
+  background-color: #151a28;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 88px;
+  padding: 0 36px;
+  display: flex;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.profile-title {
+  color: #e9ecef;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 36px;
+}
+
+.profile-logout {
+  color: #fff;
+  background-color: #4318d1;
+  border-radius: 100px;
+  width: 102px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+/* SEKCJA PROFILU */
+.profile-section {
+  background-color: #151a28;
+  border-radius: 12px;
+  width: 100%;
+  padding: 32px;
+  margin-bottom: 0;
+}
+
+/* AVOID BOTTOM GAP */
+.profile-section:last-child {
+  margin-bottom: 0;
+}
+
+.profile-container {
+  width: 100%;
+}
+
+.profile-top {
+  justify-content: space-between;
+  align-items: flex-start;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.profile-details {
+  align-items: flex-start;
+  gap: 32px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.profile-avatar {
+  color: #fff;
+  background-color: #4318d1;
+  border-radius: 9999px;
+  width: 120px;
+  height: 120px;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-user-info {
+  flex-direction: column;
+  gap: 8px;
+  display: flex;
+}
+
+.profile-user-name {
+  color: #e9ecef;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 36px;
+}
+
+.profile-user-email {
+  color: #adb5bd;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.profile-edit {
+  color: #fff;
+  background-color: #4318d1;
+  border-radius: 100px;
+  width: 130px;
+  height: 40px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  border: none;
+  cursor: pointer;
+}
+
+/* FORMULARZ */
+.profile-form {
+  gap: 32px;
+  margin-top: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.profile-input-group {
+  flex: 1;
+  min-width: 200px;
+}
+
+.profile-input-label {
+  color: #adb5bd;
+  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  display: block;
+}
+
+.profile-input {
+  background-color: #1e2433;
+  border: 1px solid #2a3142;
+  border-radius: 8px;
+  width: 100%;
+  height: 50px;
+  color: #fff;
+  padding: 0 16px;
+}
+
+/* REZERWACJE */
+.profile-reservations {
+  background-color: #151a28;
+  border-radius: 12px;
+  width: 100%;
+  padding: 32px;
+}
+
+.reservations-title {
+  color: #e9ecef;
+  margin-bottom: 24px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 30px;
+}
+
+.reservations-list {
+  flex-direction: column;
+  gap: 16px;
+  display: flex;
+}
+
+.reservation-card {
+  border: 1px solid #2a3142;
+  border-radius: 8px;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 17px;
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.reservation-info {
+  flex-direction: column;
+  gap: 4px;
+  display: flex;
+}
+
+.reservation-title {
+  color: #e9ecef;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+}
+
+.reservation-time {
+  color: #adb5bd;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.reservation-status {
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.reservation-status.active {
+  color: #4318d1;
+}
+
+.reservation-status:not(.active) {
+  color: #6c757d;
+}
+
+/* RESPONSYWNOŚĆ */
+@media (max-width: 991px) {
+  .main-content {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  .main-content {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .profile-header {
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+
+  .profile-title {
+    font-size: 20px;
+  }
+
+  .profile-logout {
+    width: 80px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .profile-section {
+    padding: 20px;
+  }
+
+  .profile-top {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .profile-details {
+    text-align: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .profile-avatar {
+    width: 80px;
+    height: 80px;
+    font-size: 24px;
+  }
+
+  .profile-user-name {
+    font-size: 20px;
+  }
+
+  .profile-user-email,
+  .profile-input-label {
+    font-size: 14px;
+  }
+
+  .profile-edit {
+    width: 100%;
+    font-size: 14px;
+  }
+
+  .profile-form {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .profile-reservations {
+    padding: 20px;
+  }
+
+  .reservations-title {
+    font-size: 18px;
+  }
+
+  .reservation-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .reservation-title,
+  .reservation-time,
+  .reservation-status {
+    font-size: 14px;
+  }
+}
