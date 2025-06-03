@@ -43,23 +43,26 @@ const MovieDetails = () => {
       .then((res) => res.json())
         .then(data => {setCinemas(data.results)})
       .catch(console.error);
-
-    apiFetch(`${API_URL}/api/movie_showings/`)
-      .then(res => res.json())
-      .then(data => {setShowings(data.results)})
-      .catch(console.error);
-
-    apiFetch(`${API_URL}/api/hall_types/`)
-      .then(res => res.json())
-      .then(data => {setHallTypes(data.results)})
-      .catch(console.error);
-
-    apiFetch(`${API_URL}/api/cinema_halls/`)
-      .then(res => res.json())
-      .then(data => {setCinemaHalls(data.results)})
-      .catch(console.error);
-
   }, [id, apiFetch]);
+
+  useEffect(() => {
+    if (!movie) return;
+
+    apiFetch(`${API_URL}/api/movie_showings?movie=${movie.id}`)
+        .then(res => res.json())
+        .then(data => {setShowings(data.results)})
+        .catch(console.error);
+
+      apiFetch(`${API_URL}/api/hall_types/`)
+        .then(res => res.json())
+        .then(data => {setHallTypes(data.results)})
+        .catch(console.error);
+
+      apiFetch(`${API_URL}/api/cinema_halls/`)
+        .then(res => res.json())
+        .then(data => {setCinemaHalls(data.results)})
+        .catch(console.error);
+  }, [movie]);
 
   const filteredShowings = showings.filter(s => s.movie === parseInt(id));
   const hallTypeMap = Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type]));
