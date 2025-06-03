@@ -50,7 +50,7 @@ const Login = () => {
       console.log("TOKEN z popupu:", token);
 
       setToken(token);
-      localStorage.setItem("auth_token", token);
+      localStorage.setItem("access_token", token);
     };
 
     return () => {
