@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from '../auth/AuthContext';
 import Header from "../components/Header";
 import TicketCard from "../components/TicketCard";
 import "../styles/MyTickets.css";
@@ -9,6 +10,8 @@ const MyTickets = () => {
   const [expandedDetails, setExpandedDetails] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const apiKey = process.env.REACT_APP_API_KEY;
+  const { user } = useContext(AuthContext);
+  
 
   const showingCache = {};
   const movieCache = {};
@@ -18,13 +21,20 @@ const MyTickets = () => {
   useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await fetch(`${API_URL}/api/tickets/`, {
+        const accessToken = localStorage.getItem('access_token');
+
+        const response = await fetch(`${API_URL}/api/profile/`, {
+          method: "GET",
           headers: {
-            Authorization: `Api-Key ${apiKey}`,
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
           },
         });
+
+        if (!response.ok) throw new Error("Nie udało się pobrać profilu użytkownika");
+
         const data = await response.json();
-        setTickets(data.results);
+        setTickets(data.tickets || []);
       } catch (error) {
         console.error("Error fetching tickets:", error);
       } finally {

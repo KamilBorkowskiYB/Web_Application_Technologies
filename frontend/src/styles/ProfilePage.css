@@ -1,9 +1,27 @@
+/* RESET pod layout */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+body {
+  background-color: #0a0f1c;
+  font-family: Poppins, -apple-system, Roboto, Helvetica, sans-serif;
+}
 
 /* GŁÓWNY KONTENER */
 .page-container {
   min-height: 100vh;
   display: flex;
-  flex-direction: column;
   background-color: #0a0f1c;
 }
 
@@ -174,6 +192,11 @@
   line-height: 30px;
 }
 
+.no-reservations {
+  color: #e9ecef;
+  font-size: 20px;
+}
+
 .reservations-list {
   flex-direction: column;
   gap: 16px;
@@ -185,7 +208,7 @@
   border-radius: 8px;
   justify-content: space-between;
   align-items: center;
-  width: 100%;
+  width: fit-content;
   padding: 17px;
   display: flex;
   flex-wrap: wrap;
@@ -210,6 +233,22 @@
   font-weight: 400;
   line-height: 24px;
 }
+
+.reservation-meta {
+  color: #adb5bd;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+}
+
+.reservation-poster img {
+  width: 100px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
+  margin: 0 16px;
+}
+
 
 .reservation-status {
   font-size: 16px;
