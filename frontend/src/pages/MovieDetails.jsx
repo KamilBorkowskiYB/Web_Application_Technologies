@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import '../styles/MovieDetails.css';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -15,14 +15,17 @@ const MovieDetails = () => {
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [selectedCinema, setSelectedCinema] = useState(null);
   const [selectedDate, setSelectedDate] = useState(null);
+  const [cachedShowings, setCachedShowings] = useState({});
+  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+
   const apiKey = process.env.REACT_APP_API_KEY;
   
   const apiFetch = useCallback(async (url, options = {}) => {
-  const headers = {
-    "Authorization": `Api-Key ${apiKey}`,
-    ...options.headers,
-  };
-  return fetch(url, { ...options, headers });
+    const headers = {
+      "Authorization": `Api-Key ${apiKey}`,
+      ...options.headers,
+    };
+    return fetch(url, { ...options, headers });
   }, [apiKey]);
 
   useEffect(() => {
@@ -41,56 +44,91 @@ const MovieDetails = () => {
 
     apiFetch(`${API_URL}/api/cinemas/`)
       .then((res) => res.json())
-        .then(data => {setCinemas(data.results)})
+      .then(data => { setCinemas(data.results); })
+      .catch(console.error);
+
+    apiFetch(`${API_URL}/api/hall_types/`)
+      .then(res => res.json())
+      .then(data => { setHallTypes(data.results); })
+      .catch(console.error);
+
+    apiFetch(`${API_URL}/api/cinema_halls/`)
+      .then(res => res.json())
+      .then(data => { setCinemaHalls(data.results); })
       .catch(console.error);
   }, [id, apiFetch]);
 
-  useEffect(() => {
-    if (!movie) return;
-
-    apiFetch(`${API_URL}/api/movie_showings?movie=${movie.id}`)
-        .then(res => res.json())
-        .then(data => {setShowings(data.results)})
-        .catch(console.error);
-
-      apiFetch(`${API_URL}/api/hall_types/`)
-        .then(res => res.json())
-        .then(data => {setHallTypes(data.results)})
-        .catch(console.error);
-
-      apiFetch(`${API_URL}/api/cinema_halls/`)
-        .then(res => res.json())
-        .then(data => {setCinemaHalls(data.results)})
-        .catch(console.error);
-  }, [movie]);
-
-  const filteredShowings = showings.filter(s => s.movie === parseInt(id));
-  const hallTypeMap = Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type]));
-  const hallMap = Object.fromEntries(cinemaHalls.map(h => [h.id, h]));
-
-  const cinemaIdToShowtimes = {};
-  for (const showing of filteredShowings) {
-    const hall = hallMap[showing.hall];
-    if (!hall) continue;
-    const cinemaId = hall.cinema;
-
-    const dateObj = new Date(showing.date);
-    const date = dateObj.toLocaleDateString();
-    const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    const type = hallTypeMap[showing.showing_type];
-
-    if (!cinemaIdToShowtimes[cinemaId]) cinemaIdToShowtimes[cinemaId] = {};
-    if (!cinemaIdToShowtimes[cinemaId][date]) cinemaIdToShowtimes[cinemaId][date] = [];
-
-    cinemaIdToShowtimes[cinemaId][date].push({ time, type, showingId: showing.id, hall_id: showing.hall, showingPrice: showing.ticket_price});
-  }
-
-  // Sort showtimes by time
-  for (const cinemaId in cinemaIdToShowtimes) {
-    for (const date in cinemaIdToShowtimes[cinemaId]) {
-      cinemaIdToShowtimes[cinemaId][date].sort((a, b) => a.time.localeCompare(b.time));
+  const generateNext30Days = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+      dates.push(date);
     }
-  }
+    return dates;
+  };
+
+  const allDates = generateNext30Days();
+
+  const getShowingsForDate = async (dateObj) => {
+    const dateStr = dateObj.toISOString().split('T')[0];
+    setSelectedDate(dateStr);
+
+    if (cachedShowings[dateStr]) return;
+
+    setLoadingShowtimes(true);
+
+    const dayBefore = new Date(dateObj);
+    dayBefore.setDate(dayBefore.getDate() - 1);
+
+    const afterStr = dayBefore.toISOString().split('T')[0];
+    const beforeStr = dateStr;
+
+    try {
+      const res = await apiFetch(`${API_URL}/api/movie_showings?movie=${id}&showing_date_after=${afterStr}&showing_date_before=${beforeStr}`);
+      const data = await res.json();
+      setCachedShowings(prev => ({ ...prev, [dateStr]: data.results }));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoadingShowtimes(false);
+    }
+  };
+
+  const hallTypeMap = useMemo(() => Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type])), [hallTypes]);
+  const hallMap = useMemo(() => Object.fromEntries(cinemaHalls.map(h => [h.id, h])), [cinemaHalls]);
+
+  const cinemaIdToShowtimes = useMemo(() => {
+    if (!selectedDate || !cachedShowings[selectedDate]) return {};
+
+    const filteredShowings = cachedShowings[selectedDate];
+    const result = {};
+
+    for (const showing of filteredShowings) {
+      const hall = hallMap[showing.hall];
+      if (!hall) continue;
+      const cinemaId = hall.cinema;
+
+      const dateObj = new Date(showing.date);
+      const date = dateObj.toLocaleDateString();
+      const time = dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const type = hallTypeMap[showing.showing_type];
+
+      if (!result[cinemaId]) result[cinemaId] = {};
+      if (!result[cinemaId][date]) result[cinemaId][date] = [];
+
+      result[cinemaId][date].push({ time, type, showingId: showing.id, hall_id: showing.hall, showingPrice: showing.ticket_price });
+    }
+
+    for (const cinemaId in result) {
+      for (const date in result[cinemaId]) {
+        result[cinemaId][date].sort((a, b) => a.time.localeCompare(b.time));
+      }
+    }
+
+    return result;
+  }, [cachedShowings, selectedDate, hallMap, hallTypeMap]);
 
   const navigate = useNavigate();
 
@@ -154,36 +192,58 @@ const MovieDetails = () => {
                   )}
 
                   <h2 className="section-title">Showtimes</h2>
-                  <div className="showtimes-grid">
-                    {cinemas.map((cinema) => (
-                      <div key={cinema.id} className="cinema-card">
-                        <div className="cinema-name">{cinema.name}</div>
-                        {cinemaIdToShowtimes[cinema.id] ? (
-                          Object.entries(cinemaIdToShowtimes[cinema.id]).map(([date, times]) => (
-                            <div key={date} className="showtime-date-block">
-                              <div className="showtime-date">{date}</div>
-                              <div className="showtime-times">
-                                {times.map((st, idx) => (
-                                  <div
-                                    key={idx}
-                                    className={`showtime-button ${selectedShowtime?.showingId === st.showingId ? 'selected' : ''}`}
-                                    onClick={() => {
-                                      setSelectedShowtime(st);
-                                      setSelectedCinema(cinema.name);
-                                      setSelectedDate(date)}}
-                                  >
-                                    {st.time} ({st.type})
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="no-showtimes">No showtimes</div>
-                        )}
-                      </div>
-                    ))}
+
+                  <div className="date-picker">
+                    {allDates.map(date => {
+                      const iso = date.toISOString().split('T')[0];
+                      const label = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+                      return (
+                        <button
+                          key={iso}
+                          className={`date-button ${selectedDate === iso ? 'selected' : ''}`}
+                          onClick={() => getShowingsForDate(date)}
+                        >
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
+
+                  {loadingShowtimes ? (
+                    <p className="loading-showtimes">Loading showtimes...</p>
+                  ) : (
+                    <div className="showtimes-grid">
+                      {cinemas.map((cinema) => (
+                        <div key={cinema.id} className="cinema-card">
+                          <div className="cinema-name">{cinema.name}</div>
+                          {cinemaIdToShowtimes[cinema.id] ? (
+                            Object.entries(cinemaIdToShowtimes[cinema.id]).map(([date, times]) => (
+                              <div key={date} className="showtime-date-block">
+                                <div className="showtime-date">{date}</div>
+                                <div className="showtime-times">
+                                  {times.map((st, idx) => (
+                                    <div
+                                      key={idx}
+                                      className={`showtime-button ${selectedShowtime?.showingId === st.showingId ? 'selected' : ''}`}
+                                      onClick={() => {
+                                        setSelectedShowtime(st);
+                                        setSelectedCinema(cinema.name);
+                                        setSelectedDate(date);
+                                      }}
+                                    >
+                                      {st.time} ({st.type})
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="no-showtimes">No showtimes</div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
 
                   <button
                     className="book-button"

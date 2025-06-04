@@ -158,6 +158,40 @@ ul li {
   font-weight: 500;
 }
 
+.date-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+}
+
+.date-button {
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  border: 2px solid #414258;
+  background-color: #151A28;
+  color: #ffffff;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.date-button:hover {
+  background-color: #2A3142;
+}
+
+.date-button.selected {
+  background-color: #4318D1;
+  border-color: #4318D1;
+}
+
+.loading-showtimes {
+  color: #ccc;
+  font-style: italic;
+  margin: 1rem 0;
+  font-size: 1rem;
+}
 
 .showtimes-grid {
   display: flex;
