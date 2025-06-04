@@ -228,7 +228,6 @@ const MovieDetails = () => {
                                       onClick={() => {
                                         setSelectedShowtime(st);
                                         setSelectedCinema(cinema.name);
-                                        setSelectedDate(date);
                                       }}
                                     >
                                       {st.time} ({st.type})
