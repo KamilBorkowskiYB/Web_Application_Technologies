@@ -9,7 +9,6 @@ const MovieDetails = () => {
   const [movie, setMovie] = useState(null);
   const [cinemas, setCinemas] = useState([]);
   const [crew, setCrew] = useState(null);
-  const [showings, setShowings] = useState([]);
   const [hallTypes, setHallTypes] = useState([]);
   const [cinemaHalls, setCinemaHalls] = useState([]);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
