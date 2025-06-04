@@ -10,6 +10,15 @@ const ProfilePage = () => {
   const { user, logout } = useContext(AuthContext);
   const [upcomingReservations, setUpcomingReservations] = useState([]);
   const [isLoadingReservations, setIsLoadingReservations] = useState(true);
+
+  const [isEditing, setIsEditing] = useState(false);
+  const [username, setUsername] = useState(user?.username || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
   const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
 
@@ -88,6 +97,46 @@ const ProfilePage = () => {
     window.location.reload();
   };
 
+  const handleProfileUpdate = async () => {
+    setError('');
+    setSuccess('');
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match");
+      return;
+    }
+
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/api/profile/`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username,
+          email,
+          password1: password,
+          password2: confirmPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.detail || 'Failed to update profile');
+      }
+
+      setSuccess("Profile updated successfully");
+      setIsEditing(false);
+
+      // Możesz odświeżyć dane użytkownika jeśli potrzebujesz
+      window.location.reload(); // lub inne odświeżenie danych z backendu
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    }
+  };
+
   if (!user) return <p>Loading...</p>;
 
   return (
@@ -109,8 +158,71 @@ const ProfilePage = () => {
                   <h2 className="profile-user-name">{user.username}</h2>
                   <p className="profile-user-email">{user.email}</p>
                 </div>
+                
               </div>
-              <button className="profile-edit">Edit Profile</button>
+              {isEditing ? (
+                <>
+                  <div className="form-group">
+                    <label className="input-label">Username</label>
+                    <input
+                      className="input-field"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="Enter your username"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="input-label">Email</label>
+                    <input
+                      className="input-field"
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Enter your email"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="input-label">Password</label>
+                    <input
+                      className="input-field"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Enter your password"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label className="input-label">Confirm Password</label>
+                    <input
+                      className="input-field"
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm your password"
+                    />
+                  </div>
+
+                  {error && <div className="error-message">{error}</div>}
+                  {success && <div className="success-message">{success}</div>}
+
+                  <div className="choice-buttons">
+                    <button className="signin-button" onClick={handleProfileUpdate}>
+                      Confirm Edit
+                    </button>
+                    <button className="cancel-button" onClick={() => setIsEditing(false)}>
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button className="edit-button" onClick={() => setIsEditing(true)}>
+                  Edit Profile
+                </button>
+              )}
             </div>
 
             <form className="profile-form">
