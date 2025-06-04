@@ -1,5 +1,6 @@
 import React from "react";
 import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../auth/AuthContext';
 import "../styles/ProfilePage.css"; // Zakładam, że dodasz wspólny CSS do jednego pliku
 import { API_URL } from "../config";
@@ -8,12 +9,13 @@ const ProfilePage = () => {
   
   const { user, logout } = useContext(AuthContext);
   const [upcomingReservations, setUpcomingReservations] = useState([]);
+  const [isLoadingReservations, setIsLoadingReservations] = useState(true);
+  const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
 
   useEffect(() => {
     const fetchShowings = async () => {
-      const now = new Date();
-      const token = localStorage.getItem('accessToken'); // lub pobierz z kontekstu, jeśli masz
+      setIsLoadingReservations(true);
 
       const ticketsWithDetails = await Promise.all(
         user.tickets.map(async (ticket) => {
@@ -49,19 +51,42 @@ const ProfilePage = () => {
       );
 
       // 3. Filtrowanie nadchodzących rezerwacji
-      const upcoming = ticketsWithDetails
-        .filter(ticket => {
-          const showDate = new Date(ticket.showing.date);
-          return showDate > now; // można zmienić jeśli nie ma nadchodzących seansów
-        });
+      const uniqueShowingsMap = new Map();
 
-      setUpcomingReservations(upcoming);
+      ticketsWithDetails.forEach((ticket) => {
+        if (!ticket) return;
+
+        const showingId = ticket.showing.id;
+        if (!uniqueShowingsMap.has(showingId)) {
+          uniqueShowingsMap.set(showingId, {
+            ...ticket,
+            count: 1,
+          });
+        } else {
+          const existing = uniqueShowingsMap.get(showingId);
+          uniqueShowingsMap.set(showingId, {
+            ...existing,
+            count: existing.count + 1,
+          });
+        }
+      });
+
+      const uniqueReservations = Array.from(uniqueShowingsMap.values());
+
+      setUpcomingReservations(uniqueReservations);
+      setIsLoadingReservations(false);
     };
 
     if (user?.tickets?.length) {
       fetchShowings();
     }
-  }, [user]);
+  }, [user, apiKey]);
+
+  const handleLogout = () => {
+    logout();
+    navigate('/');
+    window.location.reload();
+  };
 
   if (!user) return <p>Loading...</p>;
 
@@ -69,7 +94,7 @@ const ProfilePage = () => {
     <div className="profile-page">
       <header className="profile-header">
         <h1 className="profile-title">Profile Settings</h1>
-        <button className="profile-logout" onClick={logout}>Logout</button>
+        <button className="profile-logout" onClick={handleLogout}>Logout</button>
       </header>
 
       <main className="profile-main">
@@ -103,7 +128,9 @@ const ProfilePage = () => {
 
         <section className="profile-reservations">
           <h2 className="reservations-title">Upcoming Reservations</h2>
-          {upcomingReservations.length === 0 ? (
+          {isLoadingReservations ? (
+            <p className="loading-reservations">Loading reservations...</p>
+          ) : upcomingReservations.length === 0 ? (
             <p className="no-reservations">You have no upcoming reservations.</p>
           ) : (
             <div className="reservations-list">
@@ -119,6 +146,9 @@ const ProfilePage = () => {
                     <p className="reservation-meta">
                       Duration: {ticket.showing.movie.duration} min
                     </p>
+                    <span className="reservation-count">
+                      {ticket.count} ticket{ticket.count > 1 ? 's' : ''}
+                    </span>
                   </div>
 
                   <div className="reservation-poster">
@@ -128,7 +158,13 @@ const ProfilePage = () => {
                     />
                   </div>
 
-                  <span className="reservation-status active">Upcoming</span>
+                  <span
+                    className={`reservation-status ${
+                      new Date(ticket.showing.date) > new Date() ? "active" : "expired"
+                    }`}
+                  >
+                    {new Date(ticket.showing.date) > new Date() ? "Upcoming" : "Expired"}
+                  </span>
                 </article>
               ))}
             </div>

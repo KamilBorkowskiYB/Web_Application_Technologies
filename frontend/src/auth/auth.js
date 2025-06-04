@@ -9,7 +9,12 @@ export const logout = () => {
 
 export const getUserInfo = async () => {
   const access = localStorage.getItem('access_token');
-  console.log("Token:", access);
+  console.log(access)
+
+  if (!access) {
+    console.info('No access token found. User probably not logged in.');
+    return null;
+  }
 
   try {
     const res = await fetch(`${API_URL}/api/profile/`, {
@@ -19,7 +24,7 @@ export const getUserInfo = async () => {
     });
 
     if (!res.ok) {
-      console.error('getUserInfo error:', await res.text());
+      console.warn('getUserInfo error:', res.status, await res.text());
       return null;
     }
 

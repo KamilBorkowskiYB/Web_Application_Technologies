@@ -2,54 +2,50 @@ import React from "react";
 import "../styles/TicketCard.css";
 
 const TicketCard = ({
-  movieTitle,
-  posterUrl,
-  dateTime,
-  cinema,
-  hall,
-  seat,
-  ticketType,
+  ticketId,
+  showingId,
+  seatId,
+  purchaseDate,
+  purchasePrice,
+  isCancelled,
+  details,
   onViewDetails,
 }) => {
+  const hasDetails = !!details;
+
   return (
     <div className="ticket-card">
-      <div className="ticket-poster-container">
-        <img
-          src={posterUrl}
-          alt={`${movieTitle} Poster`}
-          className="ticket-poster"
-        />
+      <div className="ticket-basic-info">
+        <div><strong>Ticket ID:</strong> {ticketId}</div>
+        <div><strong>Purchase Date:</strong> {new Date(purchaseDate).toLocaleString()}</div>
+        <div><strong>Showing ID:</strong> {showingId}</div>
+        <div><strong>Seat ID:</strong> {seatId}</div>
+        <div><strong>Price:</strong> {purchasePrice} zł</div>
+        <div><strong>Status:</strong> {isCancelled ? "Cancelled" : "Valid"}</div>
       </div>
-      <div className="ticket-details">
-        <div className="ticket-movie-title">{movieTitle}</div>
-        <div className="ticket-info-container">
-          <div className="ticket-info-row">
-            <div className="ticket-info-label">Date &amp; Time</div>
-            <div className="ticket-info-value">{dateTime}</div>
-          </div>
-          <div className="ticket-info-row">
-            <div className="ticket-info-label">Cinema</div>
-            <div className="ticket-info-value">{cinema}</div>
-          </div>
-          <div className="ticket-info-row">
-            <div className="ticket-info-label">Hall</div>
-            <div className="ticket-info-value">{hall}</div>
-          </div>
-          <div className="ticket-info-row">
-            <div className="ticket-info-label">Seat</div>
-            <div className="ticket-info-value">{seat}</div>
-          </div>
-          <div className="ticket-info-row">
-            <div className="ticket-info-label">Type</div>
-            <div className="ticket-info-value">{ticketType}</div>
-          </div>
+
+      {hasDetails && (
+        <div className="ticket-details-expanded">
+          <div className="ticket-movie-title">{details.movieTitle}</div>
+          <img src={details.posterUrl} alt="Poster" className="ticket-poster" />
+          <div><strong>Date & Time:</strong> {details.dateTime}</div>
+          <div><strong>Cinema:</strong> {details.cinema}</div>
+          <div><strong>Hall:</strong> {details.hall}</div>
+          <div><strong>Seat:</strong> {details.seat}</div>
+          <div><strong>Type:</strong> {details.ticketType}</div>
         </div>
-        <button className="ticket-view-details" onClick={onViewDetails} disabled={movieTitle !== "Click to view details"}>
-          {movieTitle === "Click to view details" ? "View Details" : "Details Loaded"}
-        </button>
-      </div>
+      )}
+
+      <button
+        className="ticket-view-details"
+        onClick={onViewDetails}
+        disabled={hasDetails}
+      >
+        {hasDetails ? "Details Loaded" : "View Details"}
+      </button>
     </div>
   );
 };
+
 
 export default TicketCard;
