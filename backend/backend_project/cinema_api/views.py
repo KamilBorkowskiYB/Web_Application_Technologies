@@ -239,6 +239,19 @@ class UserProfileView(APIView):
             'email': user.email,
             'tickets': TicketSerializer(ticket, many=True).data,
         })
+    
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 def google_login_redirect(request):
     user = request.user
