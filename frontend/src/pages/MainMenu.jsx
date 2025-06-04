@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
-import '../styles/MainMenuAnonymous.css';
+import '../styles/MainMenu.css';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 
-const MainMenuAnonymous = () => {
+const MainMenu = () => {
   const [movies, setMovies] = useState([]);
   const [filterParams, setFilterParams] = useState({});
   const navigate = useNavigate();
@@ -58,4 +58,4 @@ const MainMenuAnonymous = () => {
   );
 };
 
-export default MainMenuAnonymous;
+export default MainMenu;
