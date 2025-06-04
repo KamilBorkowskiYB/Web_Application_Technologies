@@ -32,10 +32,11 @@ const BookingSummary = () => {
   const { user } = useContext(AuthContext);
 
   const apiFetch = useCallback(async (url, options = {}) => {
+  const accessToken = localStorage.getItem('access_token');
   const headers = {
     ...(options.useApiKey && { 'Authorization': `Api-Key ${apiKey}` }),
-    ...(options.useJwt && {
-      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    ...(options.useJwt && accessToken && {
+      'Authorization': `Bearer ${accessToken}`
     }),
     ...options.headers,
   };
@@ -209,14 +210,14 @@ const BookingSummary = () => {
 
                   <div className="booking-row">
                     <div className="booking-label">Price</div>
-                    <div className="booking-value">${ticket.price}</div>
+                    <div className="booking-value">{ticket.price}PLN</div>
                   </div>
 
                   <div className="booking-divider" />
                 </div>
               ))}
 
-            <div className="booking-total">Total: ${totalPrice}</div>
+            <div className="booking-total">Total: {totalPrice}PLN</div>
             <div className="booking-button-container">
               <button onClick={handleConfirmBooking} disabled={isLoading} className="booking-confirm-button">
                 {isLoading ? "Loading..." : "Confirm Booking"}
