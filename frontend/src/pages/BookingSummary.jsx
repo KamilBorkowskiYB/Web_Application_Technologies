@@ -1,7 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useLocation } from "react-router-dom";
 import "../styles/BookingSummary.css";
 import Header from "../components/Header";
+import { AuthContext } from '../auth/AuthContext';
 import { API_URL } from '../config';
 
 const BookingSummary = () => {
@@ -28,17 +29,27 @@ const BookingSummary = () => {
   );
   const totalPrice = tickets.reduce((sum, ticket) => sum + ticket.price, 0);
   const apiKey = process.env.REACT_APP_API_KEY;
+  const { user } = useContext(AuthContext);
 
   const apiFetch = useCallback(async (url, options = {}) => {
-    const headers = {
-      "Authorization": `Api-Key ${apiKey}`,
-      ...options.headers,
-    };
-    return fetch(url, { ...options, headers });
-  }, [apiKey]);
+  const headers = {
+    ...(options.useApiKey && { 'Authorization': `Api-Key ${apiKey}` }),
+    ...(options.useJwt && {
+      'Authorization': `Bearer ${localStorage.getItem('access_token')}`
+    }),
+    ...options.headers,
+  };
+
+  return fetch(url, {
+    ...options,
+    headers,
+  });
+}, [apiKey]);
 
   useEffect(() => {
-    apiFetch(`${API_URL}/api/ticket_discounts/`)
+    apiFetch(`${API_URL}/api/ticket_discounts/`, {
+        useApiKey: true
+      })
       .then(res => res.json())
       .then(data => {setDiscountTypes(data.results)})
       .catch(err => console.error(err));
@@ -56,6 +67,7 @@ const BookingSummary = () => {
     setError("");
 
     const currentTime = new Date().toISOString();
+    const accessToken = localStorage.getItem('access_token');
 
     const ticketsData = tickets.map(ticket => ({
       showing: showingId,
@@ -64,7 +76,6 @@ const BookingSummary = () => {
       purchase_price: ticket.price,
       purchase_time: currentTime,
       discount: ticket.discount?.id || null,
-      buyer: 1
     }));
     
     try {
@@ -72,7 +83,9 @@ const BookingSummary = () => {
         ticketsData.map((ticket) =>
           apiFetch(`${API_URL}/api/tickets/`, {
             method: "POST",
+            useJwt: true,
             headers: {
+              
               'X-CSRFToken': getCookie('csrftoken'),
               "Content-Type": "application/json",
             },
@@ -92,6 +105,7 @@ const BookingSummary = () => {
       };
       const res = await apiFetch(`${API_URL}/api/orders/`, {
         method: "POST",
+        useApiKey: true,
         headers: {
               'X-CSRFToken': getCookie('csrftoken'),
               "Content-Type": "application/json",
@@ -111,37 +125,6 @@ const BookingSummary = () => {
   }
 
   };
-
-//   const handleConfirmBooking = async () => {
-//   setIsLoading(true);
-//   setError("");
-
-//   try {
-//     const body = {
-//       showingId,
-//       tickets: tickets.map(t => ({
-//         seat: t.seat.id,
-//         price: t.price,
-//         ticketType: t.type
-//       }))
-//     };
-
-//     const res = await apiFetch(`${API_URL}/api/orders/`, {
-//       method: "POST",
-//       headers: { "Content-Type": "application/json" },
-//       body: JSON.stringify(body),
-//     });
-
-//     if (!res.ok) throw new Error("Nie udało się utworzyć zamówienia PayU");
-//     const { redirectUri } = await res.json();
-
-//     window.location.href = redirectUri;   // 🚀 do PayU
-//   } catch (err) {
-//     setError(err.message);
-//   } finally {
-//     setIsLoading(false);
-//   }
-// };
 
   return (
     <div className="booking-summary">

@@ -1,14 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
+import { AuthContext } from '../auth/AuthContext';
 import Header from "../components/Header";
 import TicketCard from "../components/TicketCard";
 import "../styles/MyTickets.css";
 import { API_URL } from '../config';
 
 const MyTickets = () => {
-  const [tickets, setTickets] = useState([]);
   const [expandedDetails, setExpandedDetails] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const apiKey = process.env.REACT_APP_API_KEY;
+  const { user } = useContext(AuthContext);
+  const [tickets, setTickets] = useState(user?.tickets || []);
+  
 
   const showingCache = {};
   const movieCache = {};
@@ -16,23 +19,11 @@ const MyTickets = () => {
   const ticketTypeCache = {};
 
   useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        const response = await fetch(`${API_URL}/api/tickets/`, {
-          headers: {
-            Authorization: `Api-Key ${apiKey}`,
-          },
-        });
-        const data = await response.json();
-        setTickets(data.results);
-      } catch (error) {
-        console.error("Error fetching tickets:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchTickets();
-  }, [apiKey]);
+    if (user?.tickets) {
+      setTickets(user.tickets);
+      setIsLoading(false);
+    }
+  }, [user]);
 
   const fetchShowingDetails = async (showingId) => {
     if (showingCache[showingId]) return showingCache[showingId];
@@ -126,14 +117,16 @@ const MyTickets = () => {
               return (
                 <TicketCard
                   key={ticket.id}
-                  movieTitle={details?.movieTitle || "Click to view details"}
-                  posterUrl={details?.posterUrl || "https://placehold.co/120x180"}
-                  dateTime={details?.dateTime || "—"}
-                  cinema={details?.cinema || "—"}
-                  hall={details?.hall || "—"}
-                  seat={details?.seat || "—"}
-                  ticketType={details?.ticketType || "—"}
-                  onViewDetails={() => handleViewDetails(ticket.id, ticket.showing, ticket.seat, ticket.discount)}
+                  ticketId={ticket.id}
+                  showingId={ticket.showing}
+                  seatId={ticket.seat}
+                  purchaseDate={ticket.purchase_time}
+                  purchasePrice={ticket.purchase_price}
+                  isCancelled={ticket.cancelled}
+                  details={details}
+                  onViewDetails={() =>
+                    handleViewDetails(ticket.id, ticket.showing, ticket.seat, ticket.discount)
+                  }
                 />
               );
             })}

@@ -93,6 +93,7 @@
   text-align: center;
   border: none;
   cursor: pointer;
+  width: 100%;
 }
 
 .divider {

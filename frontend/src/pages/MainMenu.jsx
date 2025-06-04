@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
-import '../styles/MainMenuAnonymous.css';
+import '../styles/MainMenu.css';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 
-const MainMenuAnonymous = () => {
+const MainMenu = () => {
   const [movies, setMovies] = useState([]);
   const [filterParams, setFilterParams] = useState({});
   const navigate = useNavigate();
@@ -38,12 +38,12 @@ const MainMenuAnonymous = () => {
       <Header onSearch={(title) => handleFilterChange({ title })} />
       <Navigation onFilterSelect={handleFilterChange} />
       <div className="main-content">
-        <div className="movie-grid">
+        <div className="main-menu-movie-grid">
           {Array.isArray(movies) && movies.map((movie) => (
-            <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+            <div key={movie.id} className="main-menu-movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
               <img
                 src={ movie.poster }
-                className="movie-image"
+                className="main-menu-movie-image"
                 alt={movie.title}
               />
               <div className="main-menu-movie-title">{movie.title}</div>
@@ -58,4 +58,4 @@ const MainMenuAnonymous = () => {
   );
 };
 
-export default MainMenuAnonymous;
+export default MainMenu;

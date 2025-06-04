@@ -47,9 +47,9 @@ const ExploreByGenre = () => {
             {moviesByGenre[genre.genre] && moviesByGenre[genre.genre].length > 0 ? (
               <div className="movie-row">
                 {moviesByGenre[genre.genre].map((movie) => (
-                  <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
-                    <img src={movie.poster} alt={movie.title} className="movie-image" />
-                    <div className="movie-title">{movie.title}</div>
+                  <div key={movie.id} className="explore-movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+                    <img src={movie.poster} alt={movie.title} className="explore-movie-image" />
+                    <div className="explore-movie-title">{movie.title}</div>
                   </div>
                 ))}
               </div>

@@ -19,7 +19,8 @@ const Login = () => {
       return fetch(url, { ...options, headers });
   }, [apiKey]);
 
-  const handleSignIn = async () => {
+  const handleSignIn = async (e) => {
+    e.preventDefault();
     setError(null);
     try {
       const res = await apiFetch(`${API_URL}/api/token/`, {
@@ -37,6 +38,7 @@ const Login = () => {
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       navigate('/');
+      window.location.reload();
     } catch (err) {
       setError(err.message);
     }
@@ -70,31 +72,42 @@ const Login = () => {
             <div className="welcome-text">Welcome Back</div>
           </div>
           
-          <div className="form-group">
-            <label className="input-label">Username</label>
-            <input
-              type="text"
-              className="input-field"
-              placeholder="Enter your username"
-              value={identifier}
-              onChange={e => setIdentifier(e.target.value)}
-            />
-          </div>
+          <form className="form-group-wrapper" onSubmit={handleSignIn} autoComplete="on">
+            <div className="form-group">
+              <label className="input-label" htmlFor="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                className="input-field"
+                placeholder="Enter your username"
+                autoComplete="username"
+                value={identifier}
+                onChange={e => setIdentifier(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="form-group">
-            <label className="input-label">Password</label>
-            <input
-              type="password"
-              className="input-field"
-              placeholder="Enter your password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-            />
-          </div>
+            <div className="form-group">
+              <label className="input-label" htmlFor="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                className="input-field"
+                placeholder="Enter your password"
+                autoComplete="current-password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <button className="signin-button" onClick={handleSignIn}>
-            Sign In
-          </button>
+            <button type="submit" className="signin-button">
+              Sign In
+            </button>
+          </form>
+
 
           <div className="divider">
             <div className="divider-line"></div>

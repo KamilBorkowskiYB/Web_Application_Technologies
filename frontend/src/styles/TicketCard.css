@@ -6,10 +6,7 @@
   display: flex;
   gap: 24px;
   background-color: #151a28;
-}
-
-.ticket-poster-container {
-  flex-shrink: 0;
+  flex-direction: column;
 }
 
 .ticket-poster {
@@ -19,40 +16,41 @@
   object-fit: cover;
 }
 
-.ticket-details {
-  flex: 1;
+.ticket-basic-info {
+  color: #e9ecef;
+  font-size: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.ticket-basic-info div {
+  line-height: 24px;
+}
+
+.ticket-details-expanded {
+  color: #e9ecef;
   display: flex;
   flex-direction: column;
+  gap: 12px;
+  border-top: 1px solid #343a40;
+  padding-top: 16px;
 }
 
 .ticket-movie-title {
   color: #e9ecef;
   font-size: 24px;
   line-height: 36px;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
-.ticket-info-container {
-  flex: 1;
-}
-
-.ticket-info-row {
-  display: flex;
-  justify-content: space-between;
+.ticket-poster {
+  width: 120px;
+  height: 180px;
+  border-radius: 8px;
+  object-fit: cover;
   margin-bottom: 12px;
-}
-
-.ticket-info-label {
-  color: #adb5bd;
-  font-size: 16px;
-  line-height: 24px;
-}
-
-.ticket-info-value {
-  color: #e9ecef;
-  font-size: 16px;
-  line-height: 24px;
-  text-align: right;
 }
 
 .ticket-view-details {
@@ -64,19 +62,21 @@
   font-weight: 500;
   line-height: 24px;
   cursor: pointer;
-  margin-top: 24px;
+  margin-top: 16px;
   background-color: #4318d1;
   border: none;
+  align-self: flex-start;
 }
 
+.ticket-view-details:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+/* Responsive styles */
 @media (max-width: 991px) {
   .ticket-card {
-    flex-direction: column;
     padding: 16px;
-  }
-
-  .ticket-poster-container {
-    margin-bottom: 16px;
   }
 
   .ticket-poster {
@@ -85,14 +85,8 @@
     max-width: 240px;
   }
 
-  .ticket-info-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ticket-info-value {
-    text-align: left;
-    margin-top: 4px;
+  .ticket-basic-info {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -102,11 +96,7 @@
     line-height: 30px;
   }
 
-  .ticket-info-container {
-    font-size: 14px;
-  }
-
   .ticket-view-details {
-    margin-top: 16px;
+    margin-top: 12px;
   }
 }

@@ -41,12 +41,15 @@
   scroll-snap-type: x mandatory;
 }
 
-.movie-card {
+.explore-movie-card {
   flex: 0 0 auto;
-  width: 184px;
-  aspect-ratio: 2/3;
+  display: flex;
+  flex-direction: column;
   border-radius: 12px;
   position: relative;
+  aspect-ratio: 2/3;
+  width: 184px;
+  padding-top: 0;
   cursor: pointer;
   transition: transform 0.2s;
   scroll-snap-align: start;
@@ -56,15 +59,22 @@
   transform: scale(1.03);
 }
 
-.movie-image {
-  width: 100%;
+.explore-movie-image {
+  position: absolute;
+  inset: 0;
   height: 100%;
-  border-radius: 12px;
+  width: 100%;
   object-fit: cover;
   object-position: center;
+  border-radius: 12px;
 }
 
-.movie-title {
+.explore-movie-title {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
   position: relative;
   padding: 16px;
   align-self: center;

@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from './auth/AuthContext';
 import "./App.css";
-import MainMenuAnonymous from "./pages/MainMenuAnonymous.jsx";
+import MainMenu from "./pages/MainMenu.jsx";
 import ExploreByGenre from "./pages/ExploreByGenre";
 import MovieDetails from "./pages/MovieDetails.jsx";
 import Login from "./pages/Login.jsx";
@@ -20,7 +20,7 @@ function App() {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<MainMenuAnonymous />} />
+          <Route path="/" element={<MainMenu />} />
           <Route path="/explore" element={<ExploreByGenre />} />
           <Route path="/search" element={<SearchPage />} />
           <Route path="/movie/:id" element={<MovieDetails />} />
