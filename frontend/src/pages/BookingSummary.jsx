@@ -5,6 +5,7 @@ import Header from "../components/Header";
 import { AuthContext } from '../auth/AuthContext';
 import { API_URL } from '../config';
 
+
 const BookingSummary = () => {
   const location = useLocation();
   const {
@@ -30,9 +31,12 @@ const BookingSummary = () => {
   const totalPrice = tickets.reduce((sum, ticket) => sum + ticket.price, 0);
   const apiKey = process.env.REACT_APP_API_KEY;
   const { user } = useContext(AuthContext);
+  const [email, setEmail] = useState(user?.email || "");
 
   const apiFetch = useCallback(async (url, options = {}) => {
-  const accessToken = localStorage.getItem('access_token');
+  const rawToken = localStorage.getItem('access_token');
+  const accessToken = rawToken && rawToken !== 'start' ? rawToken : null;
+
   const headers = {
     ...(options.useApiKey && { 'Authorization': `Api-Key ${apiKey}` }),
     ...(options.useJwt && accessToken && {
@@ -41,10 +45,24 @@ const BookingSummary = () => {
     ...options.headers,
   };
 
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers,
   });
+
+  if (response.status === 401) {
+    try {
+      const data = await response.clone().json();
+      if (data.code === "token_not_valid") {
+        console.error("Token is not valid, removing access token from localStorage.");
+        localStorage.removeItem('access_token');
+      }
+    } catch (error) {
+      console.error("Error parsing response:", error);
+    }
+  }
+
+  return response;
 }, [apiKey]);
 
   useEffect(() => {
@@ -101,8 +119,8 @@ const BookingSummary = () => {
       const ticketIds = responses.map(ticket => ticket.id);
 
       const body = {
-        tickets_ids: ticketIds
-        // tickets_ids: [74]
+        tickets_ids: ticketIds,
+        email: email,
       };
       const res = await apiFetch(`${API_URL}/api/orders/`, {
         method: "POST",
@@ -218,11 +236,27 @@ const BookingSummary = () => {
               ))}
 
             <div className="booking-total">Total: {totalPrice}PLN</div>
-            <div className="booking-button-container">
-              <button onClick={handleConfirmBooking} disabled={isLoading} className="booking-confirm-button">
-                {isLoading ? "Loading..." : "Confirm Booking"}
-              </button>
-            </div>
+            <form onSubmit={(e) => {
+              e.preventDefault();
+              handleConfirmBooking();
+            }}>
+              <div className="form-group">
+                <label className="input-label" htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  className="input-field"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="booking-button-container">
+                <button type="submit" disabled={isLoading} className="booking-confirm-button">
+                  {isLoading ? "Loading..." : "Confirm Booking"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </div>

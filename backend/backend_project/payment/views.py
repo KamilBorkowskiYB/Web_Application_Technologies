@@ -9,6 +9,7 @@ from rest_framework.decorators import api_view, permission_classes, authenticati
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.permissions import AllowAny
 from .filters import OrderFilter
+from .utilis import send_email
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -44,6 +45,12 @@ def change_status(request):
         print("Order cancelled")
         order.cancel()
         
+
+    if order.status.label == "Completed":
+        print("Order completed")
+        # Here you can add any additional logic for completed orders, like sending confirmation emails
+        send_email(order)
+
     print("Order status updated:", order.status)
     return Response({'message': 'Payment status updated successfully'}, status=200)
 
