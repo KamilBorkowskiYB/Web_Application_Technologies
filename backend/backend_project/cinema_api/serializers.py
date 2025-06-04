@@ -182,20 +182,23 @@ class MovieCrewSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserSerializer(serializers.ModelSerializer):
-    files = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
     password1 = serializers.CharField(write_only=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'files', 'password1', 'password2']
+        fields = ['id', 'username', 'email', 'password1', 'password2']
         extra_kwargs = {'password': {'write_only': True}}
 
     def validate(self, attrs):
         if attrs['password1'] != attrs['password2']:
-            raise serializers.ValidationError("Passwords does not match.")
-        if User.objects.filter(email=attrs['email']).exists():
-            raise serializers.ValidationError("User with this mail exist.")
+            raise serializers.ValidationError("Hasła nie pasują do siebie.")
+        if attrs.get('email'):
+            user_qs = User.objects.filter(email=attrs['email'])
+            if self.instance:
+                user_qs = user_qs.exclude(pk=self.instance.pk)
+            if user_qs.exists():
+                raise serializers.ValidationError("Użytkownik z tym adresem e-mail już istnieje.")
         return attrs
     
     def create(self, validated_data):

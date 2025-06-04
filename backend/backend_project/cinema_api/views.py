@@ -245,6 +245,9 @@ class UserProfileView(APIView):
         serializer = UserSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            user.set_password(request.data.get('password1', user.password))
+            user.save()
+            print("User password set to:", user.password)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
