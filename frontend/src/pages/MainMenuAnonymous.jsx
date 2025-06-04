@@ -38,12 +38,12 @@ const MainMenuAnonymous = () => {
       <Header onSearch={(title) => handleFilterChange({ title })} />
       <Navigation onFilterSelect={handleFilterChange} />
       <div className="main-content">
-        <div className="movie-grid">
+        <div className="main-menu-movie-grid">
           {Array.isArray(movies) && movies.map((movie) => (
-            <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+            <div key={movie.id} className="main-menu-movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
               <img
                 src={ movie.poster }
-                className="movie-image"
+                className="main-menu-movie-image"
                 alt={movie.title}
               />
               <div className="main-menu-movie-title">{movie.title}</div>

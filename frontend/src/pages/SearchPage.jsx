@@ -36,12 +36,12 @@ const SearchPage = () => {
         <div className='main-content-title'>
             Search results for: <em>{title}</em>
         </div>
-        <div className="movie-grid">
+        <div className="search-movie-grid">
           {movies.length > 0 ? (
             movies.map((movie) => (
-              <div key={movie.id} className="movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
-                <img src={movie.poster} className="movie-image" alt={movie.title} />
-                <div className="main-menu-movie-title">{movie.title}</div>
+              <div key={movie.id} className="search-movie-card" onClick={() => navigate(`/movie/${movie.id}`)}>
+                <img src={movie.poster} className="search-movie-image" alt={movie.title} />
+                <div className="search--movie-title">{movie.title}</div>
                 <div className="movie-duration-on-hover">Duration: {movie.duration} min</div>
               </div>
             ))
