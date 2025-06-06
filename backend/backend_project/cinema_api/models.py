@@ -7,6 +7,8 @@ class Cinema(models.Model):
     location_city = models.CharField(max_length=100)
     location_street = models.CharField(max_length=100)
     location_number = models.IntegerField()
+    logitude = models.FloatField(null=True, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.location_city + " " + self.location_street + " " + str(self.location_number)
