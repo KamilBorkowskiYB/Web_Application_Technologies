@@ -1,0 +1,111 @@
+.search-page {
+  background-color: rgb(255, 255, 255);
+  overflow-y: auto;
+  height: 100vh;
+}
+
+.main-content {
+  background-color: rgb(10, 15, 28);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  align-items: stretch;
+}
+
+.search-movie-grid {
+  align-self: center;
+  display: flex;
+  margin-top: 48px;
+  margin-bottom: -83px;
+  width: 100%;
+  max-width: 1223px;
+  align-items: stretch;
+  gap: 20px;
+  color: rgb(255, 255, 255);
+  font-weight: 500;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.search-movie-card {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  border-radius: 12px;
+  position: relative;
+  aspect-ratio: 2/3;
+  width: 184px;
+  padding-top: 0;
+  cursor: pointer;
+  transition: transform 0.2s;
+  scroll-snap-align: start;
+}
+
+.movie-card:hover {
+  transform: scale(1.03);
+}
+
+.movie-duration-on-hover {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: none;
+}
+
+.movie-card:hover .movie-duration-on-hover {
+  display: block;
+}
+
+.search-movie-image {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 12px;
+}
+
+.search--movie-title {
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  text-align: center;
+  max-width: 100%;
+  position: relative;
+  padding: 16px;
+  align-self: center;
+  font-size: 20px;
+  font-weight: 500;
+  color: #e0e0e0;
+  text-shadow: 0 0 6px rgba(0, 0, 0, 0.6);
+}
+
+/* Responsive fallback */
+@media (max-width: 991px) {
+  .main-content {
+    max-width: 100%;
+    padding-bottom: 100px;
+  }
+
+  .movie-grid {
+    max-width: 100%;
+    margin-bottom: 10px;
+    margin-top: 40px;
+    white-space: initial;
+  }
+
+  .movie-card {
+    padding-top: 100px;
+    white-space: initial;
+  }
+
+  .movie-title {
+    padding-right: 20px;
+    white-space: initial;
+  }
+}

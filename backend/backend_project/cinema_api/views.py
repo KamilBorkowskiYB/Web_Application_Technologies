@@ -1,17 +1,24 @@
 from django.shortcuts import render
 from django.conf import settings
+from django.db.models import Q
 
 from .models import *
 from .serializers import *
-from rest_framework import viewsets
+from .filters import *
+
+from rest_framework import viewsets, filters, generics, status
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import redirect
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .tmdb_requests import movie_info
 from .utils import seat_generation
 
-
-# Create your views here.
 
 class CinemaViewSet(viewsets.ModelViewSet):
     queryset = Cinema.objects.all()
@@ -43,10 +50,18 @@ class CinemaHallViewSet(viewsets.ModelViewSet):
 class SeatViewSet(viewsets.ModelViewSet):
     queryset = Seat.objects.all()
     serializer_class = SeatSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = SeatsFilter
 
 class MovieViewSet(viewsets.ModelViewSet):
     queryset = Movie.objects.all()
     serializer_class = MovieSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
+    filterset_class = MovieFilter
+    ordering_fields = ['title', 'release_date', 'duration']
+    ordering = ['-release_date']
 
     @action(detail=False, methods=['post'])
     def auto_complete(self, request):
@@ -98,10 +113,94 @@ class MovieViewSet(viewsets.ModelViewSet):
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
     serializer_class = MovieShowingSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
+    filterset_class = MovieShowingFilter
+    ordering_fields = ['date']
+    ordering = ['-date']
+
+    @action(detail=False, methods=['post'])
+    def add_showing_in_period(self, request):
+        """Add multiple showings for a movie in a specified period."""
+        # date = request.data.get('date')
+        movie = request.data.get('movie')
+        hall = request.data.get('hall')
+        showing_type = request.data.get('showing_type')
+        ticket_price = request.data.get('ticket_price')
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+        hours = request.data.get('hours')
+        if not movie or not hall or not showing_type or not ticket_price or not start_date or not end_date or not hours:
+            return Response({"error": "All fields are required"}, status=400)
+
+        start_date = timezone.datetime.strptime(start_date, '%Y-%m-%d')
+        end_date = timezone.datetime.strptime(end_date, '%Y-%m-%d')
+        hours = [timezone.datetime.strptime(hour, '%H:%M').time() for hour in hours]
+        if start_date >= end_date:
+            return Response({"error": "Start date must be before end date"}, status=400)
+        if start_date.date() <= timezone.localdate():
+            return Response({"error": "Start date must be in the future"}, status=400)
+        
+        days = (end_date - start_date).days + 1
+
+        for day in range(days):
+            current_date = start_date + timezone.timedelta(days=day)
+            for hour in hours:
+                date_time = timezone.datetime.combine(current_date, hour)
+                if timezone.is_naive(date_time):
+                    date_time = timezone.make_aware(date_time)
+                if date_time < timezone.now():
+                    continue
+                try:
+                    MovieShowing.objects.create(
+                        date=date_time,
+                        movie_id=movie,
+                        hall_id=hall,
+                        showing_type_id=showing_type,
+                        ticket_price=ticket_price
+                    )
+                except Exception as e:
+                    return Response({"error": str(e)}, status=400)
+        return Response({"message": "Showings added successfully"}, status=201)
+
+
+class TicketDiscountViewSet(viewsets.ModelViewSet):
+    queryset = TicketDiscount.objects.all()
+    serializer_class = TicketDiscountSerializer
+
+    @action(detail=False, methods=['get'])
+    def active_discounts(self, request):
+        """
+        Get all active discounts.
+        """
+        today = timezone.now().date()
+        discounts = self.queryset.filter(
+            Q(start_date__lte=today, end_date__gte=today) |
+            Q(start_date__isnull=True, end_date__isnull=True))
+        serializer = self.get_serializer(discounts, many=True)
+        return Response(serializer.data)
 
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all()
     serializer_class = TicketSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.OrderingFilter]
+    filterset_class = TicketFilter
+    ordering_fields = ['showing__date', 'purchase_time']
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [AllowAny]
+
+    def perform_create(self, serializer):
+        user = self.request.user
+        print("User:", user)
+        if user.is_authenticated:
+            print("Authenticated user:", user)
+            serializer.save(buyer=user)
+        else:
+            print("Anonymous user, saving without user")
+            serializer.save()
 
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
@@ -114,3 +213,52 @@ class MovieCrewViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def perform_create(self, serializer):
+        user = serializer.save()
+        return Response({
+            'username': user.username,
+            'email': user.email,
+        }, status=status.HTTP_201_CREATED)
+
+class UserProfileView(APIView):    
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+
+    def get(self, request):
+        user = request.user
+        ticket = Ticket.objects.filter(buyer=user)
+        return Response({
+            'id': user.id,
+            'username': user.username,
+            'email': user.email,
+            'tickets': TicketSerializer(ticket, many=True).data,
+        })
+    
+    def put(self, request):
+        user = request.user
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            user.set_password(request.data.get('password1', user.password))
+            user.save()
+            print("User password set to:", user.password)
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        user = request.user
+        user.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+def google_login_redirect(request):
+    user = request.user
+    token = RefreshToken.for_user(user).access_token
+    
+    frontend_url = request.GET.get("next", f"{settings.FRONTEND_URL}/after-google-login")
+    return redirect(f"{frontend_url}?token={token}")

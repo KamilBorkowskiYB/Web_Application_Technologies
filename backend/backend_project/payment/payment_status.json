@@ -1,0 +1,30 @@
+[
+    {
+        "model": "payment.paymentstatus",
+        "pk": 1,
+        "fields": {
+            "label": "Pending"
+        }
+    },
+    {
+        "model": "payment.paymentstatus",
+        "pk": 2,
+        "fields": {
+            "label": "Completed"
+        }
+    },
+    {
+        "model": "payment.paymentstatus",
+        "pk": 3,
+        "fields": {
+            "label": "Failed"
+        }
+    },
+    {
+        "model": "payment.paymentstatus",
+        "pk": 4,
+        "fields": {
+            "label": "Canceled"
+        }
+    }
+]
