@@ -13,11 +13,12 @@ from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
 from django.shortcuts import redirect
+from django.http import HttpResponse
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .tmdb_requests import movie_info
-from .utils import seat_generation
+from .utils import seat_generation, movie_qr_code
 
 
 class CinemaViewSet(viewsets.ModelViewSet):
@@ -109,6 +110,20 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie.save()
         serializer = MovieSerializer(movie)
         return Response(serializer.data, status=201)
+
+    @action(detail=True, methods=['get'])
+    def qr_code(self, request, pk=None):
+        """
+        Generate a QR code for the movie.
+        """
+        movie = self.get_object()
+        qr_code_image = movie_qr_code(movie)
+        if not qr_code_image:
+            return Response({"error": "QR code generation failed"}, status=500)
+        
+        response = HttpResponse(qr_code_image, content_type='image/png')
+        # response['Content-Disposition'] = f'attachment; filename="{movie.title}_qr.png"'
+        return response
 
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
