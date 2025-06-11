@@ -7,7 +7,7 @@ class Cinema(models.Model):
     location_city = models.CharField(max_length=100)
     location_street = models.CharField(max_length=100)
     location_number = models.IntegerField()
-    logitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
     latitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):

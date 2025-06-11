@@ -1,6 +1,10 @@
 from django.shortcuts import render
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F, Func, FloatField
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.db.models.expressions import Value
+from django.db.models.functions import Sqrt, Power
 
 from .models import *
 from .serializers import *
@@ -12,8 +16,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import redirect
-from django.http import HttpResponse
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
@@ -24,7 +27,36 @@ from .utils import seat_generation, movie_qr_code
 class CinemaViewSet(viewsets.ModelViewSet):
     queryset = Cinema.objects.all()
     serializer_class = CinemaSerializer
- 
+
+    @action(detail=False, methods=['get'])
+    def get_closest(self, request):
+        """
+        Get all cinemas within a specified distance from the user's location.
+        """
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        amount = request.query_params.get('amount', 5)
+        if not latitude or not longitude:
+            return Response({"error": "Latitude and longitude are required"}, status=400)
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            amount = int(amount) if amount else 5
+        except ValueError:
+            return Response({"error": "Latitude, longitude, and amount must be valid numbers"}, status=400)
+        
+        cinemas = self.queryset.annotate(
+            distance=Sqrt(
+                Power(F('latitude') - Value(latitude), 2) +
+                Power(F('longitude') - Value(longitude), 2)
+            )
+        ).filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+        ).order_by('distance')[:amount]
+        serializer = self.get_serializer(cinemas, many=True)
+        return Response(serializer.data)
+
 
 class HallTypeViewSet(viewsets.ModelViewSet):
     queryset = HallType.objects.all()
