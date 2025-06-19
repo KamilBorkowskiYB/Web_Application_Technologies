@@ -141,3 +141,10 @@ class Ticket(models.Model):
 
     def __str__(self):
         return f"Ticket {self.id}"
+
+class UserDevice(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    fcm_token = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"Device {self.id} for user {self.user.username}" if self.user else "Device without user"

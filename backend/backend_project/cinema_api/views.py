@@ -20,7 +20,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .tmdb_requests import movie_info
+from .tmdb_requests import movie_info, request_translated_data
 from .utils import seat_generation, movie_qr_code
 
 
@@ -154,8 +154,25 @@ class MovieViewSet(viewsets.ModelViewSet):
             return Response({"error": "QR code generation failed"}, status=500)
         
         response = HttpResponse(qr_code_image, content_type='image/png')
-        # response['Content-Disposition'] = f'attachment; filename="{movie.title}_qr.png"'
         return response
+
+    @action(detail=True, methods=['get'])
+    def translate(self, request, pk=None):
+        """
+        Translate movie title and description to a specified language.
+        """
+        movie = self.get_object()
+        language = request.query_params.get('language', 'en')
+        if not language:
+            return Response({"error": "Language is required"}, status=400)
+
+        translated_data = request_translated_data(movie.title, language)
+
+        return Response({
+            'title': translated_data.get('title', movie.title),
+            'description': translated_data.get('overview', movie.description),
+            'original_title': movie.title,
+        }, status=200)
 
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()

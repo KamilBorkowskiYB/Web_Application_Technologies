@@ -20,7 +20,7 @@ def seat_generation(hall: CinemaHall, row_count, seat_per_row):
 def movie_qr_code(movie):
     serializer_movie = MovieSerializer(movie)
     movie_data = serializer_movie.data
-    movie_json = json.dumps(movie_data)
+    movie_json = json.dumps({'id': movie.id})
     qr = qrcode.QRCode(
         version=1,
         error_correction=qrcode.constants.ERROR_CORRECT_L,
