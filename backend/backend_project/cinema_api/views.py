@@ -9,6 +9,7 @@ from django.db.models.functions import Sqrt, Power
 from .models import *
 from .serializers import *
 from .filters import *
+from .tasks import send_notification_to_user
 
 from rest_framework import viewsets, filters, generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -263,10 +264,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         if user.is_authenticated:
             print("Authenticated user:", user)
             serializer.save(buyer=user)
+
+            send_time = serializer.validated_data.get('showing').date - timezone.timedelta(minutes=30)
+            send_notification_to_user.apply_async(
+                args=[serializer.instance.id],
+                eta=send_time
+            )
+            print("Notification task scheduled for:", send_time)
         else:
             print("Anonymous user, saving without user")
             serializer.save()
 
+    
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
@@ -346,6 +355,20 @@ class UserDeviceView(APIView):
             device = UserDevice.objects.get(id=id, user=request.user)
             device.delete()
             return Response({"message": "Device unregistered successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except UserDevice.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request):
+        id = request.data.get('id')
+        fcm_token = request.data.get('fcm_token')
+        if not id or not fcm_token:
+            return Response({"error": "Device ID and FCM token are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            device = UserDevice.objects.get(id=id, user=request.user)
+            device.fcm_token = fcm_token
+            device.save()
+            return Response({"message": "Device updated successfully"}, status=status.HTTP_200_OK)
         except UserDevice.DoesNotExist:
             return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 

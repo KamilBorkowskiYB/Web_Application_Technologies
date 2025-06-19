@@ -36,6 +36,38 @@ def movie_qr_code(movie):
     img.save(img_io, 'PNG')
     return ContentFile(img_io.getvalue(), name=f"{movie.title}_qr.png")
 
+def notify_user(ticket):
+    """Notify a user devices about incoming movie showing."""
+    if not ticket.showing.movie:
+        print("No movie associated with this showing.")
+        return
+
+    movie = ticket.showing.movie
+    user_devices = UserDevice.objects.filter(user=ticket.buyer)
+
+    if not user_devices.exists():
+        print(f"No devices registered for user {ticket.buyer.username}.")
+        return
+
+    for device in user_devices:
+        if not device.fcm_token:
+            print(f"No FCM token for device {device.id}.")
+            continue
+
+        message = messaging.Message(
+            notification=messaging.Notification(
+                title=f"Nowy film: {movie.title}",
+                body=f"{movie.title} już w kinach!",
+            ),
+            token=device.fcm_token,
+        )
+
+        try:
+            response = messaging.send(message)
+            print(f"Wysłano do {device.fcm_token}: {response}")
+        except Exception as e:
+            print(f"Błąd wysyłania do {device.fcm_token}: {e}")
+
 def notify_all(movie):
     """Notify all registered devices about a new movie."""
     batch_size = 1000

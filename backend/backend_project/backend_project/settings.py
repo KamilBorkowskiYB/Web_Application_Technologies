@@ -209,6 +209,15 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'cinemaland.official.pl@gmail.com'
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
+# Firebase settings
 if not firebase_admin._apps:
     cred = credentials.Certificate("firebase_credentials.json")
     firebase_admin.initialize_app(cred)
+
+#Celery settings
+# Celery settings
+CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
