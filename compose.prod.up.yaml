@@ -24,22 +24,24 @@ services:
     networks:
       - internal
       
-  celery:
-    image: tai-django-web
-    container_name: cinema_celery
-    command: celery -A backend_project worker -l info
-    depends_on:
-      - db
-      - redis
-      - backend
-    networks:
-      - internal
-      - external
-    env_file:
-      - .env
-    dns:
-      - 8.8.8.8
-      - 8.8.4.4
+  # celery:
+  #   image: tai-django-web
+  #   container_name: cinema_celery
+  #   command: celery -A backend_project worker -l info
+  #   depends_on:
+  #     - db
+  #     - redis
+  #     - backend
+  #   networks:
+  #     - internal
+  #     - external
+  #   env_file:
+  #     - .env
+  #   dns:
+  #     - 8.8.8.8
+  #     - 8.8.4.4
+  #   volumes:
+  #     - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app
 
   backend:
     image: tai-django-web
@@ -49,7 +51,7 @@ services:
     volumes:
       - ./media:/app/media
       - ./staticfiles:/app/staticfiles
-      - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app
+      # - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app
     depends_on:
       - db
       - redis
