@@ -88,7 +88,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            mkdir -p /home/${{ secrets.SSH_USER }}/CinemaLand/secrets
+            mkdir -p /home/${{ secrets.SSH_USER }}/backend
             echo '${{ secrets.FIREBASE_CREDENTIALS }}' > /home/${{ secrets.SSH_USER }}/CinemaLand/secrets/firebase_credentials.json
 
       - name: Load images and run containers on server
