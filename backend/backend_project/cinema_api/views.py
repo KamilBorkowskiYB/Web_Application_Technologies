@@ -21,7 +21,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .tmdb_requests import movie_info, request_translated_data
-from .utils import seat_generation, movie_qr_code
+from .utils import seat_generation, movie_qr_code, notify_all
 
 
 class CinemaViewSet(viewsets.ModelViewSet):
@@ -141,6 +141,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie.genre.set(genres)
         movie.save()
         serializer = MovieSerializer(movie)
+        notify_all(movie)
         return Response(serializer.data, status=201)
 
     @action(detail=True, methods=['get'])
@@ -319,6 +320,34 @@ class UserProfileView(APIView):
         user = request.user
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserDeviceView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        fcm_token = request.data.get('fcm_token')
+        if not fcm_token:
+            return Response({"error": "FCM token is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        device, created = UserDevice.objects.get_or_create(user=user, defaults={'fcm_token': fcm_token})
+        if not created:
+            device.fcm_token = fcm_token
+            device.save()
+        
+        return Response({"message": "Device registered successfully"}, status=status.HTTP_201_CREATED)
+    
+    def delete(self, request):
+        id = request.data.get('id')
+        if not id:
+            return Response({"error": "Device ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = UserDevice.objects.get(id=id, user=request.user)
+            device.delete()
+            return Response({"message": "Device unregistered successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except UserDevice.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 
 def google_login_redirect(request):
     user = request.user
