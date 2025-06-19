@@ -214,10 +214,9 @@ if not firebase_admin._apps:
     cred = credentials.Certificate("secret/firebase_credentials.json")
     firebase_admin.initialize_app(cred)
 
-#Celery settings
 # Celery settings
-# CELERY_TIMEZONE = 'Europe/Warsaw'
-# CELERY_BROKER_URL = 'redis://redis:6379'
-# CELERY_RESULT_BACKEND = 'redis://redis:6379'
-# CELERY_ACCEPT_CONTENT = ['json']
-# CELERY_TASK_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
