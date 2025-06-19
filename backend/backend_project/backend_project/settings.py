@@ -210,9 +210,9 @@ EMAIL_HOST_USER = 'cinemaland.official.pl@gmail.com'
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 # Firebase settings
-# if not firebase_admin._apps:
-#     cred = credentials.Certificate("firebase_credentials.json")
-#     firebase_admin.initialize_app(cred)
+if not firebase_admin._apps:
+    cred = credentials.Certificate("firebase_credentials.json")
+    firebase_admin.initialize_app(cred)
 
 #Celery settings
 # Celery settings
