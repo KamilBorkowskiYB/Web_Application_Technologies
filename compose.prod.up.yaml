@@ -51,7 +51,7 @@ services:
     volumes:
       - ./media:/app/media
       - ./staticfiles:/app/staticfiles
-      - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app/firebase_credentials.json
+      - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app/
     depends_on:
       - db
       - redis
