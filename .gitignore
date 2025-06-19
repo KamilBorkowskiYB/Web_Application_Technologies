@@ -3,3 +3,4 @@ venv
 __pycache__/
 media/
 staticfiles/
+firebase_credentials.json
