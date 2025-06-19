@@ -49,6 +49,7 @@ services:
     volumes:
       - ./media:/app/media
       - ./staticfiles:/app/staticfiles
+      - /home/${{ secrets.SSH_USER }}/CinemaLand/secrets/firebase_credentials.json:/app/firebase_credentials.json
     depends_on:
       - db
       - redis
