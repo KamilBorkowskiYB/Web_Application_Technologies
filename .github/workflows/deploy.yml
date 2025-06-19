@@ -81,14 +81,15 @@ jobs:
           script: |
             echo "${{ secrets.ENV_FILE }}" > /home/${{ secrets.SSH_USER }}/CinemaLand/.env
 
-      - name: Copy firebase credentials to server
-        uses: appleboy/scp-action@v0.1.7
+      - name: Create firebase_credentials.json on server
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          source: "firebase_credentials.json"
-          target: "/home/${{ secrets.SSH_USER }}/CinemaLand/"
+          script: |
+            mkdir -p /home/${{ secrets.SSH_USER }}/backend
+            echo '${{ secrets.FIREBASE_CREDENTIALS }}' > /home/${{ secrets.SSH_USER }}/backend/firebase_credentials.json
 
       - name: Load images and run containers on server
         uses: appleboy/ssh-action@v1.0.3
