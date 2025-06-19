@@ -211,7 +211,7 @@ EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
 
 # Firebase settings
 if not firebase_admin._apps:
-    cred = credentials.Certificate("firebase_credentials.json")
+    cred = credentials.Certificate("secret/firebase_credentials.json")
     firebase_admin.initialize_app(cred)
 
 #Celery settings

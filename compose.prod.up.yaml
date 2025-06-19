@@ -51,7 +51,7 @@ services:
     volumes:
       - ./media:/app/media
       - ./staticfiles:/app/staticfiles
-      - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app/
+      - ${FIREBASE_CREDENTIALS_HOST_PATH}:/app/secret
     depends_on:
       - db
       - redis
