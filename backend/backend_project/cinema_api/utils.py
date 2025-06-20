@@ -7,6 +7,7 @@ from firebase_admin import messaging
 from time import sleep
 from .serializers import MovieSerializer
 from .models import UserDevice
+from zoneinfo import ZoneInfo
 
 def seat_generation(hall: CinemaHall, row_count, seat_per_row):
     if Seat.objects.filter(hall=hall).exists():
@@ -43,6 +44,7 @@ def notify_user(ticket):
         return
 
     movie = ticket.showing.movie
+    poster_url = "https://cinemaland.pl" + movie.poster.url if movie.poster else None
     user_devices = UserDevice.objects.filter(user=ticket.buyer)
 
     if not user_devices.exists():
@@ -54,13 +56,17 @@ def notify_user(ticket):
             print(f"No FCM token for device {device.id}.")
             continue
 
+        local_time = ticket.showing.date.astimezone(ZoneInfo("Europe/Warsaw"))
+
         message = messaging.Message(
             notification=messaging.Notification(
-                title=f"Nowy film: {movie.title}",
-                body=f"{movie.title} już w kinach!",
+                title=f"Seans filmu: {movie.title}",
+                body=f"{movie.title} zaczyna się o {local_time.strftime('%H:%M')} w kinie {ticket.showing.hall.cinema.name}.",
+                image=poster_url,
             ),
             token=device.fcm_token,
         )
+
 
         try:
             response = messaging.send(message)
@@ -86,6 +92,7 @@ def notify_all(movie):
                 notification=messaging.Notification(
                     title=f"Nowy film: {movie.title}",
                     body=f"{movie.title} już w kinach!",
+                    image="https://cinemaland.pl" + movie.poster.url if movie.poster else None,
                 ),
                 token=token,
             )

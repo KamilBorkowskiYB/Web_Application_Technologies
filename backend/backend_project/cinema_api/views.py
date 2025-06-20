@@ -337,16 +337,23 @@ class UserDeviceView(APIView):
     def post(self, request):
         user = request.user
         fcm_token = request.data.get('fcm_token')
+
         if not fcm_token:
             return Response({"error": "FCM token is required"}, status=status.HTTP_400_BAD_REQUEST)
-        
-        device, created = UserDevice.objects.get_or_create(user=user, defaults={'fcm_token': fcm_token})
-        if not created:
-            device.fcm_token = fcm_token
-            device.save()
-        
-        return Response({"message": "Device registered successfully"}, status=status.HTTP_201_CREATED)
-    
+
+        try:
+            device = UserDevice.objects.get(fcm_token=fcm_token)
+            if device.user != user:
+                device.user = user
+                device.save()
+                return Response({"message": "Device reassigned to new user", "device_id": device.id}, status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Device already assigned to this user", "device_id": device.id}, status=status.HTTP_200_OK)
+
+        except UserDevice.DoesNotExist:
+            device = UserDevice.objects.create(user=user, fcm_token=fcm_token)
+            return Response({"message": "Device registered successfully", "device_id": device.id}, status=status.HTTP_201_CREATED)
+
     def delete(self, request):
         id = request.data.get('id')
         if not id:
