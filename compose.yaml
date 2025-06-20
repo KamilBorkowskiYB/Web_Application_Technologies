@@ -19,6 +19,23 @@ services:
     env_file:
       - .env
 
+  celery:
+    image: tai-django-web
+    container_name: cinema_celery
+    command: celery -A backend_project worker -l info
+    depends_on:
+      - db
+      - redis
+      - backend
+    networks:
+      - internal
+      - external
+    env_file:
+      - .env
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+
   redis:
     image: redis:latest
     networks:

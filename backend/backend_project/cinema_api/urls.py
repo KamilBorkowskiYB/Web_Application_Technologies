@@ -23,4 +23,5 @@ urlpatterns = [
     path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('register/', RegisterView.as_view(), name='user-register'),
     path('google-redirect/', google_login_redirect, name='google_login_redirect'),
+    path('user_devices/', UserDeviceView.as_view(), name='user_devices'),
 ]

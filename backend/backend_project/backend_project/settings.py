@@ -1,6 +1,9 @@
 from pathlib import Path
 import os
 import environ
+import firebase_admin
+from firebase_admin import credentials
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -205,3 +208,15 @@ EMAIL_USE_TLS = True
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'cinemaland.official.pl@gmail.com'
 EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+
+# Firebase settings
+if not firebase_admin._apps:
+    cred = credentials.Certificate("secret/firebase_credentials.json")
+    firebase_admin.initialize_app(cred)
+
+# Celery settings
+CELERY_TIMEZONE = 'Europe/Warsaw'
+CELERY_BROKER_URL = 'redis://redis:6379'
+CELERY_RESULT_BACKEND = 'redis://redis:6379'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'

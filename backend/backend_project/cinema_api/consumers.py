@@ -37,3 +37,33 @@ class ShowConsumer(AsyncWebsocketConsumer):
             'type': 'ticket_cancelled',
             'data': event['data']
         }))
+
+
+class MovieConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.group_name = 'movies'
+
+        # Join room group
+        await self.channel_layer.group_add(
+            self.group_name,
+            self.channel_name
+        )
+
+        await self.accept()
+
+    async def disconnect(self, close_code):
+        # Leave room group
+        await self.channel_layer.group_discard(
+            self.group_name,
+            self.channel_name
+        )
+
+    async def receive(self, text_data):
+        pass
+    
+    async def new_movie(self, event):
+        print(f"New movie received in consumer: {event}")
+        await self.send(text_data=json.dumps({
+            'type': 'new_movie',
+            'data': event['data']
+        }))

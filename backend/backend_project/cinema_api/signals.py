@@ -2,7 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-from .models import Ticket
+from .models import Ticket, Movie
 
 import logging
 logger = logging.getLogger(__name__)
@@ -44,6 +44,27 @@ def ticket_booked(sender, instance, created, **kwargs):
                     'ticket_id': instance.id,
                     'showing_id': instance.showing.id,
                     'seat_id': instance.seat.id,
+                },
+            }
+        )
+
+@receiver(post_save, sender=Movie)
+def new_movie(sender, instance, created, **kwargs):
+    """
+    Signal to handle new movie creation.
+    """
+    if created:
+        logger.info(f"New movie created: {instance.title} with ID {instance.id}")
+        # Notify the group about the new movie
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+            'movies',
+            {
+                'type': 'new_movie',
+                'data': {
+                    'id': instance.id,
+                    'title': instance.title,
+                    'description': instance.description,
                 },
             }
         )

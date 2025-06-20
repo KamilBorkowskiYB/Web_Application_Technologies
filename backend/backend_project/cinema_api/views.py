@@ -1,10 +1,15 @@
 from django.shortcuts import render
 from django.conf import settings
-from django.db.models import Q
+from django.db.models import Q, F, Func, FloatField
+from django.shortcuts import redirect
+from django.http import HttpResponse
+from django.db.models.expressions import Value
+from django.db.models.functions import Sqrt, Power
 
 from .models import *
 from .serializers import *
 from .filters import *
+from .tasks import send_notification_to_user
 
 from rest_framework import viewsets, filters, generics, status
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -12,18 +17,47 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from django_filters.rest_framework import DjangoFilterBackend
-from django.shortcuts import redirect
+
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .tmdb_requests import movie_info
-from .utils import seat_generation
+from .tmdb_requests import movie_info, request_translated_data
+from .utils import seat_generation, movie_qr_code, notify_all
 
 
 class CinemaViewSet(viewsets.ModelViewSet):
     queryset = Cinema.objects.all()
     serializer_class = CinemaSerializer
- 
+
+    @action(detail=False, methods=['get'])
+    def get_closest(self, request):
+        """
+        Get all cinemas within a specified distance from the user's location.
+        """
+        latitude = request.query_params.get('latitude')
+        longitude = request.query_params.get('longitude')
+        amount = request.query_params.get('amount', 5)
+        if not latitude or not longitude:
+            return Response({"error": "Latitude and longitude are required"}, status=400)
+        try:
+            latitude = float(latitude)
+            longitude = float(longitude)
+            amount = int(amount) if amount else 5
+        except ValueError:
+            return Response({"error": "Latitude, longitude, and amount must be valid numbers"}, status=400)
+        
+        cinemas = self.queryset.annotate(
+            distance=Sqrt(
+                Power(F('latitude') - Value(latitude), 2) +
+                Power(F('longitude') - Value(longitude), 2)
+            )
+        ).filter(
+            latitude__isnull=False,
+            longitude__isnull=False,
+        ).order_by('distance')[:amount]
+        serializer = self.get_serializer(cinemas, many=True)
+        return Response(serializer.data)
+
 
 class HallTypeViewSet(viewsets.ModelViewSet):
     queryset = HallType.objects.all()
@@ -108,7 +142,39 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie.genre.set(genres)
         movie.save()
         serializer = MovieSerializer(movie)
+        notify_all(movie)
         return Response(serializer.data, status=201)
+
+    @action(detail=True, methods=['get'])
+    def qr_code(self, request, pk=None):
+        """
+        Generate a QR code for the movie.
+        """
+        movie = self.get_object()
+        qr_code_image = movie_qr_code(movie)
+        if not qr_code_image:
+            return Response({"error": "QR code generation failed"}, status=500)
+        
+        response = HttpResponse(qr_code_image, content_type='image/png')
+        return response
+
+    @action(detail=True, methods=['get'])
+    def translate(self, request, pk=None):
+        """
+        Translate movie title and description to a specified language.
+        """
+        movie = self.get_object()
+        language = request.query_params.get('language', 'en')
+        if not language:
+            return Response({"error": "Language is required"}, status=400)
+
+        translated_data = request_translated_data(movie.title, language)
+
+        return Response({
+            'title': translated_data.get('title', movie.title),
+            'description': translated_data.get('overview', movie.description),
+            'original_title': movie.title,
+        }, status=200)
 
 class MovieShowingViewSet(viewsets.ModelViewSet):
     queryset = MovieShowing.objects.all()
@@ -198,10 +264,18 @@ class TicketViewSet(viewsets.ModelViewSet):
         if user.is_authenticated:
             print("Authenticated user:", user)
             serializer.save(buyer=user)
+
+            send_time = serializer.validated_data.get('showing').date - timezone.timedelta(minutes=30)
+            send_notification_to_user.apply_async(
+                args=[serializer.instance.id],
+                eta=send_time
+            )
+            print("Notification task scheduled for:", send_time)
         else:
             print("Anonymous user, saving without user")
             serializer.save()
 
+    
 class ArtistViewSet(viewsets.ModelViewSet):
     queryset = Artist.objects.all()
     serializer_class = ArtistSerializer
@@ -255,6 +329,48 @@ class UserProfileView(APIView):
         user = request.user
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+class UserDeviceView(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        fcm_token = request.data.get('fcm_token')
+        if not fcm_token:
+            return Response({"error": "FCM token is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        device, created = UserDevice.objects.get_or_create(user=user, defaults={'fcm_token': fcm_token})
+        if not created:
+            device.fcm_token = fcm_token
+            device.save()
+        
+        return Response({"message": "Device registered successfully"}, status=status.HTTP_201_CREATED)
+    
+    def delete(self, request):
+        id = request.data.get('id')
+        if not id:
+            return Response({"error": "Device ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            device = UserDevice.objects.get(id=id, user=request.user)
+            device.delete()
+            return Response({"message": "Device unregistered successfully"}, status=status.HTTP_204_NO_CONTENT)
+        except UserDevice.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
+        
+    def put(self, request):
+        id = request.data.get('id')
+        fcm_token = request.data.get('fcm_token')
+        if not id or not fcm_token:
+            return Response({"error": "Device ID and FCM token are required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            device = UserDevice.objects.get(id=id, user=request.user)
+            device.fcm_token = fcm_token
+            device.save()
+            return Response({"message": "Device updated successfully"}, status=status.HTTP_200_OK)
+        except UserDevice.DoesNotExist:
+            return Response({"error": "Device not found"}, status=status.HTTP_404_NOT_FOUND)
 
 def google_login_redirect(request):
     user = request.user

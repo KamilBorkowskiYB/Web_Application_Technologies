@@ -113,3 +113,14 @@ class movie_info:
                 return None
         else:
             return None
+        
+def request_translated_data(title: str, language: str = 'en'):
+    """
+    Request translated movie data from TMDB API.
+    """
+    api_key = settings.TMDB_API_KEY
+    movie = movie_info(api_key, title, language)
+    return {
+        'title': movie.title,
+        'overview': movie.overview,
+    }

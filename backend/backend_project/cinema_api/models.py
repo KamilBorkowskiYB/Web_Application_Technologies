@@ -7,6 +7,8 @@ class Cinema(models.Model):
     location_city = models.CharField(max_length=100)
     location_street = models.CharField(max_length=100)
     location_number = models.IntegerField()
+    longitude = models.FloatField(null=True, blank=True)
+    latitude = models.FloatField(null=True, blank=True)
 
     def __str__(self):
         return self.location_city + " " + self.location_street + " " + str(self.location_number)
@@ -139,3 +141,10 @@ class Ticket(models.Model):
 
     def __str__(self):
         return f"Ticket {self.id}"
+
+class UserDevice(models.Model):
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    fcm_token = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"Device {self.id} for user {self.user.username}" if self.user else "Device without user"
