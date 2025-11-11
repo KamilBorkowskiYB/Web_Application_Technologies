@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { use, useCallback, useEffect, useMemo, useState } from 'react';
 import Header from '../components/Header';
 import '../styles/MovieDetails.css';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -33,14 +33,6 @@ const MovieDetails = () => {
       .then(setMovie)
       .catch(console.error);
 
-    apiFetch(`${API_URL}/api/movie_crews/`)
-      .then((res) => res.json())
-      .then((data) => {
-        const filtered = data.results.find((crew) => crew.id === parseInt(id));
-        setCrew(filtered);
-      })
-      .catch(console.error);
-
     apiFetch(`${API_URL}/api/cinemas/`)
       .then((res) => res.json())
       .then(data => { setCinemas(data.results); })
@@ -56,6 +48,16 @@ const MovieDetails = () => {
       .then(data => { setCinemaHalls(data.results); })
       .catch(console.error);
   }, [id, apiFetch]);
+
+useEffect(() => {
+  apiFetch(`${API_URL}/api/movie_crews/`)
+      .then((res) => res.json())
+      .then((data) => {
+        const filtered = data.results.find((crew) => crew.id === parseInt(movie?.crew));
+        setCrew(filtered);
+      })
+      .catch(console.error);
+} , [movie, apiFetch]);
 
   const generateNext30Days = () => {
     const dates = [];
@@ -78,14 +80,8 @@ const MovieDetails = () => {
 
     setLoadingShowtimes(true);
 
-    const dayBefore = new Date(dateObj);
-    dayBefore.setDate(dayBefore.getDate() - 1);
-
-    const afterStr = dayBefore.toISOString().split('T')[0];
-    const beforeStr = dateStr;
-
     try {
-      const res = await apiFetch(`${API_URL}/api/movie_showings?movie=${id}&showing_date_after=${afterStr}&showing_date_before=${beforeStr}`);
+      const res = await apiFetch(`${API_URL}/api/movie_showings?movie=${id}&showing_date_after=${dateStr}&showing_date_before=${dateStr}`);
       const data = await res.json();
       setCachedShowings(prev => ({ ...prev, [dateStr]: data.results }));
     } catch (err) {

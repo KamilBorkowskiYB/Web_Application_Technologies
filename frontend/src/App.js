@@ -14,6 +14,7 @@ import MyTickets from "./pages/MyTickets.jsx";
 import AfterGoogleLogin from './pages/AfterGoogleLogin.jsx';
 import PaymentSuccess from "./pages/PaymentSuccess";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import ManagementPage from "./pages/ManagementPage.jsx";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
           <Route path="/after-google-login" element={<AfterGoogleLogin />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/management" element={<ManagementPage />} />
         </Routes>
       </Router>
     </AuthProvider>

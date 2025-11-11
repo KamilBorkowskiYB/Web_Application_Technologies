@@ -53,9 +53,14 @@ const Header = ({ onSearch }) => {
     }
   };
 
+  const handleManagementClick = () => {
+    navigate('/management');
+  }
+
   return (
     <div className="header">
       <div className="header-left">
+        {/* TODO: zamiana obrazka na ikonę z PrimeIcons/FontAwesome? */}
         <img
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/11bd867774967a99b714cffb176e7a2909ed002c?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809"
           className="logo"
@@ -90,9 +95,9 @@ const Header = ({ onSearch }) => {
 
         {user && (
           <>
-            <span className="welcome-text">Welcome, {user.username}</span>
             <div className="my-tickets-button" onClick={handleTicketsClick}>My Tickets</div>
             <div className="profile-button" onClick={handleProfileClick}>My Profile</div>
+            <div className="management-button" onClick={handleManagementClick}>Management</div>
             <div className="sign-out-button" onClick={handleLogout}>Logout</div>
           </>
         )}

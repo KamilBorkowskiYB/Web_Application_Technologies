@@ -113,6 +113,7 @@
   }
 
   .profile-button,
+  .management-button,
   .sign-out-button {
     border-radius: 33554400px;
     background-color: rgb(67, 24, 209);

@@ -78,6 +78,11 @@
   border-radius: 12px;
 }
 
+.main-menu-movie-image:hover {
+  filter: brightness(60%);
+}
+
+/*TODO: można by ukrywać na początku - pokazywać po najechaniu*/
 .main-menu-movie-title {
   white-space: normal;
   word-break: break-word;

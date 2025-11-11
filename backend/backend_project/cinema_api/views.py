@@ -96,17 +96,20 @@ class MovieViewSet(viewsets.ModelViewSet):
             genre_instance, _ = Genre.objects.get_or_create(genre=genre)
             genres.append(genre_instance)
 
-        movie = Movie.objects.create(
+        movie, created = Movie.objects.get_or_create(
             title=movie_info_instance.title,
-            description=movie_info_instance.overview,
             release_date=movie_info_instance.release_date,
-            duration=movie_info_instance.runtime or 0,
-            trailer=movie_info_instance.trailer,
-            crew=movie_crew,
+            defaults={
+                "trailer": movie_info_instance.trailer,
+                "description": movie_info_instance.overview,
+                "crew": movie_crew,
+            }
         )
-        movie_info_instance.save_poster(movie)
-        movie.genre.set(genres)
-        movie.save()
+
+        if created:
+            movie_info_instance.save_poster(movie)
+            movie.genre.set(genres)
+            movie.save()
         serializer = MovieSerializer(movie)
         return Response(serializer.data, status=201)
 
