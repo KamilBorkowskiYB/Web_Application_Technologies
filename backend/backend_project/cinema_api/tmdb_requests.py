@@ -13,7 +13,7 @@ class movie_info:
         self.original_title = None
         self.release_date = None
         self.overview = None
-        self.runtime = None
+        self.runtime = 0
         self.poster_url = None
         self.genres = None
         self.request_info()

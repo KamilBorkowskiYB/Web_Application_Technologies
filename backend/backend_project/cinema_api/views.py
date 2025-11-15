@@ -63,11 +63,15 @@ class MovieViewSet(viewsets.ModelViewSet):
     ordering_fields = ['title', 'release_date', 'duration']
     ordering = ['-release_date']
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], authentication_classes=[JWTAuthentication], permission_classes=[IsAuthenticated])
     def auto_complete(self, request):
         """
         Get movie information from TMDB API.
         """
+        user = request.user
+        if not user.is_staff:
+            return Response({"error": "Only staff can add movies"}, status=403)
+
         title = request.data.get('title')
         language = request.data.get('language', 'en')
         year = request.data.get('year', None)
@@ -103,6 +107,7 @@ class MovieViewSet(viewsets.ModelViewSet):
                 "trailer": movie_info_instance.trailer,
                 "description": movie_info_instance.overview,
                 "crew": movie_crew,
+                "duration": movie_info_instance.runtime,
             }
         )
 
@@ -123,9 +128,13 @@ class MovieShowingViewSet(viewsets.ModelViewSet):
     ordering_fields = ['date']
     ordering = ['-date']
 
-    @action(detail=False, methods=['post'])
+    @action(detail=False, methods=['post'], authentication_classes=[JWTAuthentication], permission_classes=[IsAuthenticated])
     def add_showing_in_period(self, request):
         """Add multiple showings for a movie in a specified period."""
+        user = request.user
+        if not user.is_staff:
+            return Response({"error": "Only staff can add showings"}, status=403)
+
         # date = request.data.get('date')
         movie = request.data.get('movie')
         hall = request.data.get('hall')
@@ -241,6 +250,7 @@ class UserProfileView(APIView):
             'username': user.username,
             'email': user.email,
             'tickets': TicketSerializer(ticket, many=True).data,
+            'is_staff': user.is_staff,
         })
     
     def put(self, request):

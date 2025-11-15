@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
+import { getUserInfo } from '../auth/auth';
 import '../styles/ManagementPage.css';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
@@ -31,6 +32,17 @@ const ManagementPage = () => {
         };
         return fetch(url, { ...options, headers });
     }, [apiKey]);
+
+    useEffect(() => {
+        const checkUser = async () => {
+            const userInfo = await getUserInfo();
+            if (!userInfo || !userInfo.is_staff) {
+                navigate('/');
+            }
+        };
+
+        checkUser();
+    }, []);
 
     useEffect(() => {
         setStartDate(new Date().toISOString().slice(0,16));
@@ -92,6 +104,7 @@ const ManagementPage = () => {
     }, [selectedHall]);
 
     const fetchMovieData = async () => {
+        const access = localStorage.getItem('access_token');
         if (!movie.title) return alert("Title is required");
         try {
             const response = await apiFetch(
@@ -99,7 +112,7 @@ const ManagementPage = () => {
                 { 
                     body: JSON.stringify({ title: movie.title }), 
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${access}` }
                 });
             const data = await response.json();
             setMovie(data);
@@ -181,168 +194,170 @@ const ManagementPage = () => {
         <div>
             <Header />
             <div className="management-container">
-                <div className="select-container">
-                    <label htmlFor="cinema-select">Select Cinema:</label>
-                    <select
-                        id="cinema-select"
-                        value={selectedCinema}
-                        onChange={(e) => {
-                            setSelectedCinema(e.target.value);
-                            setSelectedHall('');
-                            }
-                        }
-                    >
-                        <option value="">--Choose a Cinema--</option>
-                        {cinemas.map((cinema) => (
-                            <option key={cinema.id} value={cinema.id}>{cinema.name}</option>
-                        ))}
-                    </select>
-                </div>
-                {selectedCinema && (
+                <div className="showings-container">
                     <div className="select-container">
-                        <label htmlFor="hall-select">Select Hall:</label>
+                        <label htmlFor="cinema-select">Select Cinema:</label>
                         <select
-                            id="hall-select"
-                            value={selectedHall}
+                            id="cinema-select"
+                            value={selectedCinema}
                             onChange={(e) => {
-                                setSelectedHall(e.target.value);
-                            }}
+                                setSelectedCinema(e.target.value);
+                                setSelectedHall('');
+                                }
+                            }
                         >
-                            <option value="">--Choose a Hall--</option>
-                            {halls.map((hall) => (
-                                <option key={hall.id} value={hall.id}>{hall.hall_number}</option>
+                            <option value="">--Choose a Cinema--</option>
+                            {cinemas.map((cinema) => (
+                                <option key={cinema.id} value={cinema.id}>{cinema.name}</option>
                             ))}
                         </select>
                     </div>
-                )}
-                {selectedHall && (
+                    {selectedCinema && (
+                        <div className="select-container">
+                            <label htmlFor="hall-select">Select Hall:</label>
+                            <select
+                                id="hall-select"
+                                value={selectedHall}
+                                onChange={(e) => {
+                                    setSelectedHall(e.target.value);
+                                }}
+                            >
+                                <option value="">--Choose a Hall--</option>
+                                {halls.map((hall) => (
+                                    <option key={hall.id} value={hall.id}>{hall.hall_number}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
+                    {selectedHall && (
+                        <div className="select-container">
+                            <label htmlFor="hall-type-select">Select Hall:</label>
+                            <select
+                                id="hall-type-select"
+                                value={selectedType}
+                                onChange={(e) => {
+                                    setSelectedType(e.target.value);
+                                }}
+                            >
+                                <option value="">--Choose a Type--</option>
+                                {type.map((type) => (
+                                    <option key={type.id} value={type.id}>{type.hall_type}</option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
                     <div className="select-container">
-                        <label htmlFor="hall-type-select">Select Hall:</label>
+                        <label htmlFor="movie-select">Select Movie:</label>
                         <select
-                            id="hall-type-select"
-                            value={selectedType}
+                            id="movie-select"
+                            value={selectedMovie}
                             onChange={(e) => {
-                                setSelectedType(e.target.value);
-                            }}
+                                setSelectedMovie(e.target.value);
+                                setMovie(movies.find(m => m.id === parseInt(e.target.value)) || {});
+                                console.log(`Selected movie ID: ${movie.poster}`);
+                                }
+                            }
                         >
-                            <option value="">--Choose a Type--</option>
-                            {type.map((type) => (
-                                <option key={type.id} value={type.id}>{type.hall_type}</option>
+                            <option value="">--Choose a Movie--</option>
+                            {movies.map((movie) => (
+                                <option key={movie.id} value={movie.id}>{movie.title}</option>
                             ))}
                         </select>
                     </div>
-                )}
-                <div className="select-container">
-                    <label htmlFor="movie-select">Select Movie:</label>
-                    <select
-                        id="movie-select"
-                        value={selectedMovie}
-                        onChange={(e) => {
-                            setSelectedMovie(e.target.value);
-                            setMovie(movies.find(m => m.id === parseInt(e.target.value)) || {});
-                            console.log(`Selected movie ID: ${movie.poster}`);
-                            }
-                        }
-                    >
-                        <option value="">--Choose a Movie--</option>
-                        {movies.map((movie) => (
-                            <option key={movie.id} value={movie.id}>{movie.title}</option>
-                        ))}
-                    </select>
-                </div>
-                <div className='select-container'>
-                    <label>Start date:</label>
-                    <input 
-                        type="date" 
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                    />
-                </div>
-                <div className='select-container'>
-                    <label>End date:</label>
-                    <input 
-                        type="date" 
-                        value={endDate}
-                        onChange={(e) => setEndDate(e.target.value)}
-                    />
-                </div>
-                <div className='select-container'>
-                    <label>Select hours:</label>
-                    <input 
-                        type="time" 
-                        value={newHour}
-                        onChange={(e) => setNewHour(e.target.value)}
-                    />
-                    <button onClick={handleAddHour}>+</button>
-                    <div className='selected-hours'>
-                        {hours.map((hour, index) => (
-                            <div key={index}>
-                                <span className="hour-badge">{hour}</span>
-                                <button onClick={() => handleRemoveHour(index)}>x</button>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className='select_container'>
-                    <label>Ticket Price:</label>
-                    <input 
-                        type="number" 
-                        value={price}
-                        onChange={(e) => setPrice(e.target.value)}
-                    />
-                </div>
-                <button onClick={handleShowingsSubmit}>Add Showings</button>
-            </div>
-            
-            <div className="add-movie-container">
-                <form className="add-movie-form" onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="title">Title:</label>
-                        <input 
-                            type="text" 
-                            id="title" 
-                            name="title" 
-                            value={movie.title}
-                            onChange={(e) => {console.log(`Changing title to ${e.target.value}`); setMovie({ ...movie, title: e.target.value })}}
-                            required />
-                    </div>
-                    <button type="button" onClick={fetchMovieData}>Fetch Movie Data</button>
-                    <div className="form-group">
-                        <label htmlFor="description">Description:</label>
-                        <textarea 
-                            id="description" 
-                            name="description" 
-                            value={movie.description || ''}
-                            onChange={(e) => setMovie({ ...movie, description: e.target.value })}
-                            required></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="duration">Duration (minutes):</label>
-                        <input 
-                            type="number" 
-                            id="duration" 
-                            name="duration" 
-                            value={movie.duration || ''}
-                            onChange={(e) => setMovie({ ...movie, duration: e.target.value })}
-                            required
-                        />
-                    </div>
-                    <div className="form-group">
-                        <label htmlFor="release-date">Release Date:</label>
+                    <div className='select-container'>
+                        <label>Start date:</label>
                         <input 
                             type="date" 
-                            id="release-date" 
-                            name="release-date"
-                            value={movie.release_date || ''} 
-                            onChange={(e) => setMovie({ ...movie, release_date: e.target.value })}
-                            required />
+                            value={startDate}
+                            onChange={(e) => setStartDate(e.target.value)}
+                        />
                     </div>
-                    <button type="submit" className="submit-button">Add Movie</button>
-                    <button type="button" onClick={handleCancel} className="cancel-button">Cancel</button>
-                </form>
+                    <div className='select-container'>
+                        <label>End date:</label>
+                        <input 
+                            type="date" 
+                            value={endDate}
+                            onChange={(e) => setEndDate(e.target.value)}
+                        />
+                    </div>
+                    <div className='select-container'>
+                        <label>Select hours:</label>
+                        <input 
+                            type="time" 
+                            value={newHour}
+                            onChange={(e) => setNewHour(e.target.value)}
+                        />
+                        <button className="add-button" onClick={handleAddHour}>+</button>
+                        <div className='selected-hours'>
+                            {hours.map((hour, index) => (
+                                <div key={index}>
+                                    <span className="hour-badge">{hour}</span>
+                                    <button className="delete-button" onClick={() => handleRemoveHour(index)}>x</button>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                    <div className='select-container'>
+                        <label>Ticket Price:</label>
+                        <input 
+                            type="number" 
+                            value={price}
+                            onChange={(e) => setPrice(e.target.value)}
+                        />
+                    </div>
+                    <button className="add-button" onClick={handleShowingsSubmit}>Add Showings</button>
+                </div>
+            
+                <div className="add-movie-container">
+                    <form className="add-movie-form" onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label htmlFor="title">Title:</label>
+                            <input 
+                                type="text" 
+                                id="title" 
+                                name="title" 
+                                value={movie.title}
+                                onChange={(e) => {console.log(`Changing title to ${e.target.value}`); setMovie({ ...movie, title: e.target.value })}}
+                                required />
+                        </div>
+                        <button type="button" className="add-button" onClick={fetchMovieData}>Fetch Movie Data</button>
+                        <div className="form-group">
+                            <label htmlFor="description">Description:</label>
+                            <textarea 
+                                id="description" 
+                                name="description" 
+                                value={movie.description || ''}
+                                onChange={(e) => setMovie({ ...movie, description: e.target.value })}
+                                required></textarea>
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="duration">Duration (minutes):</label>
+                            <input 
+                                type="number" 
+                                id="duration" 
+                                name="duration" 
+                                value={movie.duration || ''}
+                                onChange={(e) => setMovie({ ...movie, duration: e.target.value })}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="release-date">Release Date:</label>
+                            <input 
+                                type="date" 
+                                id="release-date" 
+                                name="release-date"
+                                value={movie.release_date || ''} 
+                                onChange={(e) => setMovie({ ...movie, release_date: e.target.value })}
+                                required />
+                        </div>
+                        <button type="submit" className="add-button">Add Movie</button>
+                        <button type="button" onClick={handleCancel} className="delete-button">Cancel</button>
+                    </form>
 
-                <div>
-                    <img src={movie.poster ? `${API_URL}${movie.poster}` : ''} alt="Movie Poster" />
+                    <div>
+                        <img src={movie.poster ? `${API_URL}${movie.poster}` : ''} alt="Movie Poster" />
+                    </div>
                 </div>
             </div>
         </div>

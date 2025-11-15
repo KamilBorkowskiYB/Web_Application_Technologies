@@ -97,7 +97,11 @@ const Header = ({ onSearch }) => {
           <>
             <div className="my-tickets-button" onClick={handleTicketsClick}>My Tickets</div>
             <div className="profile-button" onClick={handleProfileClick}>My Profile</div>
-            <div className="management-button" onClick={handleManagementClick}>Management</div>
+
+            {user.is_staff && (
+              <div className="management-button" onClick={handleManagementClick}>Management</div>
+            )}
+
             <div className="sign-out-button" onClick={handleLogout}>Logout</div>
           </>
         )}

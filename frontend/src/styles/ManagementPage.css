@@ -1,10 +1,44 @@
 .management-container {
     display: flex;
+    flex-direction: row;
+    gap: 40px;
+    padding: 20px;
+    background-color: #2c3142;
+}
+
+.showings-container {
+    display: flex;
     flex-direction: column;
     padding: 20px;
     color: white;
     row-gap: 20px;
     background-color: #1e2433;
+}
+
+.add-button {
+    background-color: #5a6a8c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.add-button:hover {
+    background-color: #475575;
+}
+
+.delete-button {
+    background-color: #5a6a8c;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+}
+
+.delete-button:hover {
+    background-color: #c72727;
 }
 
 .select-container {
@@ -18,7 +52,7 @@
     font-weight: bold;
 }
 
-.select-container select {
+.management-container select {
     background-color: #2c3142;
     color: white;
     border: 1px solid #444b5c;
@@ -28,6 +62,35 @@
     outline: none;
 }
 
+.management-container textarea {
+    background-color: #2c3142;
+    color: white;
+    border: 1px solid #444b5c;
+    border-radius: 4px;
+    padding: 5px 10px;
+    outline: none;
+    resize: vertical;
+}
+
+.management-container input {
+    background-color: #2c3142;
+    color: white;
+    border: 1px solid #444b5c;
+    border-radius: 4px;
+    padding: 5px 10px;
+    outline: none;
+}
+
+.management-container input[type="number"]::-webkit-inner-spin-button,
+.management-container input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+}
+
 .select-container select:hover {
     border-color: #5a6a8c;
 }
@@ -35,6 +98,13 @@
 .select-container select:focus {
     border-color: #5a6a8c;
     box-shadow: 0 0 2px #5a6a8c;
+}
+
+.selected-hours {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .add-movie-container {
