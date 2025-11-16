@@ -67,17 +67,13 @@ class MovieSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate(self, data):
-        if self.instance:
-            if Movie.objects.filter(
-                id=data['crew'].id
-            ).exclude(id=self.instance.id).exists():
+        crew = data.get('crew')
+        if crew:
+            qs = Movie.objects.filter(crew=crew)
+            if self.instance:
+                qs = qs.exclude(pk=self.instance.pk)
+            if qs.exists():
                 raise serializers.ValidationError("This crew is already assigned to another movie.")
-        else:
-            if Movie.objects.filter(
-                id=data['crew'].id
-            ).exists():
-                raise serializers.ValidationError("This crew is already assigned to another movie.")
-        
         return data
 
 class MovieShowingSerializer(serializers.ModelSerializer):

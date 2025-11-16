@@ -173,7 +173,7 @@ const ManagementPage = () => {
         if (!selectedCinema || !selectedHall || !selectedMovie || !selectedType || hours.length === 0 || !startDate || !endDate || !price) {
             return alert("Please fill in all fields and add at least one hour.");
         }
-
+        const access = localStorage.getItem('access_token');
         try {
             const data = {
                 showing_type: selectedType,
@@ -185,7 +185,7 @@ const ManagementPage = () => {
                 ticket_price: price
             }
             const response = await apiFetch(`${API_URL}/api/movie_showings/add_showing_in_period/`, 
-                {body: JSON.stringify(data), method: 'POST', headers: { 'Content-Type': 'application/json' }});
+                {body: JSON.stringify(data), method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${access}` }});
         } catch (error) {
             console.error('Error submitting showings data:', error);
         }
