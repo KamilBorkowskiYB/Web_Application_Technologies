@@ -54,6 +54,9 @@ const MainMenu = () => {
           ))}
         </div>
       </div>
+      <footer className="main-menu-footer">
+        <p>© 2025 Bejgier, Borkowski, Chmielnicki. All rights reserved.</p>
+      </footer>
     </div>
   );
 };
