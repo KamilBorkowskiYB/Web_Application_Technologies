@@ -115,7 +115,7 @@ class MovieViewSet(viewsets.ModelViewSet):
             movie_info_instance.save_poster(movie)
             movie.genre.set(genres)
             movie.save()
-        serializer = MovieSerializer(movie)
+        serializer = MovieSerializer(movie, context={'request': request})
         return Response(serializer.data, status=201)
 
 class MovieShowingViewSet(viewsets.ModelViewSet):

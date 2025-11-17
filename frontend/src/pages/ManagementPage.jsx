@@ -356,7 +356,7 @@ const ManagementPage = () => {
                     </form>
 
                     <div>
-                        <img src={movie.poster ? `${API_URL}${movie.poster}` : ''} alt="Movie Poster" />
+                        <img src={movie.poster ? `${movie.poster}` : ''} alt="Movie Poster" />
                     </div>
                 </div>
             </div>
