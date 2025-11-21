@@ -1,6 +1,6 @@
 from django_filters import rest_framework as filters
 from django.contrib.auth.models import User
-from .models import Movie, Genre, MovieShowing, Cinema, Seat, CinemaHall, Ticket
+from .models import Movie, Genre, MovieShowing, Cinema, Seat, CinemaHall, Ticket, HallType
 
 class MovieFilter(filters.FilterSet):
     genre = filters.ModelChoiceFilter(queryset=Genre.objects.all())
@@ -57,3 +57,23 @@ class TicketFilter(filters.FilterSet):
         model = Ticket
         fields = ['user', 'showing']
         ordering_fields = ['showing__date']
+
+class CinemaHallFilter(filters.FilterSet):
+    cinema = filters.ModelChoiceFilter(queryset=Cinema.objects.all())
+    class Meta:
+        model = CinemaHall
+        fields = ['cinema']
+        ordering_fields = ['name']
+
+class HallTypeFilter(filters.FilterSet):
+    hall = filters.NumberFilter(method='hall_filter')
+
+    class Meta:
+        model = HallType
+        fields = ['hall']
+        ordering_fields = ['name']
+
+    def hall_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(cinemahall__id=value).distinct()
+        return queryset

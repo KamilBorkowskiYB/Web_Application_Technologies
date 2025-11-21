@@ -28,10 +28,14 @@ class CinemaViewSet(viewsets.ModelViewSet):
 class HallTypeViewSet(viewsets.ModelViewSet):
     queryset = HallType.objects.all()
     serializer_class = HallTypeSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = HallTypeFilter
 
 class CinemaHallViewSet(viewsets.ModelViewSet):
     queryset = CinemaHall.objects.all()
     serializer_class = CinemaHallSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = CinemaHallFilter
     
     @action(detail=True, methods=['post'])
     def generate_seats(self, request, pk=None):
@@ -228,7 +232,7 @@ class GenreViewSet(viewsets.ModelViewSet):
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserRegisterSerializer
 
     def perform_create(self, serializer):
         user = serializer.save()
@@ -255,13 +259,17 @@ class UserProfileView(APIView):
     
     def put(self, request):
         user = request.user
-        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            user.set_password(request.data.get('password1', user.password))
-            user.save()
-            print("User password set to:", user.password)
             return Response(serializer.data)
+        else:
+            serializer = UserPassswordUpdateSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                user.set_password(request.data.get('password1', user.password))
+                serializer.save()
+                user.save()
+                return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request):

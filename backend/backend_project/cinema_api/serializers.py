@@ -177,7 +177,7 @@ class MovieCrewSerializer(serializers.ModelSerializer):
         model = MovieCrew
         fields = '__all__'
 
-class UserSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
 
@@ -204,3 +204,21 @@ class UserSerializer(serializers.ModelSerializer):
         user.set_password(password)
         user.save()
         return user
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+class UserPassswordUpdateSerializer(serializers.ModelSerializer):
+    password1 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
+    class Meta:
+        model = User
+        fields = ['password1', 'password2']
+
+    def validate(self, attrs):
+        if attrs['password1'] != attrs['password2']:
+            raise serializers.ValidationError("Hasła nie pasują do siebie.")
+        return attrs
