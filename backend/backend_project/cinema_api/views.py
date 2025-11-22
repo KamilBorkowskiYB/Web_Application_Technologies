@@ -241,12 +241,11 @@ class RegisterView(generics.CreateAPIView):
             'email': user.email,
         }, status=status.HTTP_201_CREATED)
 
-class UserProfileView(APIView):    
+class UserProfileView(viewsets.ViewSet):    
     authentication_classes = [JWTAuthentication]
     permission_classes = [IsAuthenticated]
 
-
-    def get(self, request):
+    def list(self, request):
         user = request.user
         ticket = Ticket.objects.filter(buyer=user)
         return Response({
@@ -257,25 +256,30 @@ class UserProfileView(APIView):
             'is_staff': user.is_staff,
         })
     
-    def put(self, request):
+    @action(detail=False, methods=['put'], url_path='update_profile')
+    def update_profile(self, request, pk=None):
         user = request.user
         serializer = UserUpdateSerializer(user, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        else:
-            serializer = UserPassswordUpdateSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                user.set_password(request.data.get('password1', user.password))
-                serializer.save()
-                user.save()
-                return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    def delete(self, request):
+
+    def destroy(self, request, pk=None):
         user = request.user
         user.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['post'], url_path='change_password')
+    def change_password(self, request):
+        user = request.user
+        serializer = UserPasswordUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            user.set_password(serializer.validated_data['password1'])
+            user.save()
+            return Response({"username": user.username, "message": "Password updated successfully"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 def google_login_redirect(request):
     user = request.user

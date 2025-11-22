@@ -1,5 +1,6 @@
 from django_filters import rest_framework as filters
 from django.contrib.auth.models import User
+from django.utils import timezone
 from .models import Movie, Genre, MovieShowing, Cinema, Seat, CinemaHall, Ticket, HallType
 
 class MovieFilter(filters.FilterSet):
@@ -8,6 +9,8 @@ class MovieFilter(filters.FilterSet):
     showing_date = filters.DateFromToRangeFilter(field_name='movieshowing__date')
     cinema = filters.ModelChoiceFilter(queryset=Cinema.objects.all(), method='cinema_filter')
     title = filters.CharFilter(field_name='title', lookup_expr='icontains')
+    upcoming_showings = filters.BooleanFilter(method='upcoming_showings_filter')
+
 
     class Meta:
         model = Movie
@@ -19,6 +22,12 @@ class MovieFilter(filters.FilterSet):
         if value:
             return queryset.filter(movieshowing__hall__cinema=value).distinct()
         return queryset
+    
+    def upcoming_showings_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(movieshowing__date__gte=timezone.now()).distinct()
+        return queryset
+
 
 class MovieShowingFilter(filters.FilterSet):
     movie = filters.ModelChoiceFilter(queryset=Movie.objects.all())

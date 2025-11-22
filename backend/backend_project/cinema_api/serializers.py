@@ -210,7 +210,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'username', 'email']
 
-class UserPassswordUpdateSerializer(serializers.ModelSerializer):
+class UserPasswordUpdateSerializer(serializers.ModelSerializer):
     password1 = serializers.CharField(write_only=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, style={'input_type': 'password'})
 

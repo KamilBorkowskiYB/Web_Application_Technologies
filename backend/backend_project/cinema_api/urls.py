@@ -15,12 +15,12 @@ router.register('artists', ArtistViewSet, basename='artists')
 router.register('movie_crews', MovieCrewViewSet, basename='movie_crews')
 router.register('genres', GenreViewSet, basename='genres')
 router.register('ticket_discounts', TicketDiscountViewSet, basename='ticket_discounts')
+router.register('profile', UserProfileView, basename='profile')
 
 urlpatterns = [
     path('', include(router.urls)),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('profile/', UserProfileView.as_view(), name='user-profile'),
     path('register/', RegisterView.as_view(), name='user-register'),
     path('google-redirect/', google_login_redirect, name='google_login_redirect'),
 ]
