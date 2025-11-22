@@ -2,6 +2,10 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
+import requests
+import os
+from django.core.files.base import ContentFile
+
 class Cinema(models.Model):
     name = models.CharField(max_length=100, blank=True)
     location_city = models.CharField(max_length=100)
@@ -73,6 +77,20 @@ class Movie(models.Model):
 
     def __str__(self):
         return self.title
+    
+    def save_poster(self, poster_url):
+        """
+        Save movie poster file.
+        """
+        if poster_url:
+            response = requests.get(poster_url)
+            if response.status_code == 200:
+                filename = os.path.basename(poster_url)
+                self.poster.save(filename, ContentFile(response.content))
+            else:
+                return None
+        else:
+            return None
 
 class MovieShowing(models.Model):
     date = models.DateTimeField()

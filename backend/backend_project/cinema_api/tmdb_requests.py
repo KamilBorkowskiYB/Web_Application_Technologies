@@ -1,26 +1,29 @@
 from django.core.files.base import ContentFile
 from django.conf import settings
 import requests, os
+from dataclasses import dataclass, field
 
-class movie_info:
-    def __init__(self, api_key: str, title: str, language: str = 'en', year: str = None):
-        self.title = title
-        self.search_year = year
-        self.api_key = api_key
-        self.index = 0
-        self.language = language
-        self.id = None
-        self.original_title = None
-        self.release_date = None
-        self.overview = None
-        self.runtime = 0
-        self.poster_url = None
-        self.genres = None
+@dataclass
+class MovieInfo:
+    title: str
+    api_key: str = None
+    language: str = 'en'
+    year: str = None
+    original_title: str = None
+    release_date: str = None
+    overview: str = None
+    runtime: int = 0
+    poster_url: str = None
+    genres: list = field(default_factory=list)
+    main_cast: list = field(default_factory=list)
+    directors: list = field(default_factory=list)
+    trailer: str = None
+    id: int = None
+    index: int = 0
+
+    def __post_init__(self):
         self.request_info()
-        self.main_cast = None
-        self.directors = None
         self.request_crew()
-        self.trailer = None
         self.request_trailer()
 
     def request_info(self):
@@ -28,8 +31,8 @@ class movie_info:
         Get movie information from TMDB API.
         """
         url = f"https://api.themoviedb.org/3/search/movie?api_key={self.api_key}"
-        if self.search_year:
-            url += f"&query={self.title}&language={self.language}&year={self.search_year}"
+        if self.year:
+            url += f"&query={self.title}&language={self.language}&year={self.year}"
         else:
             url += f"&query={self.title}&language={self.language}"
 
@@ -99,17 +102,20 @@ class movie_info:
                     break
         else:
             self.trailer = None
-
-    def save_poster(self, movie_instace):
+        
+    def serialize(self) -> dict:
         """
-        Save movie poster file.
+        Serialize movie information to dictionary.
         """
-        if self.poster_url:
-            response = requests.get(self.poster_url)
-            if response.status_code == 200:
-                filename = os.path.basename(self.poster_url)
-                movie_instace.poster.save(filename, ContentFile(response.content))
-            else:
-                return None
-        else:
-            return None
+        return {
+            'title': self.title,
+            'original_title': self.original_title,
+            'release_date': self.release_date,
+            'overview': self.overview,
+            'runtime': self.runtime,
+            'genres': self.genres,
+            'main_cast': self.main_cast,
+            'directors': self.directors,
+            'poster': self.poster_url,
+            'trailer': self.trailer,
+        }

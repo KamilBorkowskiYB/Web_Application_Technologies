@@ -16,7 +16,7 @@ from django.shortcuts import redirect
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.authentication import JWTAuthentication
 
-from .tmdb_requests import movie_info
+from .tmdb_requests import MovieInfo
 from .utils import seat_generation
 
 
@@ -83,7 +83,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         if not title:
             return Response({"error": "Title is required"}, status=400)
 
-        movie_info_instance = movie_info(title=title, api_key=settings.TMDB_API_KEY, language=language, year=year)
+        movie_info_instance = MovieInfo(title=title, api_key=settings.TMDB_API_KEY, language=language, year=year)
 
         directors = []
         for director in movie_info_instance.directors:
@@ -116,7 +116,80 @@ class MovieViewSet(viewsets.ModelViewSet):
         )
 
         if created:
-            movie_info_instance.save_poster(movie)
+            print(f"Saving poster for movie: {movie.title}: {movie_info_instance.poster_url}")
+            movie.save_poster(movie_info_instance.poster_url)
+            movie.genre.set(genres)
+            movie.save()
+        serializer = MovieSerializer(movie, context={'request': request})
+        return Response(serializer.data, status=201)
+    
+    @action(detail=False, methods=['post'], authentication_classes=[JWTAuthentication], permission_classes=[IsAuthenticated])
+    def fetch_data(self, request):
+        """
+        Fetch movie data from TMDB API without creating a Movie instance.
+        """
+        user = request.user
+        if not user.is_staff:
+            return Response({"error": "Only staff can fetch movie data"}, status=403)
+
+        title = request.data.get('title')
+        language = request.data.get('language', 'en')
+        year = request.data.get('year', None)
+
+        if not title:
+            return Response({"error": "Title is required"}, status=400)
+
+        movie_info_instance = MovieInfo(title=title, api_key=settings.TMDB_API_KEY, language=language, year=year)
+
+        data = movie_info_instance.serialize()
+
+        return Response(data, status=200)
+    
+    @action(detail=False, methods=['post'], authentication_classes=[JWTAuthentication], permission_classes=[IsAuthenticated])
+    def full_create(self, request):
+        """
+        Create a Movie instance with creating related Artist and MovieCrew instances.
+        """
+        user = request.user
+        if not user.is_staff:
+            return Response({"error": "Only staff can fetch movie data"}, status=403)
+        
+        movie_data = request.data.get('movie')      # data in MovieInfo.serialize() dict format
+        if not movie_data:
+            return Response({"error": "Movie data is required"}, status=400)
+        
+        directors = []
+        for director in movie_data.get('directors', []):
+            artist, _ = Artist.objects.get_or_create(name=director)
+            directors.append(artist)
+
+        actors = []
+        for actor in movie_data.get('main_cast', []):
+            artist, _ = Artist.objects.get_or_create(name=actor)
+            actors.append(artist)
+        movie_crew = MovieCrew.objects.create()
+        movie_crew.director.set(directors)
+        movie_crew.main_lead.set(actors)
+        movie_crew.save()
+
+        genres = []
+        for genre in movie_data.get('genres', []):
+            genre_instance, _ = Genre.objects.get_or_create(genre=genre)
+            genres.append(genre_instance)
+
+        movie, created = Movie.objects.get_or_create(
+            title=movie_data.get('title'),
+            release_date=movie_data.get('release_date'),
+            defaults={
+                "trailer": movie_data.get('trailer'),
+                "description": movie_data.get('overview'),
+                "crew": movie_crew,
+                "duration": movie_data.get('runtime'),
+            }
+        )
+
+        if created:
+            movie.save_poster(movie_data.get('poster'))
             movie.genre.set(genres)
             movie.save()
         serializer = MovieSerializer(movie, context={'request': request})
