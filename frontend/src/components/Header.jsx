@@ -53,8 +53,12 @@ const Header = ({ onSearch }) => {
     }
   };
 
-  const handleManagementClick = () => {
-    navigate('/management');
+  const handleMovieManagementClick = () => {
+    navigate('/movie-management');
+  }
+
+  const handleMovieShowingManagementClick = () => {
+    navigate('/movie-showing-management');
   }
 
   return (
@@ -99,7 +103,10 @@ const Header = ({ onSearch }) => {
             <div className="profile-button" onClick={handleProfileClick}>My Profile</div>
 
             {user.is_staff && (
-              <div className="management-button" onClick={handleManagementClick}>Management</div>
+              <>
+                <div className="management-button" onClick={handleMovieShowingManagementClick}>Showing Management</div>
+                <div className="management-button" onClick={handleMovieManagementClick}>Movie Management</div>
+              </>
             )}
 
             <div className="sign-out-button" onClick={handleLogout}>Logout</div>

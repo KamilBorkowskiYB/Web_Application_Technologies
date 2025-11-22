@@ -157,7 +157,7 @@ class MovieViewSet(viewsets.ModelViewSet):
         movie_data = request.data.get('movie')      # data in MovieInfo.serialize() dict format
         if not movie_data:
             return Response({"error": "Movie data is required"}, status=400)
-        
+        print(f"Received movie data for creation: {movie_data}")
         directors = []
         for director in movie_data.get('directors', []):
             artist, _ = Artist.objects.get_or_create(name=director)
@@ -177,14 +177,34 @@ class MovieViewSet(viewsets.ModelViewSet):
             genre_instance, _ = Genre.objects.get_or_create(genre=genre)
             genres.append(genre_instance)
 
+        # edit existing movie if TMDB ID matches
+        if movie_data.get('id'):
+            existing_movie = Movie.objects.filter(id=movie_data.get('id')).first()
+            if existing_movie:
+                serializer = MovieSerializer(existing_movie, data={
+                    "title": movie_data.get('title'),
+                    "release_date": movie_data.get('release_date'),
+                    "trailer": movie_data.get('trailer'),
+                    "description": movie_data.get('description'),
+                    "crew": movie_crew.id,
+                    "duration": movie_data.get('duration'),
+                }, partial=True, context={'request': request})
+                if serializer.is_valid():
+                    movie = serializer.save()
+                    movie.genre.set(genres)
+                    movie.save()
+                    return Response(serializer.data, status=200)
+                else:
+                    return Response(serializer.errors, status=400)
+
         movie, created = Movie.objects.get_or_create(
             title=movie_data.get('title'),
             release_date=movie_data.get('release_date'),
             defaults={
                 "trailer": movie_data.get('trailer'),
-                "description": movie_data.get('overview'),
+                "description": movie_data.get('description'),
                 "crew": movie_crew,
-                "duration": movie_data.get('runtime'),
+                "duration": movie_data.get('duration'),
             }
         )
 
@@ -302,6 +322,9 @@ class MovieCrewViewSet(viewsets.ModelViewSet):
 class GenreViewSet(viewsets.ModelViewSet):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = GenreFilter
+    ordering_fields = ['name']
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()

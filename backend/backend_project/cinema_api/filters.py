@@ -86,3 +86,16 @@ class HallTypeFilter(filters.FilterSet):
         if value:
             return queryset.filter(cinemahall__id=value).distinct()
         return queryset
+    
+class GenreFilter(filters.FilterSet):
+    movie = filters.ModelChoiceFilter(queryset=Movie.objects.all(), method='movie_filter')
+
+    class Meta:
+        model = Genre
+        fields = ['movie']
+        ordering_fields = ['name']
+
+    def movie_filter(self, queryset, name, value):
+        if value:
+            return queryset.filter(movie=value).distinct()
+        return queryset
