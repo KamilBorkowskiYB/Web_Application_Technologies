@@ -83,6 +83,14 @@
   box-sizing: border-box;
 }
 
+.login-error-message {
+  color: #ff6b6b;
+  margin-top: 12px;
+  font-size: 14px;
+  text-align: center;
+}
+
+
 .signin-button {
   border-radius: 8px;
   background-color: #4318d1;

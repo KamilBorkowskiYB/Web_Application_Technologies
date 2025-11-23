@@ -7,7 +7,7 @@ const Login = () => {
   const [, setToken] = useState(null);
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [, setError] = useState(null);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
     
@@ -22,6 +22,13 @@ const Login = () => {
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError(null);
+
+    // Warunki pustych pól
+    if (!identifier.trim() || !password.trim()) {
+      setError("Please fill in both username and password");
+      return;
+    }
+
     try {
       const res = await apiFetch(`${API_URL}/api/token/`, {
         method: 'POST',
@@ -30,11 +37,18 @@ const Login = () => {
         },
         body: JSON.stringify({ "username": identifier, "password": password }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.detail || 'Login failed');
-      }
       const data = await res.json();
+      
+      if (!res.ok) {
+        if (res.status === 401 && data.detail) {
+          setError(`Login failed: ${data.detail}`);
+          console.warn("401 error:", data.detail);
+        } else {
+          setError(data.detail || 'Login failed');
+        }
+        return;
+      }
+
       localStorage.setItem('access_token', data.access);
       localStorage.setItem('refresh_token', data.refresh);
       navigate('/');
@@ -105,6 +119,8 @@ const Login = () => {
                 required
               />
             </div>
+
+            {error && <div className="login-error-message">{error}</div>}
 
             <button type="submit" className="signin-button">
               Sign In

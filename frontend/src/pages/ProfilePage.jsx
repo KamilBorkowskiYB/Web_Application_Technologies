@@ -11,7 +11,7 @@ const ProfilePage = () => {
   const [upcomingReservations, setUpcomingReservations] = useState([]);
   const [isLoadingReservations, setIsLoadingReservations] = useState(true);
 
-  const [isEditing, setIsEditing] = useState(false);
+  const [editingMode, setEditingMode] = useState("none");
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [password, setPassword] = useState('');
@@ -88,8 +88,23 @@ const ProfilePage = () => {
 
     if (user?.tickets?.length) {
       fetchShowings();
-    }
+    } else setIsLoadingReservations(false);
+
   }, [user, apiKey]);
+
+  // ustawienie wartości domyślnych w oknie aktualizacji profilu
+
+  const startProfileEditing = () => {
+    setUsername(user?.username ?? "");
+    setEmail(user?.email ?? "");
+    setEditingMode("profile");
+  };
+
+  const startPasswordEditing = () => {
+    setPassword("");
+    setConfirmPassword("");
+    setEditingMode("password");
+  };
 
   const handleLogout = () => {
     logout();
@@ -101,14 +116,27 @@ const ProfilePage = () => {
     setError('');
     setSuccess('');
 
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
+    // warunek braku zmiany
+    if (username.trim() == user.username.trim() && email.trim() == user.email.trim()) {
+      return;
+    }
+
+    // warunek zapełnionych pól formularza
+    if (!username.trim() || !email.trim()) {
+      setError("Username and email cannot be empty.");
+      return;
+    }
+
+    //warunek poprawnej formy maila
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address.");
       return;
     }
 
     try {
       const accessToken = localStorage.getItem('access_token');
-      const response = await fetch(`${API_URL}/api/profile/`, {
+      const response = await fetch(`${API_URL}/api/profile/update_profile/`, {
         method: "PUT",
         headers: {
           "Authorization": `Bearer ${accessToken}`,
@@ -116,7 +144,50 @@ const ProfilePage = () => {
         },
         body: JSON.stringify({
           username,
-          email,
+          email
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData?.detail || 'Failed to update profile');
+      }
+
+      setSuccess("Profile updated successfully");
+      setEditingMode("none")
+
+      // Możesz odświeżyć dane użytkownika jeśli potrzebujesz
+      window.location.reload(); // lub inne odświeżenie danych z backendu
+    } catch (err) {
+      setError(err.message || "Something went wrong");
+    }
+  };
+
+  const handlePasswordChange = async () => {
+    setError('');
+    setSuccess('');
+
+    // warunek zapełnionych pól formularza
+    if (!password.trim() || !confirmPassword.trim()) {
+      setError("Password fields cannot be empty.");
+      return;
+    }
+
+    //warunek zgodności obu haseł
+    if (password !== confirmPassword) {
+      setError("Passwords do not match"); 
+      return;
+    }
+
+    try {
+      const accessToken = localStorage.getItem('access_token');
+      const response = await fetch(`${API_URL}/api/profile/change_password/`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           password1: password,
           password2: confirmPassword,
         }),
@@ -128,16 +199,19 @@ const ProfilePage = () => {
       }
 
       setSuccess("Profile updated successfully");
-      setIsEditing(false);
+      setEditingMode("none")
 
-      // Możesz odświeżyć dane użytkownika jeśli potrzebujesz
-      window.location.reload(); // lub inne odświeżenie danych z backendu
+      window.location.reload();
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
   };
 
   if (!user) return <p>Loading...</p>;
+
+  console.log("TYPE:", typeof upcomingReservations);
+  console.log("ARRAY?", Array.isArray(upcomingReservations));
+  console.log("VALUE:", upcomingReservations);
 
   return (
     <div className="profile-page">
@@ -160,7 +234,7 @@ const ProfilePage = () => {
                 </div>
                 
               </div>
-              {isEditing ? (
+              {editingMode === "profile" ? (
                 <>
                   <div className="form-group">
                     <label className="input-label">Username</label>
@@ -169,7 +243,6 @@ const ProfilePage = () => {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Enter your username"
                     />
                   </div>
 
@@ -180,10 +253,20 @@ const ProfilePage = () => {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email"
                     />
                   </div>
-
+                  <div class="profile-error-message">{error}</div>
+                  <div className="choice-buttons">
+                    <button className="signin-button" onClick={handleProfileUpdate}>
+                      Confirm Edit
+                    </button>
+                    <button className="cancel-button" onClick={() => setEditingMode("none")}>
+                      Cancel
+                    </button>
+                  </div>
+                </>
+              ) : editingMode === "password" ? (
+                <>
                   <div className="form-group">
                     <label className="input-label">Password</label>
                     <input
@@ -191,7 +274,6 @@ const ProfilePage = () => {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Enter your password"
                     />
                   </div>
 
@@ -202,27 +284,29 @@ const ProfilePage = () => {
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Confirm your password"
                     />
                   </div>
-
-                  {error && <div className="error-message">{error}</div>}
-                  {success && <div className="success-message">{success}</div>}
-
+                  <div class="profile-error-message">{error}</div>
                   <div className="choice-buttons">
-                    <button className="signin-button" onClick={handleProfileUpdate}>
-                      Confirm Edit
+                    <button className="signin-button" onClick={handlePasswordChange}>
+                      Change Password
                     </button>
-                    <button className="cancel-button" onClick={() => setIsEditing(false)}>
+                    <button className="cancel-button" onClick={() => setEditingMode("none")}>
                       Cancel
                     </button>
                   </div>
                 </>
               ) : (
-                <button className="edit-button" onClick={() => setIsEditing(true)}>
-                  Edit Profile
-                </button>
+                <div class="edit-buttons">
+                  <button className="edit-button" onClick={startProfileEditing}>
+                    Edit Profile
+                  </button>
+                  <button className="edit-button" onClick={startPasswordEditing}>
+                    Change Password
+                  </button>
+                </div>
               )}
+
             </div>
 
             <form className="profile-form">

@@ -107,7 +107,7 @@
   cursor: pointer;
 }
 
-.error-message {
+.register-error-message {
   color: #ff6b6b;
   margin-top: 12px;
   font-size: 14px;

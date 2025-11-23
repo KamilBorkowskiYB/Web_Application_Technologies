@@ -21,6 +21,22 @@ const Register = () => {
     }, [apiKey]);
 
   const handleRegister = async () => {
+    setError(null)
+
+    // Warunki pustych pól
+    if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
+      setError("Please fill in all fields");
+      return;
+    }
+
+    // Walidacja maila
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address");
+      return;
+    }
+
+    // Sprawdzenie zgodności haseł
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -40,9 +56,11 @@ const Register = () => {
       } else {
         const data = await response.json();
         setError(data.detail || "Registration failed");
+        console.warn("API error:", data);
       }
     } catch (err) {
       setError("Server error");
+      console.error(err);
     }
   };
 
@@ -103,7 +121,7 @@ const Register = () => {
             />
           </div>
 
-          {error && <div className="error-message">{error}</div>}
+          {error && <div className="register-error-message">{error}</div>}
 
           <button className="signin-button" onClick={handleRegister}>
             Sign Up

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import "../styles/SeatSelection.css";
@@ -14,6 +14,10 @@ const SeatSelection = () => {
   const [takenSeats, setTakenSeats] = useState([]);
   const [justTakenSeats, setJustTakenSeats] = useState([]);
   const apiKey = process.env.REACT_APP_API_KEY;
+
+  const outerRef = useRef(null);      // seat-selection-content-wrapper
+  const seatContainerRef = useRef(null); // seat-container
+  const [scale, setScale] = useState(1);
 
   const apiFetch = useCallback(async (url, options = {}) => {
     const headers = {
@@ -141,24 +145,56 @@ const SeatSelection = () => {
   // Załóżmy, że wiemy ile maksymalnie siedzeń jest w rzędzie (lub oblicz to dynamicznie):
   const maxSeatsInRow = Math.max(...Object.values(groupedByRow).map(row => row.length));
 
+  //skalowanie siatki miejsc w zależności od szerokości strony
+  useEffect(() => {
+    const BUFFER = 0;
+
+    const updateScale = () => {
+      if (!outerRef.current || !seatContainerRef.current) return;
+
+      const outerWidth = outerRef.current.offsetWidth;
+      const naturalWidth = seatContainerRef.current.scrollWidth;
+
+      let newScale = 1;
+
+      // Pomniejszanie dopiero gdy seat-container + buffer > wrapper
+      if (naturalWidth + BUFFER > outerWidth) {
+        newScale = (outerWidth - BUFFER) / naturalWidth;
+      }
+
+      // Dla pewności nigdy > 1
+      newScale = Math.min(1, newScale);
+
+      setScale(newScale);
+    };
+
+    updateScale();
+    window.addEventListener("resize", updateScale);
+    return () => window.removeEventListener("resize", updateScale);
+  }, []);
+
   return (
     <div className="seat-selection">
       <Header />
       <div className="seat-selection-content">
         {seats && seats.length > 0 ? (
-        <div className="seat-selection-content-wrapper">
+        <div className="seat-selection-content-wrapper" ref={outerRef}>
         <div className="seat-selection-title">Select Seats</div>
           <div className="screen-container">
             <div className="screen-bar" />
-            <div className="seat-container">
-                <div className="seat-header">
-                  <div className="seat-corner" /> {/* pusty narożnik */}
-                  {[...Array(maxSeatsInRow)].map((_, index) => (
-                    <div key={index} className="seat-label seat-letter">
-                      {index + 1}
-                    </div>
-                  ))}
-                </div>
+            <div
+              className="seat-container"
+              ref={seatContainerRef}
+              style={{ transform: `scale(${scale})` }}
+            >
+              <div className="seat-header">
+                <div className="seat-corner" /> {/* pusty narożnik */}
+                {[...Array(maxSeatsInRow)].map((_, index) => (
+                  <div key={index} className="seat-label seat-letter">
+                    {index + 1}
+                  </div>
+                ))}
+              </div>
               <div className="seat-grid">
                 {Object.entries(groupedByRow).map(([row, rowSeats]) => (
                   <div key={row} className="seat-row">
@@ -187,7 +223,6 @@ const SeatSelection = () => {
                 ))}
               </div>
             </div>
-
             <div className="seat-legend">
               <div className="legend-item">
                 <div className="legend-box available" />
