@@ -53,6 +53,9 @@ const Login = () => {
 
       setToken(token);
       localStorage.setItem("access_token", token);
+
+      navigate('/');
+      window.location.reload();
     };
 
     return () => {
