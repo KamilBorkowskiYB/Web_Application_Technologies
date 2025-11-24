@@ -30,7 +30,7 @@ const ProfilePage = () => {
       const ticketsWithDetails = await Promise.all(
         user.tickets.map(async (ticket) => {
           try {
-            // 1. Pobierz pokaz
+            //pobieranie seansu
             const res = await fetch(`${API_URL}/api/movie_showings/${ticket.showing}/`, {
               headers: {
                 Authorization: `Api-Key ${apiKey}`,
@@ -38,7 +38,7 @@ const ProfilePage = () => {
             });
             const showingData = await res.json();
 
-            // 2. Pobierz film
+            //pobieranie filmu
             const movieRes = await fetch(`${API_URL}/api/movies/${showingData.movie}/`, {
               headers: {
                 Authorization: `Api-Key ${apiKey}`,
@@ -50,7 +50,7 @@ const ProfilePage = () => {
               ...ticket,
               showing: {
                 ...showingData,
-                movie: movieData, // ← dodajemy film jako obiekt
+                movie: movieData,
               },
             };
           } catch (err) {
@@ -60,7 +60,7 @@ const ProfilePage = () => {
         })
       );
 
-      // 3. Filtrowanie nadchodzących rezerwacji
+      //filtrowanie nadchodzacych rezerw
       const uniqueShowingsMap = new Map();
 
       ticketsWithDetails.forEach((ticket) => {
@@ -93,7 +93,7 @@ const ProfilePage = () => {
 
   }, [user, apiKey]);
 
-  // ustawienie wartości domyślnych w oknie aktualizacji profilu
+//ustawienie wartosci domyslnych w oknie aktualizacji profilu
 
   const startProfileEditing = () => {
     setUsername(user?.username ?? "");
@@ -117,18 +117,15 @@ const ProfilePage = () => {
     setError('');
     setSuccess('');
 
-    // warunek braku zmiany
     if (username.trim() == user.username.trim() && email.trim() == user.email.trim()) {
       return;
     }
 
-    // warunek zapełnionych pól formularza
     if (!username.trim() || !email.trim()) {
       setError("Username and email cannot be empty.");
       return;
     }
 
-    //warunek poprawnej formy maila
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       setError("Please enter a valid email address.");
@@ -157,8 +154,7 @@ const ProfilePage = () => {
       setSuccess("Profile updated successfully");
       setEditingMode("none")
 
-      // Możesz odświeżyć dane użytkownika jeśli potrzebujesz
-      window.location.reload(); // lub inne odświeżenie danych z backendu
+      window.location.reload();
     } catch (err) {
       setError(err.message || "Something went wrong");
     }
@@ -168,13 +164,11 @@ const ProfilePage = () => {
     setError('');
     setSuccess('');
 
-    // warunek zapełnionych pól formularza
     if (!password.trim() || !confirmPassword.trim()) {
       setError("Password fields cannot be empty.");
       return;
     }
 
-    //warunek zgodności obu haseł
     if (password !== confirmPassword) {
       setError("Passwords do not match"); 
       return;
@@ -310,17 +304,6 @@ const ProfilePage = () => {
               )}
 
             </div>
-
-            <form className="profile-form">
-              <div className="profile-input-group">
-                <label className="profile-input-label">Phone</label>
-                <input type="tel" className="profile-input" />
-              </div>
-              <div className="profile-input-group">
-                <label className="profile-input-label">Location</label>
-                <input type="text" className="profile-input" />
-              </div>
-            </form>
           </div>
         </section>
 
