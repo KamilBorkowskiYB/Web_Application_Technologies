@@ -95,14 +95,14 @@
 .seat-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px; /* Odstęp między rzędami */
+  gap: 10px;
 }
 
 .seat-row {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  margin-bottom: 10px; /* Odstęp między rzędami */
+  margin-bottom: 10px;
   gap: 20px;
 }
 
