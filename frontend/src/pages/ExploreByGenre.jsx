@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Navigation from '../components/Navigation';
-import '../styles/ExploreByGenre.css'; // Styl dodasz osobno
+import '../styles/ExploreByGenre.css';
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
 
