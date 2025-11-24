@@ -14,9 +14,9 @@
 }
 
 .seat-selection-content-wrapper {
-  margin-top: 0px;
-  max-width: 100%;
-  align-items: center;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px;
 }
 
 .seat-selection-title {
@@ -30,17 +30,10 @@
   margin-bottom: 10px;
 }
 
-.screen-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background-color: #151a28;
-  border-radius: 12px;
-  padding: 24px;
-
-  width: fit-content;
-  max-width: 100%;
-  margin: 0 auto;
+.seat-container {
+  transform-origin: left top;
+  display: inline-block;
+  width: max-content;
 }
 
 
@@ -52,20 +45,6 @@
   margin-bottom: 56px;
 }
 
-.seat-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  
-  width: fit-content;
-}
-
-
-.seat-header {
-  display: flex;
-  margin-bottom: 10px;
-  margin-left: 30.36px;
-}
 
 .loading-seats {
   display: flex;
@@ -98,12 +77,9 @@
   gap: 10px; /* Odstęp między rzędami */
 }
 
+.seat-header,
 .seat-row {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  margin-bottom: 10px; /* Odstęp między rzędami */
-  gap: 20px;
+  white-space: nowrap;
 }
 
 .seat-row-number {
