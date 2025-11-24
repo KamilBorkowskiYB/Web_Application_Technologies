@@ -16,6 +16,7 @@ const MovieDetails = () => {
   const [selectedDate, setSelectedDate] = useState(null);
   const [cachedShowings, setCachedShowings] = useState({});
   const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+  const [availableDates, setAvailableDates] = useState([]);
 
   const apiKey = process.env.REACT_APP_API_KEY;
   
@@ -59,18 +60,51 @@ useEffect(() => {
       .catch(console.error);
 } , [movie, apiFetch]);
 
-  const generateNext30Days = () => {
-    const dates = [];
-    const today = new Date();
-    for (let i = 0; i < 30; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-      dates.push(date);
-    }
-    return dates;
-  };
+const isoDate = (dateObj) => dateObj.toISOString().split('T')[0];
 
-  const allDates = generateNext30Days();
+  const getShowingsForNext30Days = useCallback(async () => {
+    if (!id) return;
+    setLoadingShowtimes(true);
+    try {
+      const start = new Date();
+      const end = new Date();
+      end.setDate(start.getDate() + 29); // next 30 days including today
+      const startStr = isoDate(start);
+      const endStr = isoDate(end);
+
+
+      const res = await apiFetch(`${API_URL}/api/movie_showings?movie=${id}&showing_date_after=${startStr}&showing_date_before=${endStr}`);
+      const data = await res.json();
+
+
+      // Group by date (YYYY-MM-DD)
+      const map = {};
+      (data.results || []).forEach(showing => {
+        const d = new Date(showing.date);
+        if (isNaN(d)) return; // skip invalid
+        const dateKey = isoDate(d);
+        if (!map[dateKey]) map[dateKey] = [];
+        map[dateKey].push(showing);
+      });
+
+
+      // Sort showings per date by time so UI shows consistent order
+      for (const dk in map) {
+        map[dk].sort((a, b) => new Date(a.date) - new Date(b.date));
+      }
+
+      setCachedShowings(map);
+
+      // create sorted array of Date objects for buttons
+      const sortedDates = Object.keys(map).sort().map(s => new Date(s));
+      setAvailableDates(sortedDates);
+
+    } catch (err) {
+      console.error('Failed to prefetch showings:', err);
+    } finally {
+      setLoadingShowtimes(false);
+    }
+    }, [id, apiFetch]);
 
   const getShowingsForDate = async (dateObj) => {
     const dateStr = dateObj.toISOString().split('T')[0];
@@ -90,6 +124,10 @@ useEffect(() => {
       setLoadingShowtimes(false);
     }
   };
+
+  useEffect(() => {
+    getShowingsForNext30Days();
+  }, [getShowingsForNext30Days]);
 
   const hallTypeMap = useMemo(() => Object.fromEntries(hallTypes.map(ht => [ht.id, ht.hall_type])), [hallTypes]);
   const hallMap = useMemo(() => Object.fromEntries(cinemaHalls.map(h => [h.id, h])), [cinemaHalls]);
@@ -189,23 +227,42 @@ useEffect(() => {
                   <h2 className="section-title">Showtimes</h2>
 
                   <div className="date-picker">
-                    {allDates.map(date => {
-                      const iso = date.toISOString().split('T')[0];
-                      const label = date.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
-                      return (
-                        <button
-                          key={iso}
-                          className={`date-button ${selectedDate === iso ? 'selected' : ''}`}
-                          onClick={() => getShowingsForDate(date)}
-                        >
-                          {label}
-                        </button>
-                      );
-                    })}
+                    {availableDates.length === 0 ? (
+                      <div className="no-dates">No showings in the next 30 days</div>
+                    ) : (
+                      availableDates.map(date => {
+                        const iso = date.toISOString().split('T')[0];
+                        const label = date.toLocaleDateString(undefined, {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric'
+                        });
+
+                        return (
+                          <button
+                            key={iso}
+                            className={`date-button ${selectedDate === iso ? 'selected' : ''}`}
+                            onClick={() => {
+                              if (cachedShowings[iso]) {
+                                setSelectedDate(iso);
+                                return;
+                              }
+                              getShowingsForDate(date);
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })
+                    )}
                   </div>
 
                   {loadingShowtimes ? (
                     <p className="loading-showtimes">Loading showtimes...</p>
+                  ) : availableDates.length === 0 ? (
+                    null
+                  ) : !selectedDate ? (
+                    <p className="pick-date">Pick a date to view showtimes</p>
                   ) : (
                     <div className="showtimes-grid">
                       {cinemas.map((cinema) => (
@@ -219,7 +276,9 @@ useEffect(() => {
                                   {times.map((st, idx) => (
                                     <div
                                       key={idx}
-                                      className={`showtime-button ${selectedShowtime?.showingId === st.showingId ? 'selected' : ''}`}
+                                      className={`showtime-button ${
+                                        selectedShowtime?.showingId === st.showingId ? 'selected' : ''
+                                      }`}
                                       onClick={() => {
                                         setSelectedShowtime(st);
                                         setSelectedCinema(cinema.name);

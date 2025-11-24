@@ -158,6 +158,13 @@ ul li {
   font-weight: 500;
 }
 
+.no-dates {
+  padding: 12px 0;
+  color: #cecece;
+  text-align: center;
+  font-style: italic;
+}
+
 .date-selector {
   display: flex;
   flex-wrap: wrap;
@@ -191,6 +198,12 @@ ul li {
   font-style: italic;
   margin: 1rem 0;
   font-size: 1rem;
+}
+
+.pick-date {
+  margin-top: 16px;
+  text-align: center;
+  color: #cecece;
 }
 
 .showtimes-grid {
