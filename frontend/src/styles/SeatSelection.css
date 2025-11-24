@@ -1,7 +1,7 @@
 .seat-selection {
   background-color: #fff;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .seat-selection-content {
@@ -11,12 +11,16 @@
   flex-direction: column;
   align-items: center;
   min-height: 100vh;
+  min-width: 0;
 }
 
 .seat-selection-content-wrapper {
+  margin-top: 0px;
+  max-width: 100%;
+  align-items: center;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 8px;
+  padding-bottom: 12px;
 }
 
 .seat-selection-title {
@@ -30,10 +34,17 @@
   margin-bottom: 10px;
 }
 
-.seat-container {
-  transform-origin: left top;
-  display: inline-block;
-  width: max-content;
+.screen-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #151a28;
+  border-radius: 12px;
+  padding: 24px;
+
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
 }
 
 
@@ -45,6 +56,19 @@
   margin-bottom: 56px;
 }
 
+.seat-container {
+  transform-origin: left top;
+  display: inline-block;
+  width: max-content;
+}
+
+
+.seat-header {
+  display: flex;
+  margin-bottom: 10px;
+  margin-left: 30.36px;
+  white-space: nowrap;
+}
 
 .loading-seats {
   display: flex;
@@ -77,8 +101,12 @@
   gap: 10px; /* Odstęp między rzędami */
 }
 
-.seat-header,
 .seat-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin-bottom: 10px; /* Odstęp między rzędami */
+  gap: 20px;
   white-space: nowrap;
 }
 
