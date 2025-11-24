@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import Header from '../components/Header';
+import Navigation from '../components/Navigation';
 import '../styles/ExploreByGenre.css'; // Styl dodasz osobno
 import { useNavigate } from 'react-router-dom';
 import { API_URL } from '../config';
@@ -38,6 +39,7 @@ const ExploreByGenre = () => {
   return (
     <div className="explore-by-genre">
       <Header />
+      <Navigation onFilterSelect={() => {}} />
       <div className="explore-main-content">
         <h2 className="explore-title">Explore by Genre</h2>
         {genres.map((genre, index) => (

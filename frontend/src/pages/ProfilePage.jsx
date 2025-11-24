@@ -2,8 +2,9 @@ import React from "react";
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from '../auth/AuthContext';
-import "../styles/ProfilePage.css"; // Zakładam, że dodasz wspólny CSS do jednego pliku
+import "../styles/ProfilePage.css";
 import { API_URL } from "../config";
+import Header from '../components/Header';
 
 const ProfilePage = () => {
   
@@ -215,6 +216,7 @@ const ProfilePage = () => {
 
   return (
     <div className="profile-page">
+      <Header />
       <header className="profile-header">
         <h1 className="profile-title">Profile Settings</h1>
         <button className="profile-logout" onClick={handleLogout}>Logout</button>

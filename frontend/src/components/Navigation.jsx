@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import '../styles/Navigation.css';
 
 const Navigation = ({ onFilterSelect }) => {
   const [activeItem, setActiveItem] = useState('Popular');
+  const navigate = useNavigate();
 
   const handleClick = (item) => {
+    navigate('/');
+
     setActiveItem(item);
     if (item === 'Upcoming') {
       const today = new Date().toISOString().split('T')[0];
