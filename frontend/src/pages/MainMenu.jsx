@@ -7,7 +7,7 @@ import { API_URL } from '../config';
 
 const MainMenu = () => {
   const [movies, setMovies] = useState([]);
-  const [filterParams, setFilterParams] = useState({});
+  const [filterParams, setFilterParams] = useState({upcoming_showings: true});
   const navigate = useNavigate();
   const apiKey = process.env.REACT_APP_API_KEY;
 

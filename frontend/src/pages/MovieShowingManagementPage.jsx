@@ -155,6 +155,21 @@ const MovieShowingManagementPage = () => {
             }
             const response = await apiFetch(`${API_URL}/api/movie_showings/add_showing_in_period/`, 
                 {body: JSON.stringify(data), method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${access}` }});
+            if (response.ok) {
+                alert('Showings added successfully!');
+                setSelectedCinema('');
+                setSelectedHall('');
+                setSelectedMovie('');
+                setSelectedType('');
+                setStartDate('');
+                setEndDate('');
+                setHours([]);
+                setPrice('');
+            } else {
+                const errorData = await response.json();
+                console.error('Error response data:', errorData);
+                alert('Failed to add showings. Please check the console for details.');
+            }
         } catch (error) {
             console.error('Error submitting showings data:', error);
         }
@@ -199,7 +214,7 @@ const MovieShowingManagementPage = () => {
                 )}
                 {selectedHall && (
                     <div className="select-container">
-                        <label htmlFor="hall-type-select">Select Hall:</label>
+                        <label htmlFor="hall-type-select">Select Type:</label>
                         <select
                             id="hall-type-select"
                             value={selectedType}

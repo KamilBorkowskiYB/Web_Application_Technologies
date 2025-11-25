@@ -161,7 +161,7 @@ const MovieManagementPage = () => {
                         }
                     >
                         <option value="">--Choose a Movie--</option>
-                        {movies.map((movie) => (
+                        {movies && movies.map((movie) => (
                             <option key={movie.id} value={movie.id}>{movie.title}</option>
                         ))}
                     </select>

@@ -3,7 +3,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import '../styles/Navigation.css';
 
 const Navigation = ({ onFilterSelect }) => {
-  const [activeItem, setActiveItem] = useState('Popular');
+  const [activeItem, setActiveItem] = useState('Newest');
   const navigate = useNavigate();
 
   const handleClick = (item) => {
@@ -13,17 +13,18 @@ const Navigation = ({ onFilterSelect }) => {
     if (item === 'Upcoming') {
       const today = new Date().toISOString().split('T')[0];
       onFilterSelect({ release_date_after: today });
-    } else if (item === 'New') {
-      onFilterSelect({ ordering: 'release_date' });
+    } else if (item === 'Oldest') {
+      onFilterSelect({ ordering: 'release_date', upcoming_showings: true });
       // żeby działało trzeba dodać OrderingFilter na backendzie
     } else {
-      onFilterSelect({}); // fallback (pokaż wszystkie)
-    }
+      onFilterSelect({ upcoming_showings: true }); // fallback (pokaż wszystkie nadchodzące filmy)
+    } 
+    
   };
 
   return (
     <div className="navigation">
-      {['Popular', 'New', 'Top Rated', 'Upcoming'].map((item) => (
+      {['Newest', 'Oldest', 'Upcoming'].map((item) => (
         <div
           key={item}
           className={`nav-item ${activeItem === item ? 'nav-item-active' : ''}`}
