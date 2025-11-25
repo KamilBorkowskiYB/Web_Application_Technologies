@@ -143,6 +143,11 @@ class MovieViewSet(viewsets.ModelViewSet):
 
         data = movie_info_instance.serialize()
 
+        #check if movie already exists
+        existing_movie = Movie.objects.filter(original_title=movie_info_instance.original_title, release_date=movie_info_instance.release_date).first()
+        if existing_movie:
+            data['id'] = existing_movie.id
+
         return Response(data, status=200)
     
     @action(detail=False, methods=['post'], authentication_classes=[JWTAuthentication], permission_classes=[IsAuthenticated])
@@ -177,12 +182,12 @@ class MovieViewSet(viewsets.ModelViewSet):
             genre_instance, _ = Genre.objects.get_or_create(genre=genre)
             genres.append(genre_instance)
 
-        # edit existing movie if TMDB ID matches
         if movie_data.get('id'):
             existing_movie = Movie.objects.filter(id=movie_data.get('id')).first()
             if existing_movie:
                 serializer = MovieSerializer(existing_movie, data={
                     "title": movie_data.get('title'),
+                    "original_title": movie_data.get('original_title'),
                     "release_date": movie_data.get('release_date'),
                     "trailer": movie_data.get('trailer'),
                     "description": movie_data.get('description'),

@@ -68,6 +68,7 @@ class Genre(models.Model):
 class Movie(models.Model):
     title = models.CharField(max_length=100)
     description = models.TextField()
+    original_title = models.CharField(max_length=100, blank=True)
     release_date = models.DateField()
     duration = models.IntegerField()
     genre = models.ManyToManyField(Genre, blank=True)
@@ -91,6 +92,12 @@ class Movie(models.Model):
                 return None
         else:
             return None
+        
+    def save(self, *args, **kwargs):
+        if not self.original_title:
+            self.original_title = self.title
+        super().save(*args, **kwargs)
+
 
 class MovieShowing(models.Model):
     date = models.DateTimeField()
