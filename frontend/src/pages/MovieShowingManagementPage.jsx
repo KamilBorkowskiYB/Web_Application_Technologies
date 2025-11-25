@@ -103,6 +103,7 @@ const MovieShowingManagementPage = () => {
         fetchType();
     }, [selectedHall]);
 
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
@@ -122,18 +123,6 @@ const MovieShowingManagementPage = () => {
 
     const handleCancel = async (e) => {
         e.preventDefault();
-        try {
-            const response = await apiFetch(
-                `${API_URL}/api/movies/${movie.id}/`, 
-                { 
-                    body: JSON.stringify(movie), 
-                    method: 'DELETE',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-            console.log('Movie deleted successfully');
-        } catch (error) {
-            console.error('Error deleting movie data:', error);
-        }
         navigate('/');
     }
 
@@ -271,7 +260,7 @@ const MovieShowingManagementPage = () => {
                         {hours.map((hour, index) => (
                             <div key={index}>
                                 <span className="hour-badge">{hour}</span>
-                                <button className="delete-button" onClick={() => handleRemoveHour(index)}>x</button>
+                                <button className="delete-button delete-time-button" onClick={() => handleRemoveHour(index)}>x</button>
                             </div>
                         ))}
                     </div>
@@ -284,7 +273,8 @@ const MovieShowingManagementPage = () => {
                         onChange={(e) => setPrice(e.target.value)}
                     />
                 </div>
-                <button className="add-button" onClick={handleShowingsSubmit}>Add Showings</button>
+                <button className="confirm-button" onClick={handleShowingsSubmit}>Add Showings</button>
+                <button className="delete-button" onClick={handleCancel}>Cancel</button>
             </div>
         </div>
   );

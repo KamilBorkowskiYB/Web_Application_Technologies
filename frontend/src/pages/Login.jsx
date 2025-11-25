@@ -82,7 +82,7 @@ const Login = () => {
         <div className="login-card">
           <div className="welcome-header">
             <img
-              src="https://cdn.builder.io/api/v1/image/assets/TEMP/11bd867774967a99b714cffb176e7a2909ed002c?placeholderIfAbsent=true&apiKey=5c359e8b7a374e379933ea077887b809"
+              src="/favicon.png"
               className="welcome-avatar"
               alt="Welcome avatar"
             />
