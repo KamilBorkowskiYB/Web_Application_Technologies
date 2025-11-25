@@ -23,6 +23,16 @@ const MovieManagementPage = () => {
         return fetch(url, { ...options, headers });
     }, [apiKey]);
 
+    const fetchMovies = async () => {
+        try {
+            const response = await apiFetch(`${API_URL}/api/movies/`);
+            const data = await response.json();
+            setMovies(data.results);
+        } catch (error) {
+            console.error('Error fetching movies:', error);
+        }
+    }
+
     useEffect(() => {
         const checkUser = async () => {
             const userInfo = await getUserInfo();
@@ -30,16 +40,6 @@ const MovieManagementPage = () => {
                 navigate('/');
             }
         };
-
-        const fetchMovies = async () => {
-                try {
-                    const response = await apiFetch(`${API_URL}/api/movies/`);
-                    const data = await response.json();
-                    setMovies(data.results);
-                } catch (error) {
-                    console.error('Error fetching movies:', error);
-                }
-            }
 
         checkUser();
         fetchMovies();
@@ -80,6 +80,10 @@ const MovieManagementPage = () => {
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${access}` }
                 });
             console.log('Movie data submitted successfully');
+            alert('Movie data submitted successfully');
+            setMovie({});
+            setSelectedMovie('');
+            await fetchMovies();
         } catch (error) {
             console.error('Error submitting movie data:', error);
         }
@@ -88,6 +92,34 @@ const MovieManagementPage = () => {
     const handleCancel = async (e) => {
         e.preventDefault();
         navigate('/');
+    }
+
+    const handleDelete = async (e) => {
+        e.preventDefault();
+        if (!movie.id) return alert("No movie selected to delete");
+        const confirDelete = window.confirm(`Are you sure you want to delete the movie: ${movie.title}?`);
+        if (!confirDelete) return;
+        try {
+            const response = await apiFetch(
+                // TODO: Czyli usuwamy po api-key???
+                `${API_URL}/api/movies/${movie.id}/`, 
+                { 
+                    method: 'DELETE',
+                });
+            if (response.ok) {
+                alert('Movie deleted successfully');
+                setMovie({});
+                setSelectedMovie('');
+                await fetchMovies();
+            } else {
+                alert('Error deleting movie');
+            }
+        } catch (error) {
+            console.error('Error deleting movie:', error);
+        }
+        setMovie({});
+        setSelectedMovie('');
+        await fetchMovies();
     }
 
     const handleOnSelectChange = async (e) => {
@@ -121,7 +153,7 @@ const MovieManagementPage = () => {
             <Header />
             <div className="movie-management-container">
                 <div className="movie-select-container">
-                    <label htmlFor="movie-select">Select Movie:</label>
+                    <label htmlFor="movie-select">Select Movie (from database):</label>
                     <select
                         id="movie-select"
                         value={selectedMovie}
@@ -134,6 +166,7 @@ const MovieManagementPage = () => {
                         ))}
                     </select>
                     <form className="fetch-movie-form">
+                        <h3>Fetch Movie Data from TMDB API</h3>
                         <label htmlFor="fetch-movie-title">Fetch Movie by Title:</label>
                         <input
                             type="text"
@@ -222,7 +255,18 @@ const MovieManagementPage = () => {
                                 onChange={(e) => setMovie({ ...movie, main_cast: e.target.value.split(',').map(c => c.trim()) })}
                                 required />
                         </div>
-                        <button type="submit" className="confirm-button">Confirm</button>
+                        {movie.id && (
+                            <>
+                                <button type="submit" className="confirm-button">Confirm edit</button>
+                                <button type="button" className='delete-button' onClick={handleDelete}>Delete movie</button>
+                            </>
+                        )
+                        }
+                        {!movie.id && (
+                            <button type="submit" className="confirm-button">Add Movie</button>
+                        )   
+                        }
+                        
                         <button type="button" onClick={handleCancel} className="delete-button">Cancel</button>
                     </form>
                     <div className="movie-poster-preview">
